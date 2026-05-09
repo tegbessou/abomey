@@ -1,18 +1,17 @@
-
 services:
-###> doctrine/doctrine-bundle ###
+  app:
+    volumes:
+      - .:/app
+      - vendor:/app/vendor
+      - caddy_data:/data
+    ports:
+      - "80:80"
+      - "443:443"
+
   database:
     ports:
-      - "5432"
-###< doctrine/doctrine-bundle ###
+      - "3306:3306"
 
-###> symfony/mailer ###
-  mailer:
-    image: axllent/mailpit
-    ports:
-      - "1025"
-      - "8025"
-    environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
-###< symfony/mailer ###
+volumes:
+  vendor:
+  caddy_data:

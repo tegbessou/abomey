@@ -1,0 +1,37 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tests\Unit\Tarot\Domain;
+
+use App\Tarot\Domain\Player\Player;
+use App\Tarot\Domain\Player\PlayerId;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
+
+final class PlayerTest extends TestCase
+{
+    #[Test]
+    public function aPlayerCanBeCreatedWithAValidName(): void
+    {
+        $player = Player::create(PlayerId::fromString('01966000-0000-7000-8000-000000000001'), 'Alice');
+
+        self::assertSame('Alice', $player->getName());
+    }
+
+    #[Test]
+    public function aPlayerCannotBeCreatedWithAnEmptyName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Player::create(PlayerId::fromString('01966000-0000-7000-8000-000000000001'), '');
+    }
+
+    #[Test]
+    public function aPlayerCannotBeCreatedWithAWhitespaceOnlyName(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        Player::create(PlayerId::fromString('01966000-0000-7000-8000-000000000001'), '   ');
+    }
+}

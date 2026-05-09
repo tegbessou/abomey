@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Tarot\Application\CreatePlayer;
+
+use App\Tarot\Domain\Player\Player;
+use App\Tarot\Domain\Player\PlayerId;
+use App\Tarot\Domain\Player\PlayerIdGenerator;
+use App\Tarot\Domain\Player\PlayerRepository;
+use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+
+#[AsMessageHandler(bus: 'command.bus', method: 'handle')]
+final class CreatePlayerCommandHandler
+{
+    public function __construct(
+        private readonly PlayerRepository $players,
+        private readonly PlayerIdGenerator $playerIdGenerator,
+    ) {}
+
+    public function handle(CreatePlayerCommand $command): PlayerId
+    {
+        $id = $this->playerIdGenerator->generate();
+
+        $this->players->create(Player::create($id, $command->name));
+
+        return $id;
+    }
+}
