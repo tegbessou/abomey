@@ -11,11 +11,11 @@ use App\Tarot\Domain\Player\PlayerRepository;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler(bus: 'command.bus', method: 'handle')]
-final class CreatePlayerCommandHandler
+final readonly class CreatePlayerCommandHandler
 {
     public function __construct(
-        private readonly PlayerRepository $players,
-        private readonly PlayerIdGenerator $playerIdGenerator,
+        private PlayerRepository $players,
+        private PlayerIdGenerator $playerIdGenerator,
     ) {}
 
     public function handle(CreatePlayerCommand $command): PlayerId

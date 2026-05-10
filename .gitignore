@@ -27,3 +27,8 @@
 ###> phpstan/phpstan ###
 phpstan.neon
 ###< phpstan/phpstan ###
+
+/.idea/
+/.deptrac.cache
+/.phpunit.result.cache
+/.claude/settings.local.json

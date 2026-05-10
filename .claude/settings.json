@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd $CLAUDE_PROJECT_DIR && if git status --porcelain | grep -qE '\\.php$'; then make quality 1>&2 || exit 2; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

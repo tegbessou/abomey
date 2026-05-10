@@ -41,18 +41,24 @@ ADR existantes pour éviter les contradictions.
   Stimulus pour l'interactivité côté client
 
 Les conventions PHP et Symfony générales vivent dans les skills
-dédiés de Teg (`php-conventions`, `symfony-patterns`), pas dans
-ce CLAUDE.md.
+dédiés de Teg (`php-conventions`, `symfony-conventions`), pas
+dans ce CLAUDE.md.
 
 ## Tests
 
-Le projet exige deux niveaux de tests :
+Le projet exige trois niveaux de tests :
 
 - **Tests unitaires** sur l'intégralité du domaine. Toute règle
   métier formalisée dans `docs/domain.md` ou `docs/scoring.md`
   doit être couverte par un test. Les tests servent de
   spécification exécutable des règles.
-- **Tests end-to-end** sur les pages, avec Symfony Panther.
+- **Tests d'intégration** sur les implémentations
+  d'infrastructure qui touchent à la persistance ou à un
+  adaptateur externe (repositories Doctrine, types Doctrine
+  custom, clients HTTP). Ils utilisent `KernelTestCase` et une
+  base réelle, avec rollback automatique fourni par
+  `dama/doctrine-test-bundle`.
+- **Tests end-to-end** sur les pages, avec Playwright PHP.
   Chaque parcours utilisateur significatif doit avoir un test
   e2e.
 

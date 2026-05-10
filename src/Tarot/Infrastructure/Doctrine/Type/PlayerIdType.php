@@ -15,19 +15,29 @@ final class PlayerIdType extends Type
         return $platform->getStringTypeDeclarationSQL($column);
     }
 
+    #[\Override]
     public function convertToPHPValue(mixed $value, AbstractPlatform $platform): ?PlayerId
     {
         if (null === $value) {
             return null;
         }
 
-        return PlayerId::fromString((string) $value);
+        if (!is_string($value)) {
+            throw new \LogicException('Expected string.');
+        }
+
+        return PlayerId::fromString($value);
     }
 
+    #[\Override]
     public function convertToDatabaseValue(mixed $value, AbstractPlatform $platform): ?string
     {
         if (null === $value) {
             return null;
+        }
+
+        if (!$value instanceof PlayerId) {
+            throw new \LogicException('Expected PlayerId.');
         }
 
         return $value->toString();

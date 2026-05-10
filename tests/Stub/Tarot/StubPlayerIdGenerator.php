@@ -7,10 +7,10 @@ namespace App\Tests\Stub\Tarot;
 use App\Tarot\Domain\Player\PlayerId;
 use App\Tarot\Domain\Player\PlayerIdGenerator;
 
-final class StubPlayerIdGenerator implements PlayerIdGenerator
+final readonly class StubPlayerIdGenerator implements PlayerIdGenerator
 {
     public function __construct(
-        private readonly PlayerId $id,
+        private PlayerId $id,
     ) {}
 
     public function generate(): PlayerId

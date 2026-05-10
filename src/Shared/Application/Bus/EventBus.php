@@ -7,7 +7,7 @@ namespace App\Shared\Application\Bus;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-final class EventBus
+final readonly class EventBus
 {
     public function __construct(
         #[Autowire(service: 'event.bus')]

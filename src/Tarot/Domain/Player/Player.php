@@ -10,18 +10,13 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'players')]
 class Player
 {
-    #[ORM\Id]
-    #[ORM\Column(type: 'player_id', length: 36)]
-    private PlayerId $id;
-
-    #[ORM\Column(type: 'string', length: 255)]
-    private string $name;
-
-    private function __construct(PlayerId $id, string $name)
-    {
-        $this->id = $id;
-        $this->name = $name;
-    }
+    private function __construct(
+        #[ORM\Id]
+        #[ORM\Column(type: 'player_id', length: 36)]
+        private PlayerId $id,
+        #[ORM\Column(type: 'string', length: 255)]
+        private string $name,
+    ) {}
 
     public static function create(PlayerId $id, string $name): self
     {

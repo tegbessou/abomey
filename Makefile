@@ -1,4 +1,4 @@
-.PHONY: build up down restart shell composer-install composer-update migrate unit-test e2e-test playwright-test cs-check cs-fix phpstan rector-check rector-fix deps-check deptrac
+.PHONY: build up down restart shell composer-install composer-update migrate migrate-test unit-test integration-test e2e-test playwright-test cs-check cs-fix phpstan rector-check rector-fix deps-check deptrac quality
 
 ## Project
 build:
@@ -26,9 +26,16 @@ composer-update:
 migrate:
 	@docker compose exec app php bin/console doctrine:migrations:migrate --no-interaction
 
+migrate-test:
+	@docker compose exec app php bin/console doctrine:database:create --env=test --if-not-exists
+	@docker compose exec app php bin/console doctrine:migrations:migrate --env=test --no-interaction
+
 ## Tests
 unit-test:
 	@docker compose exec app php bin/phpunit --testsuite unit
+
+integration-test:
+	@docker compose exec app php bin/phpunit --testsuite integration
 
 e2e-test:
 	@docker compose exec app php bin/phpunit --testsuite e2e
@@ -57,3 +64,5 @@ deps-check:
 
 deptrac:
 	@docker compose exec app vendor/bin/deptrac analyse
+
+quality: cs-check phpstan rector-check deptrac
