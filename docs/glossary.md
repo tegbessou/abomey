@@ -168,16 +168,23 @@ comptabilisées avec les levées du Preneur. Multiplicateur : 4.
 
 ### Joueur [Aggregate Root]
 
-Personne physique qui participe à des Parties. Dans Abomey, le 
-Joueur a une identité globale persistante : il existe en dehors 
-de toute Partie et peut être réutilisé d'une Partie à l'autre.
+Personne physique qui participe à des Parties. Dans Abomey, le
+Joueur a une identité persistante au sein de l'espace de son
+**Utilisateur** propriétaire : il existe en dehors de toute
+Partie et peut être réutilisé d'une Partie à l'autre.
+
+Le Joueur appartient à un et un seul Utilisateur. Il n'est
+visible et modifiable que par celui-ci.
 
 Attributs :
 - Identifiant unique
 - Nom (modifiable)
+- Utilisateur propriétaire (référencé par identifiant)
 
-Le Joueur est un Aggregate Root indépendant. Les Parties et les 
-Donnes le référencent par son identifiant.
+Le Joueur est un Aggregate Root distinct de l'Utilisateur, dont
+il référence l'identifiant pour matérialiser l'appartenance. Les
+Parties et les Donnes référencent le Joueur par son
+identifiant.
 
 ## L
 
@@ -230,25 +237,33 @@ contre les 4 Défenseurs.
 
 ### Partie [Aggregate Root]
 
-Séance de jeu composée de plusieurs **Donnes** successives avec 
-un groupe fixe de **Joueurs**. Une Partie a un début, une fin, 
+Séance de jeu composée de plusieurs **Donnes** successives avec
+un groupe fixe de **Joueurs**. Une Partie a un début, une fin,
 et un état transitoire pendant lequel on y ajoute des Donnes.
+
+La Partie appartient à un et un seul **Utilisateur**. Elle n'est
+visible et modifiable que par celui-ci. Tous les Joueurs
+participants appartiennent au même Utilisateur que la Partie.
 
 Attributs :
 - Identifiant unique
+- Utilisateur propriétaire (référencé par identifiant)
 - Mode de tarot (3, 4 ou 5)
 - Joueurs participants (référencés par leur identifiant)
 - Date de création, date de clôture
 - Donnes (collection)
 
-La Partie est un Aggregate Root. Elle encapsule les Donnes, qui 
-sont des Entities internes. Elle référence les Joueurs par leur 
-identifiant, sans les contenir.
+La Partie est un Aggregate Root. Elle encapsule les Donnes, qui
+sont des Entities internes. Elle référence l'Utilisateur
+propriétaire et les Joueurs par leur identifiant, sans les
+contenir.
 
 Invariants :
-- Le nombre de Joueurs doit être supérieur ou égal au Mode de 
+- Le nombre de Joueurs doit être supérieur ou égal au Mode de
   tarot choisi
 - Une Partie close ne peut plus accueillir de nouvelle Donne
+- Tous les Joueurs participants appartiennent au même
+  Utilisateur propriétaire que la Partie
 
 ### Petit
 
@@ -351,6 +366,43 @@ appelle un Roi pour désigner son **Partenaire**.
 Note : les tournois à 5 joueurs ne sont pas homologables par la 
 FFT, mais les règles FFT existent et sont pratiquées en jeu 
 amical. Abomey s'appuie sur ces règles.
+
+## U
+
+### Utilisateur [Aggregate Root]
+
+Personne qui utilise Abomey. Chaque Utilisateur dispose d'un
+espace personnel strictement isolé contenant ses propres
+**Joueurs** et ses propres **Parties**. Aucune donnée n'est
+partagée entre Utilisateurs.
+
+L'Utilisateur est identifié de manière stable par le couple
+(fournisseur d'identité externe, identifiant unique fourni par
+ce fournisseur). Cet identifiant interne ne change jamais, même
+si l'Utilisateur modifie son nom ou son email chez le
+fournisseur.
+
+Attributs :
+- Identifiant interne unique
+- Fournisseur d'identité (Google ou Apple)
+- Identifiant unique stable fourni par le fournisseur
+- Nom complet (resynchronisé à chaque connexion ; à défaut,
+  « Anonyme »)
+- Email (resynchronisé à chaque connexion)
+
+Cycle de vie : création silencieuse au premier passage par un
+fournisseur d'identité, suppression dure et complète à la
+demande de l'Utilisateur (efface profil, Joueurs, Parties, et
+l'identité chez le fournisseur intermédiaire).
+
+Deux Utilisateurs sont toujours distincts s'ils proviennent de
+fournisseurs différents ou ont des identifiants différents chez
+un même fournisseur, même si le nom ou l'email présentés sont
+identiques. Aucune fusion, automatique ou manuelle, n'est
+proposée.
+
+L'Utilisateur est un Aggregate Root indépendant. Les Joueurs
+et les Parties le référencent par son identifiant interne.
 
 ## V
 

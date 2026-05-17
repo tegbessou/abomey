@@ -1,0 +1,88 @@
+common:
+    back_to_home: "Retour à l'accueil"
+
+home:
+    title: "Abomey"
+    tagline: "Tenez le score de vos parties de tarot entre amis."
+    welcome: "Bienvenue, %name% !"
+    login: "Se connecter"
+    logout: "Se déconnecter"
+    create_game: "Créer une Partie"
+
+game:
+    mode:
+        3: "Tarot à 3"
+        4: "Tarot à 4"
+        5: "Tarot à 5"
+    create:
+        title: "Créer une Partie"
+        no_players_message: "Vous n'avez pas encore de Joueurs dans votre carnet."
+        no_players_hint: "La création de Joueurs depuis ce formulaire arrivera dans une prochaine version."
+        name_label: "Nom de la Partie"
+        name_placeholder: "Soirée chez Paul, vacances 2026…"
+        mode_label: "Mode de tarot"
+        mode_three: "Tarot à 3"
+        mode_three_hint: "3 à 5 Joueurs"
+        mode_four: "Tarot à 4"
+        mode_four_hint: "4 à 6 Joueurs"
+        mode_five: "Tarot à 5"
+        mode_five_hint: "5 à 7 Joueurs"
+        participants_label: "Joueurs participants"
+        participants_hint: "Cochez les Joueurs qui participeront à cette Partie. Le nombre doit correspondre au Mode de tarot choisi."
+        participants_search_placeholder: "Rechercher un Joueur…"
+        participants_no_match: "Aucun Joueur ne correspond à votre recherche."
+        participants_counter_zero: "Aucun Joueur sélectionné"
+        participants_counter_one: "1 Joueur sélectionné"
+        participants_counter_many: "{count} Joueurs sélectionnés"
+        submit: "Créer la Partie"
+        error:
+            empty_name: "Le nom de la Partie ne peut pas être vide."
+            too_few: "Vous n'avez pas sélectionné assez de Joueurs pour ce Mode de tarot."
+            too_many: "Vous avez sélectionné trop de Joueurs pour ce Mode de tarot (maximum : Mode + 2)."
+            duplicate: "Un même Joueur ne peut pas être sélectionné plusieurs fois."
+            not_owned: "Un des Joueurs sélectionnés ne fait pas partie de votre carnet."
+            unknown: "La création de la Partie a échoué pour une raison inconnue."
+    show:
+        participants_title: "Joueurs participants"
+        donnes_placeholder: "La saisie des Donnes arrivera dans une prochaine tranche."
+
+footer:
+    legal_notice: "Mentions légales"
+    privacy_policy: "Politique de confidentialité"
+
+legal_notice:
+    title: "Mentions légales"
+    placeholder_warning: "Ce contenu est un texte temporaire à compléter avant toute mise en service publique."
+    publisher_heading: "Éditeur"
+    publisher_placeholder: "À renseigner : identité du responsable de publication, coordonnées."
+    hosting_heading: "Hébergeur"
+    hosting_placeholder: "À renseigner : identité et coordonnées de l'hébergeur."
+    contact_heading: "Contact"
+    contact_placeholder: "À renseigner : adresse de contact pour toute question relative au site."
+
+privacy_policy:
+    title: "Politique de confidentialité"
+    placeholder_warning: "Ce contenu est un texte temporaire à compléter avant toute mise en service publique."
+    data_collected_heading: "Données collectées"
+    data_collected_placeholder: "À renseigner : nature des données collectées (identifiant stable, nom, email), finalité, durée de conservation, base légale du traitement."
+    processors_heading: "Sous-traitants"
+    processors_placeholder: "À renseigner : sous-traitants utilisés pour le traitement des données."
+    processor_logto: "Logto Cloud (authentification déléguée) — hébergement Union européenne."
+    rights_heading: "Vos droits"
+    rights_placeholder: "À renseigner : droits d'accès, de rectification, d'effacement, modalités d'exercice de ces droits."
+    version_label: "Version du document : %version%"
+
+welcome:
+    title: "Bienvenue sur Abomey"
+    intro: "Avant de créer votre espace personnel, merci de prendre connaissance et d'accepter notre politique de confidentialité."
+    see_full_policy: "Vous pouvez consulter le texte complet dans une nouvelle page :"
+    consent_label: "J'ai lu et j'accepte la politique de confidentialité d'Abomey (version %version%)."
+    submit: "Accepter et continuer"
+
+account:
+    title: "Mon compte"
+    delete_section_title: "Supprimer mon compte"
+    delete_warning: "La suppression de votre compte est définitive. Toutes vos données (profil, Joueurs, Parties à venir) seront effacées sans recours. Vous pourrez vous réinscrire avec le même compte Google ou Apple, mais vous repartirez d'un espace vierge."
+    confirm_label: "Je comprends que cette action est irréversible et je confirme la suppression de mon compte."
+    delete_button: "Supprimer définitivement mon compte"
+    link: "Mon compte"

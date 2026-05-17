@@ -12,9 +12,9 @@ formalisées dans les tests du domaine.
 
 ## Le projet
 
-Abomey est une application personnelle de gestion de parties de
-jeux de cartes à points. La version courante se limite au tarot.
-La belote et la coinche sont évoquées comme extensions possibles
+Abomey est une application web de gestion de parties de jeux
+de cartes à points. La version courante se limite au tarot. La
+belote et la coinche sont évoquées comme extensions possibles
 mais ne font pas partie du périmètre actuel.
 
 Le nom Abomey renvoie à l'ancienne capitale du royaume du Danhomè,
@@ -24,15 +24,28 @@ l'assistant ayant accompagné la conception du projet.
 Abomey remplace une application payante existante dont l'usage
 principal est le comptage des points en fin de donne et le suivi
 d'une partie entre amis. Le projet ne vise pas la simulation du
-jeu de cartes : les cartes ne sont pas modélisées individuellement,
-seuls les résultats des donnes sont saisis et calculés.
+jeu de cartes : les cartes ne sont pas modélisées
+individuellement, seuls les résultats des donnes sont saisis et
+calculés.
+
+L'application est ouverte à l'inscription publique. Chaque
+**Utilisateur** dispose d'un espace personnel strictement isolé
+contenant ses propres **Joueurs** et ses propres **Parties**.
+Aucune donnée n'est partagée entre Utilisateurs.
 
 ## Périmètre fonctionnel
 
 Abomey gère :
 
-- La création et la gestion d'une base de **Joueurs** persistants
-- La création d'une **Partie** avec un groupe de Joueurs
+- L'inscription publique et l'authentification des
+  **Utilisateurs** via un fournisseur d'identité externe
+  (Google ou Apple)
+- L'espace personnel d'un Utilisateur, strictement isolé des
+  espaces des autres Utilisateurs
+- La création et la gestion d'une base de **Joueurs**
+  persistants au sein de l'espace de chaque Utilisateur
+- La création d'une **Partie** avec un groupe de Joueurs de
+  l'Utilisateur
 - La saisie successive des **Donnes** d'une Partie, avec calcul
   automatique des **Scores**
 - Le suivi de l'état courant de la Partie (scores cumulés,
@@ -50,31 +63,61 @@ Abomey ne gère pas :
   est modélisée
 - Les statistiques **cross-parties** : la v1 se limite aux
   statistiques internes à la Partie courante
-- L'**authentification** ou la gestion multi-utilisateurs :
-  l'application est personnelle
+- Les statistiques **cross-Utilisateurs** ni aucun partage de
+  données entre Utilisateurs : l'isolation est totale
 
 ## Concepts centraux
 
-Abomey modélise quatre concepts principaux, articulés en deux
+Abomey modélise cinq concepts principaux, articulés en trois
 Aggregates au sens DDD.
 
-**Joueur** est un Aggregate Root indépendant. Son cycle de vie ne
-dépend d'aucune Partie. Un Joueur peut exister sans jamais avoir
-participé à une Partie. Il a une identité globale persistante et
-un nom modifiable.
+**Utilisateur** est un Aggregate Root indépendant. Il représente
+la personne qui utilise Abomey. Son espace personnel est
+strictement isolé des autres Utilisateurs. Il a une identité
+stable issue d'un fournisseur d'identité externe, un nom et un
+email, tous deux resynchronisés à chaque connexion.
+
+**Joueur** est un Aggregate Root distinct, qui référence
+l'Utilisateur propriétaire par son identifiant. Son cycle de vie
+ne dépend d'aucune Partie. Un Joueur peut exister sans jamais
+avoir participé à une Partie. Il a une identité persistante au
+sein de l'espace de son Utilisateur et un nom modifiable.
 
 **Partie** est un Aggregate Root qui encapsule les Donnes. Elle
-référence les Joueurs par leur identifiant sans les contenir. Une
-Partie a un Mode de tarot fixé à sa création, un groupe de Joueurs
-participants, et une collection ordonnée de Donnes jouées.
+référence l'Utilisateur propriétaire et les Joueurs par leurs
+identifiants, sans les contenir. Une Partie a un Mode de tarot
+fixé à sa création, un groupe de Joueurs participants, et une
+collection ordonnée de Donnes jouées.
 
-**Donne** est une Entity interne à l'Aggregate Partie. Elle n'a de
-sens que dans le contexte de sa Partie. Une Donne porte un type
-(classique ou Vachette), les Joueurs actifs de cette Donne (pour
-gérer le Mort), et les éléments nécessaires au calcul du Score.
+**Donne** est une Entity interne à l'Aggregate Partie. Elle n'a
+de sens que dans le contexte de sa Partie. Une Donne porte un
+type (classique ou Vachette), les Joueurs actifs de cette Donne
+(pour gérer le Mort), et les éléments nécessaires au calcul du
+Score.
 
 **Score** est un Value Object calculé à partir d'une Donne. Il
 porte les résultats chiffrés par Joueur pour cette Donne.
+
+## Cycle de vie d'un Utilisateur
+
+Un Utilisateur est créé silencieusement la première fois qu'une
+personne complète une authentification réussie auprès d'un
+fournisseur d'identité (Google ou Apple). Aucune saisie
+supplémentaire n'est demandée : les attributs nécessaires
+(identifiant stable, nom, email) sont récupérés auprès du
+fournisseur.
+
+À chaque connexion ultérieure, le nom et l'email sont
+resynchronisés depuis le fournisseur, qui fait foi.
+
+Tant qu'il n'a pas supprimé son compte, l'Utilisateur peut se
+déconnecter et se reconnecter librement sans perdre ses
+données. La session reste valide pendant 30 jours d'inactivité.
+
+L'Utilisateur peut, à tout moment, supprimer son compte depuis
+son espace personnel. La suppression est dure et complète :
+profil, Joueurs, Parties et identité chez le fournisseur
+d'identité intermédiaire sont effacés sans recours.
 
 ## Cycle de vie d'une Partie
 
@@ -120,6 +163,15 @@ Les Joueurs Morts de cette Donne ne reçoivent ni ne perdent de
 points.
 
 ## Règles métier structurantes
+
+### Règles d'isolation et de propriété
+
+- Chaque Joueur appartient à un et un seul Utilisateur.
+- Chaque Partie appartient à un et un seul Utilisateur.
+- Tous les Joueurs participants à une Partie appartiennent au
+  même Utilisateur que la Partie.
+- Aucun accès, direct ou indirect, aux Joueurs ou aux Parties
+  d'un autre Utilisateur n'est possible.
 
 ### Règles générales des Parties
 
@@ -186,13 +238,47 @@ Abomey.
 
 Abomey suit l'architecture définie dans le CLAUDE.md utilisateur
 de Teg : hexagonale avec couches internes (Domain, Application,
-Infrastructure, UI), ubiquitous language aligné sur la FFT, tests
-comme spécification exécutable.
+Infrastructure, UI), ubiquitous language aligné sur la FFT,
+tests comme spécification exécutable.
 
-Le domaine distingue volontairement deux Aggregates (Joueur et
-Partie) plutôt qu'un seul. Cette séparation reflète la différence
-de cycle de vie : un Joueur existe indépendamment de toute Partie,
-une Donne n'existe que dans le contexte de sa Partie.
+Le domaine distingue volontairement trois Aggregates
+(Utilisateur, Joueur, Partie) plutôt qu'un seul englobant. Cette
+séparation reflète la différence de cycle de vie : un Utilisateur
+existe avant tout Joueur, un Joueur existe indépendamment de
+toute Partie, une Donne n'existe que dans le contexte de sa
+Partie. Les références inter-aggregates se font par identifiant,
+jamais par contenance directe.
+
+Les Aggregates sont répartis dans deux bounded contexts
+distincts :
+
+- **`Account`** : héberge l'Aggregate Utilisateur. Couvre
+  l'identité, l'authentification déléguée, la conformité RGPD
+  et la suppression de compte.
+- **`Tarot`** : héberge les Aggregates Joueur et Partie, et
+  l'Entity Donne. Couvre tout ce qui touche au jeu lui-même.
+
+La séparation reflète l'autonomie des deux ensembles : l'identité
+et l'authentification n'ont aucun vocabulaire métier ni invariant
+commun avec le tarot. Cette position s'aligne sur la pratique
+DDD rigoureuse (Vernon, _Implementing DDD_, ch. 4) qui prescrit
+un bounded context « Identity & Access » distinct du contexte
+métier principal.
+
+Conséquences pratiques de cette séparation :
+
+- Pas de référence directe entre Aggregates de BCs distincts.
+  Joueur et Partie portent l'identifiant de l'Utilisateur
+  propriétaire (UserId) comme valeur primitive, sans navigation
+  directe vers l'Aggregate Utilisateur.
+- Aucune contrainte d'intégrité référentielle (foreign key) au
+  niveau de la base entre les tables des deux bounded contexts.
+  La cohérence est gérée au niveau applicatif : les handlers
+  s'appuient sur l'identifiant fourni par la couche
+  d'authentification, et les cascades inter-BCs (par exemple la
+  suppression des Joueurs et Parties d'un Utilisateur supprimé)
+  passent par des domain events publiés par un BC et consommés
+  par l'autre.
 
 Le Pli n'est pas modélisé comme concept. C'est un choix assumé de
 niveau de granularité : Abomey s'arrête à la Donne comme unité
@@ -206,11 +292,9 @@ Cette section documente les extensions envisagées pour éviter la
 confusion entre "non fait par oubli" et "non fait par choix".
 
 - Statistiques cross-parties (agrégation des performances d'un
-  Joueur sur l'ensemble de ses Parties)
+  Joueur sur l'ensemble des Parties de son Utilisateur)
 - Support des autres jeux (belote, coinche) — décision
   architecturale à trancher le moment venu
 - Gestion du Contrat Prise si un besoin réel émerge
-- Authentification et mode multi-utilisateurs si l'application
-  devient partagée
 - Clôture explicite de Partie et historique avec recherche
 - Export ou impression des scores d'une Partie

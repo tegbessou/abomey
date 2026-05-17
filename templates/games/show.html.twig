@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ game.name }} — Abomey{% endblock %}
+
+{% block body %}
+    <section class="game-hero">
+        <span class="game-mode-badge">{{ ('game.mode.' ~ game.mode)|trans }}</span>
+        <h1>{{ game.name }}</h1>
+    </section>
+
+    <section>
+        <h2>{{ 'game.show.participants_title'|trans }}</h2>
+        <ul class="participant-list">
+            {% for name in game.participantNames %}
+                <li class="participant-chip">{{ name }}</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <article class="placeholder-card">
+        <p class="muted">{{ 'game.show.donnes_placeholder'|trans }}</p>
+    </article>
+
+    <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+{% endblock %}

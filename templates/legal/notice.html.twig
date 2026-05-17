@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'legal_notice.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'legal_notice.title'|trans }}</h1>
+
+    <p><em>{{ 'legal_notice.placeholder_warning'|trans }}</em></p>
+
+    <h2>{{ 'legal_notice.publisher_heading'|trans }}</h2>
+    <p>{{ 'legal_notice.publisher_placeholder'|trans }}</p>
+
+    <h2>{{ 'legal_notice.hosting_heading'|trans }}</h2>
+    <p>{{ 'legal_notice.hosting_placeholder'|trans }}</p>
+
+    <h2>{{ 'legal_notice.contact_heading'|trans }}</h2>
+    <p>{{ 'legal_notice.contact_placeholder'|trans }}</p>
+
+    <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+{% endblock %}

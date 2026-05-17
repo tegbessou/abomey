@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'welcome.title'|trans }}{% endblock %}
+
+{% block body %}
+    <section>
+        <h1>{{ 'welcome.title'|trans }}</h1>
+        <p>{{ 'welcome.intro'|trans }}</p>
+        <p>
+            {{ 'welcome.see_full_policy'|trans }}
+            <a href="{{ path('app_privacy_policy') }}" target="_blank" rel="noopener">{{ 'footer.privacy_policy'|trans }}</a>.
+        </p>
+
+        {{ form_start(form) }}
+            {{ form_row(form.accepted) }}
+            <button type="submit">{{ 'welcome.submit'|trans }}</button>
+        {{ form_end(form) }}
+    </section>
+{% endblock %}

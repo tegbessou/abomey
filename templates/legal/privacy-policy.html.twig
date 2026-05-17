@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'privacy_policy.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'privacy_policy.title'|trans }}</h1>
+
+    <p><em>{{ 'privacy_policy.placeholder_warning'|trans }}</em></p>
+
+    <h2>{{ 'privacy_policy.data_collected_heading'|trans }}</h2>
+    <p>{{ 'privacy_policy.data_collected_placeholder'|trans }}</p>
+
+    <h2>{{ 'privacy_policy.processors_heading'|trans }}</h2>
+    <p>{{ 'privacy_policy.processors_placeholder'|trans }}</p>
+    <ul>
+        <li>{{ 'privacy_policy.processor_logto'|trans }}</li>
+    </ul>
+
+    <h2>{{ 'privacy_policy.rights_heading'|trans }}</h2>
+    <p>{{ 'privacy_policy.rights_placeholder'|trans }}</p>
+
+    <p><small>{{ 'privacy_policy.version_label'|trans({'%version%': privacy_policy_version}) }}</small></p>
+
+    <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+{% endblock %}

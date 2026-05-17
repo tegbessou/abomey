@@ -14,7 +14,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 final readonly class CreatePlayerCommandHandler
 {
     public function __construct(
-        private PlayerRepository $players,
+        private PlayerRepository $playerRepository,
         private PlayerIdGenerator $playerIdGenerator,
     ) {}
 
@@ -22,7 +22,7 @@ final readonly class CreatePlayerCommandHandler
     {
         $id = $this->playerIdGenerator->generate();
 
-        $this->players->create(Player::create($id, $command->name));
+        $this->playerRepository->create(Player::create($id, $command->ownerId, $command->name));
 
         return $id;
     }

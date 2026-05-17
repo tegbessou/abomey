@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tarot\Domain\Player;
 
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
@@ -14,22 +15,29 @@ class Player
         #[ORM\Id]
         #[ORM\Column(type: 'player_id', length: 36)]
         private PlayerId $id,
-        #[ORM\Column(type: 'string', length: 255)]
+        #[ORM\Column(name: 'owner_id', type: Types::STRING, length: 36)]
+        private string $owner,
+        #[ORM\Column(type: Types::STRING, length: 255)]
         private string $name,
     ) {}
 
-    public static function create(PlayerId $id, string $name): self
+    public static function create(PlayerId $id, string $owner, string $name): self
     {
         if ('' === trim($name)) {
             throw new \InvalidArgumentException('Player name cannot be empty.');
         }
 
-        return new self($id, $name);
+        return new self($id, $owner, $name);
     }
 
     public function getId(): PlayerId
     {
         return $this->id;
+    }
+
+    public function getOwner(): string
+    {
+        return $this->owner;
     }
 
     public function getName(): string

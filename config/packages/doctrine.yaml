@@ -4,6 +4,9 @@ doctrine:
         profiling_collect_backtrace: '%kernel.debug%'
         types:
             player_id: App\Tarot\Infrastructure\Doctrine\Type\PlayerIdType
+            game_id: App\Tarot\Infrastructure\Doctrine\Type\GameIdType
+            user_id: App\Account\Infrastructure\Doctrine\Type\UserIdType
+            email: App\Account\Infrastructure\Doctrine\Type\EmailType
 
     orm:
         naming_strategy: doctrine.orm.naming_strategy.underscore

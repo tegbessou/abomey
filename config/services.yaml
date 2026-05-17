@@ -18,6 +18,20 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/*/Domain/'
+
+    # explicit bindings: Domain interfaces -> Infrastructure implementations
+    # required because the Domain is excluded from the auto-discovered services
+    App\Account\Domain\User\UserRepository: '@App\Account\Infrastructure\Doctrine\Repository\DoctrineUserRepository'
+    App\Account\Domain\User\UserIdGenerator: '@App\Account\Infrastructure\Uid\SymfonyUserIdGenerator'
+    App\Tarot\Domain\Player\PlayerRepository: '@App\Tarot\Infrastructure\Doctrine\Repository\DoctrinePlayerRepository'
+    App\Tarot\Domain\Player\PlayerIdGenerator: '@App\Tarot\Infrastructure\Uid\SymfonyPlayerIdGenerator'
+    App\Tarot\Domain\Game\GameRepository: '@App\Tarot\Infrastructure\Doctrine\Repository\DoctrineGameRepository'
+    App\Tarot\Domain\Game\GameIdGenerator: '@App\Tarot\Infrastructure\Uid\SymfonyGameIdGenerator'
+
+    # explicit bindings: Application ports -> Infrastructure implementations
+    App\Account\Application\Auth\SignInUrlProvider: '@App\Account\Infrastructure\Logto\LogtoSignInUrlProvider'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

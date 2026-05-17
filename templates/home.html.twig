@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'home.title'|trans }}{% endblock %}
+
+{% block body %}
+    <section class="home-hero">
+        <h1>Abomey</h1>
+        {% if app.user %}
+            <p>{{ 'home.welcome'|trans({'%name%': displayName}) }}</p>
+            <p>
+                <a href="{{ path('app_game_new') }}" role="button">{{ 'home.create_game'|trans }}</a>
+            </p>
+            <p>
+                <a href="{{ path('app_account') }}" role="button" class="secondary outline">{{ 'account.link'|trans }}</a>
+                <a href="{{ path('app_logout') }}" role="button" class="secondary">{{ 'home.logout'|trans }}</a>
+            </p>
+        {% else %}
+            <p>{{ 'home.tagline'|trans }}</p>
+            <p><a href="{{ path('app_login') }}" role="button">{{ 'home.login'|trans }}</a></p>
+        {% endif %}
+    </section>
+{% endblock %}

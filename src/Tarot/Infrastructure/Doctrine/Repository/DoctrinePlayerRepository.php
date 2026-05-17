@@ -21,8 +21,67 @@ final readonly class DoctrinePlayerRepository implements PlayerRepository
         $this->entityManager->flush();
     }
 
-    public function ofId(PlayerId $id): ?Player
+    public function ofId(PlayerId $id, string $owner): ?Player
     {
-        return $this->entityManager->find(Player::class, $id);
+        $result = $this->entityManager->createQueryBuilder()
+            ->select('p')
+            ->from(Player::class, 'p')
+            ->where('p.id = :id')
+            ->andWhere('p.owner = :owner')
+            ->setParameter('id', $id)
+            ->setParameter('owner', $owner)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$result instanceof Player) {
+            return null;
+        }
+
+        return $result;
+    }
+
+    public function ofIds(array $ids, string $owner): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        /** @var list<Player> $players */
+        $players = $this->entityManager->createQueryBuilder()
+            ->select('p')
+            ->from(Player::class, 'p')
+            ->where('p.id IN (:ids)')
+            ->andWhere('p.owner = :owner')
+            ->setParameter('ids', $ids)
+            ->setParameter('owner', $owner)
+            ->getQuery()
+            ->getResult();
+
+        return $players;
+    }
+
+    public function allOf(string $owner): array
+    {
+        /** @var list<Player> $players */
+        $players = $this->entityManager->createQueryBuilder()
+            ->select('p')
+            ->from(Player::class, 'p')
+            ->where('p.owner = :owner')
+            ->orderBy('p.name', 'ASC')
+            ->setParameter('owner', $owner)
+            ->getQuery()
+            ->getResult();
+
+        return $players;
+    }
+
+    public function deleteAllOf(string $owner): void
+    {
+        $this->entityManager->createQueryBuilder()
+            ->delete(Player::class, 'p')
+            ->where('p.owner = :owner')
+            ->setParameter('owner', $owner)
+            ->getQuery()
+            ->execute();
     }
 }

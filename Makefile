@@ -1,4 +1,4 @@
-.PHONY: build up down restart shell composer-install composer-update migrate migrate-test unit-test integration-test e2e-test playwright-test cs-check cs-fix phpstan rector-check rector-fix deps-check deptrac quality
+.PHONY: build up down restart shell composer-install composer-update migrate migrate-test unit-test integration-test e2e-test panther-test cs-check cs-fix phpstan rector-check rector-fix deps-check deptrac quality
 
 ## Project
 build:
@@ -40,8 +40,8 @@ integration-test:
 e2e-test:
 	@docker compose exec app php bin/phpunit --testsuite e2e
 
-playwright-test:
-	@docker compose exec app php bin/phpunit --testsuite playwright
+panther-test:
+	@docker compose exec app php bin/phpunit --configuration phpunit.panther.xml.dist
 
 ## Quality
 cs-check:
@@ -51,7 +51,7 @@ cs-fix:
 	@docker compose exec app vendor/bin/php-cs-fixer fix
 
 phpstan:
-	@docker compose exec app vendor/bin/phpstan analyse -c phpstan.dist.neon
+	@docker compose exec app php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.dist.neon
 
 rector-check:
 	@docker compose exec app vendor/bin/rector process --dry-run

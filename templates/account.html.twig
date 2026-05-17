@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'account.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'account.title'|trans }}</h1>
+
+    <section>
+        <h2>{{ 'account.delete_section_title'|trans }}</h2>
+        <p>{{ 'account.delete_warning'|trans }}</p>
+
+        {{ form_start(form) }}
+            {{ form_row(form.confirmed) }}
+            <button type="submit" class="contrast">{{ 'account.delete_button'|trans }}</button>
+        {{ form_end(form) }}
+    </section>
+
+    <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+{% endblock %}

@@ -9,3 +9,24 @@
 
 controllers:
     resource: routing.controllers
+
+# Routes intercepted by Symfony Security:
+# - app_auth_callback is handled by LogtoAuthenticator (the RedirectController
+#   below is only a fallback if Security is misconfigured and does not match).
+# - app_logout is handled by the firewall logout listener (the RedirectController
+#   below is only a fallback for the same reason).
+app_auth_callback:
+    path: /auth/callback
+    methods: GET
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: app_home
+        permanent: false
+
+app_logout:
+    path: /logout
+    methods: GET
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: app_home
+        permanent: false

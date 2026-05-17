@@ -1461,45 +1461,20 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     enable_static_query_cache?: bool|Param, // Default: true
  *     connection_keys?: list<mixed>,
  * }
- * @psalm-type PlaywrightConfig = array{
- *     enabled?: bool|Param, // Enable Playwright Symfony integration // Default: true
- *     intercepted_hosts?: list<scalar|Param|null>,
- *     debug?: bool|Param, // Enable debug mode for Playwright integration // Default: "%kernel.debug%"
- *     node_path?: scalar|Param|null, // Global default path to Node.js executable (can be overridden per browser) // Default: "node"
- *     default_browser?: scalar|Param|null, // Name of the default Playwright browser to autowire // Default: "default"
- *     base_url?: scalar|Param|null, // Base URL used when Playwright builds absolute URLs during tests // Default: "%env(PLAYWRIGHT_BASE_URL)%"
- *     debug_logging?: bool|Param, // Enable verbose Playwright logging without requiring environment variables // Default: false
- *     browsers?: array<string, array{ // Default: {"default":{"type":"chromium","headless":true,"timeout_ms":30000,"slowmo_ms":0,"args":[],"env":[]}}
- *         type?: "chromium"|"firefox"|"webkit"|Param, // Browser engine type // Default: "chromium"
- *         channel?: scalar|Param|null, // Default: null
- *         headless?: bool|Param, // Default: true
- *         timeout_ms?: int|Param, // Default: 30000
- *         slowmo_ms?: int|Param, // Default: 0
- *         args?: list<scalar|Param|null>,
- *         env?: array<string, scalar|Param|null>,
- *         node_path?: scalar|Param|null, // Override global node_path for this browser // Default: null
- *         min_node_version?: scalar|Param|null, // Default: "18.0.0"
- *         downloads_dir?: scalar|Param|null, // Default: null
- *         videos_dir?: scalar|Param|null, // Default: null
- *         screenshot_dir?: scalar|Param|null, // Default: null
- *         tracing?: array{
- *             enabled?: bool|Param, // Default: false
- *             dir?: scalar|Param|null, // Default: null
- *             screenshots?: bool|Param, // Default: false
- *             snapshots?: bool|Param, // Default: false
- *         },
- *         proxy?: array{
- *             server?: scalar|Param|null,
- *             username?: scalar|Param|null, // Default: null
- *             password?: scalar|Param|null, // Default: null
- *             bypass?: scalar|Param|null, // Default: null
- *         },
+ * @psalm-type TwigComponentConfig = array{
+ *     defaults?: array<string, string|array{ // Default: []
+ *         template_directory?: scalar|Param|null, // Default: "components"
+ *         name_prefix?: scalar|Param|null, // Default: ""
  *     }>,
- *     assets?: array{ // Asset handling configuration used by the in-process dev server bridge
- *         public_roots?: list<scalar|Param|null>,
- *         prefixes?: list<scalar|Param|null>,
- *         disable_cache?: bool|Param, // Disable HTTP caching of assets served via the bridge (useful for tests) // Default: true
+ *     anonymous_template_directory?: scalar|Param|null, // Defaults to `components`
+ *     profiler?: bool|array{ // Enables the profiler for Twig Component
+ *         enabled?: bool|Param, // Default: "%kernel.debug%"
+ *         collect_components?: bool|Param, // Collect components instances // Default: true
  *     },
+ * }
+ * @psalm-type LiveComponentConfig = array{
+ *     secret?: scalar|Param|null, // The secret used to compute fingerprints and checksums // Default: "%kernel.secret%"
+ *     fetch_credentials?: "same-origin"|"include"|"omit"|Param, // The default fetch credentials mode for all Live Components ('same-origin', 'include', 'omit') // Default: "same-origin"
  * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
@@ -1514,6 +1489,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     twig_extra?: TwigExtraConfig,
  *     security?: SecurityConfig,
  *     monolog?: MonologConfig,
+ *     twig_component?: TwigComponentConfig,
+ *     live_component?: LiveComponentConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1530,7 +1507,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
  *         maker?: MakerConfig,
- *         playwright?: PlaywrightConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1545,6 +1523,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_extra?: TwigExtraConfig,
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1561,7 +1541,8 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         security?: SecurityConfig,
  *         monolog?: MonologConfig,
  *         dama_doctrine_test?: DamaDoctrineTestConfig,
- *         playwright?: PlaywrightConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

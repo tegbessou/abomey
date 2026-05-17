@@ -15,17 +15,38 @@ use PHPUnit\Framework\TestCase;
 final class CreatePlayerCommandHandlerTest extends TestCase
 {
     #[Test]
-    public function itCreatesAPlayerSavesItAndReturnsItsId(): void
+    public function itCreatesAPlayerForTheGivenOwnerAndReturnsItsId(): void
     {
         $expectedId = PlayerId::fromString('01966000-0000-7000-8000-000000000001');
-        $repository = new InMemoryPlayerRepository();
-        $handler = new CreatePlayerCommandHandler($repository, new StubPlayerIdGenerator($expectedId));
+        $playerRepository = new InMemoryPlayerRepository();
+        $handler = new CreatePlayerCommandHandler($playerRepository, new StubPlayerIdGenerator($expectedId));
 
-        $returnedId = $handler->handle(new CreatePlayerCommand('Alice'));
+        $returnedId = $handler->handle(new CreatePlayerCommand(
+            ownerId: 'owner-user-id',
+            name: 'Alice',
+        ));
 
         self::assertSame('01966000-0000-7000-8000-000000000001', $returnedId->toString());
-        $savedPlayer = $repository->ofId($returnedId);
+        $savedPlayer = $playerRepository->ofId($returnedId, 'owner-user-id');
         self::assertNotNull($savedPlayer);
         self::assertSame('Alice', $savedPlayer->getName());
+        self::assertSame('owner-user-id', $savedPlayer->getOwner());
+    }
+
+    #[Test]
+    public function aPlayerIsNotVisibleToADifferentOwner(): void
+    {
+        $expectedId = PlayerId::fromString('01966000-0000-7000-8000-000000000002');
+        $playerRepository = new InMemoryPlayerRepository();
+        $handler = new CreatePlayerCommandHandler($playerRepository, new StubPlayerIdGenerator($expectedId));
+
+        $returnedId = $handler->handle(new CreatePlayerCommand(
+            ownerId: 'owner-user-id',
+            name: 'Alice',
+        ));
+
+        $accessAttempt = $playerRepository->ofId($returnedId, 'another-user-id');
+
+        self::assertNull($accessAttempt);
     }
 }

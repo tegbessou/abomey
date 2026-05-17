@@ -32,3 +32,4 @@ deptrac:
       - Application
     UI:
       - Application
+      - Domain

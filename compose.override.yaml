@@ -2,7 +2,6 @@ services:
   app:
     volumes:
       - .:/app
-      - vendor:/app/vendor
       - caddy_data:/data
     ports:
       - "80:80"
@@ -13,5 +12,4 @@ services:
       - "3306:3306"
 
 volumes:
-  vendor:
   caddy_data:

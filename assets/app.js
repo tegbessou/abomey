@@ -1,3 +1,4 @@
+import '@picocss/pico/css/pico.min.css';
 import './stimulus_bootstrap.js';
 /*
  * Welcome to your app's main JavaScript file!

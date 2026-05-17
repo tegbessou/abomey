@@ -21,9 +21,6 @@
         <testsuite name="e2e">
             <directory>tests/E2e</directory>
         </testsuite>
-        <testsuite name="playwright">
-            <directory>tests/Playwright</directory>
-        </testsuite>
     </testsuites>
 
     <extensions>

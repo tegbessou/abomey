@@ -2,9 +2,14 @@
 
 ## Nature du projet
 
-Abomey est une application personnelle de gestion de parties de
-jeux de cartes à points, centrée actuellement sur le tarot. C'est
-un projet non authentifié, à usage solo ou en groupe restreint.
+Abomey est une application web de gestion de parties de jeux
+de cartes à points, centrée actuellement sur le tarot.
+L'inscription est publique et ouverte. Chaque Utilisateur
+dispose d'un espace personnel isolé contenant ses propres
+Joueurs et ses propres Parties. L'authentification est déléguée
+à des fournisseurs d'identité externes (Google et Apple) via un
+service intermédiaire d'authentification documenté dans une ADR
+dédiée.
 
 Le domaine, le vocabulaire métier et les choix de modélisation
 sont décrits dans les documents de `docs/` (voir ci-dessous). Ce

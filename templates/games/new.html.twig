@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'game.create.title'|trans }}{% endblock %}
+
+{% block body %}
+    <h1>{{ 'game.create.title'|trans }}</h1>
+
+    <twig:CreateGameForm ownerId="{{ ownerId }}" />
+
+    <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+{% endblock %}

@@ -12,10 +12,15 @@ use PHPUnit\Framework\TestCase;
 final class PlayerTest extends TestCase
 {
     #[Test]
-    public function aPlayerCanBeCreatedWithAValidName(): void
+    public function aPlayerCanBeCreatedWithAnOwnerAndAValidName(): void
     {
-        $player = Player::create(PlayerId::fromString('01966000-0000-7000-8000-000000000001'), 'Alice');
+        $player = Player::create(
+            PlayerId::fromString('01966000-0000-7000-8000-000000000001'),
+            'owner-user-id',
+            'Alice',
+        );
 
+        self::assertSame('owner-user-id', $player->getOwner());
         self::assertSame('Alice', $player->getName());
     }
 
@@ -24,7 +29,11 @@ final class PlayerTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        Player::create(PlayerId::fromString('01966000-0000-7000-8000-000000000001'), '');
+        Player::create(
+            PlayerId::fromString('01966000-0000-7000-8000-000000000001'),
+            'owner-user-id',
+            '',
+        );
     }
 
     #[Test]
@@ -32,6 +41,10 @@ final class PlayerTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        Player::create(PlayerId::fromString('01966000-0000-7000-8000-000000000001'), '   ');
+        Player::create(
+            PlayerId::fromString('01966000-0000-7000-8000-000000000001'),
+            'owner-user-id',
+            '   ',
+        );
     }
 }
