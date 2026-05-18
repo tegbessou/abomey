@@ -3,52 +3,47 @@
         <article class="flash flash--error">{{ errorKey|trans }}</article>
     {% endif %}
 
-    {% if this.players() is empty %}
-        <article class="empty-state">
-            <p>{{ 'game.create.no_players_message'|trans }}</p>
-            <p class="muted">{{ 'game.create.no_players_hint'|trans }}</p>
-        </article>
-    {% else %}
-        {{ form_start(form, {
-            'attr': {
-                'class': 'game-form',
-                'data-action': 'live#action:prevent',
-                'data-live-action-param': 'submit',
-            }
-        }) }}
-            {{ form_errors(form) }}
+    {{ form_start(form, {
+        'attr': {
+            'class': 'game-form',
+            'data-action': 'live#action:prevent',
+            'data-live-action-param': 'submit',
+        }
+    }) }}
+        {{ form_errors(form) }}
 
-            <fieldset>
-                <label for="{{ form.name.vars.id }}">{{ form.name.vars.label|trans }}</label>
-                {{ form_widget(form.name) }}
-                {{ form_errors(form.name) }}
-            </fieldset>
+        <fieldset>
+            <label for="{{ form.name.vars.id }}">{{ form.name.vars.label|trans }}</label>
+            {{ form_widget(form.name) }}
+            {{ form_errors(form.name) }}
+        </fieldset>
 
-            <fieldset>
-                <legend>{{ 'game.create.mode_label'|trans }}</legend>
-                <div class="mode-grid">
-                    {% for child in form.mode %}
-                        <label class="mode-option">
-                            {{ form_widget(child) }}
-                            <span class="mode-card">
-                                <strong>{{ child.vars.label|trans }}</strong>
-                                <small>{{ ('game.create.mode_' ~ (child.vars.value == '3' ? 'three' : (child.vars.value == '4' ? 'four' : 'five')) ~ '_hint')|trans }}</small>
-                            </span>
-                        </label>
-                    {% endfor %}
-                </div>
-                {{ form_errors(form.mode) }}
-            </fieldset>
+        <fieldset>
+            <legend>{{ 'game.create.mode_label'|trans }}</legend>
+            <div class="mode-grid">
+                {% for child in form.mode %}
+                    <label class="mode-option">
+                        {{ form_widget(child) }}
+                        <span class="mode-card">
+                            <strong>{{ child.vars.label|trans }}</strong>
+                            <small>{{ ('game.create.mode_' ~ (child.vars.value == '3' ? 'three' : (child.vars.value == '4' ? 'four' : 'five')) ~ '_hint')|trans }}</small>
+                        </span>
+                    </label>
+                {% endfor %}
+            </div>
+            {{ form_errors(form.mode) }}
+        </fieldset>
 
-            <fieldset
-                data-controller="participant-filter"
-                data-participant-filter-counter-zero-value="{{ 'game.create.participants_counter_zero'|trans }}"
-                data-participant-filter-counter-one-value="{{ 'game.create.participants_counter_one'|trans }}"
-                data-participant-filter-counter-many-value="{{ 'game.create.participants_counter_many'|trans }}"
-            >
-                <legend>{{ 'game.create.participants_label'|trans }}</legend>
-                <p class="muted">{{ 'game.create.participants_hint'|trans }}</p>
+        <fieldset
+            data-controller="participant-filter"
+            data-participant-filter-counter-zero-value="{{ 'game.create.participants_counter_zero'|trans }}"
+            data-participant-filter-counter-one-value="{{ 'game.create.participants_counter_one'|trans }}"
+            data-participant-filter-counter-many-value="{{ 'game.create.participants_counter_many'|trans }}"
+        >
+            <legend>{{ 'game.create.participants_label'|trans }}</legend>
+            <p class="muted">{{ 'game.create.participants_hint'|trans }}</p>
 
+            <div class="participants-toolbar">
                 <input
                     type="search"
                     class="participant-search"
@@ -57,8 +52,19 @@
                     data-action="input->participant-filter#filter"
                 >
 
-                <p class="participant-counter muted" data-participant-filter-target="counter"></p>
+                <button
+                    type="button"
+                    class="participant-add"
+                    data-action="live#action"
+                    data-live-action-param="openModal"
+                >{{ 'game.create.add_player_button'|trans }}</button>
+            </div>
 
+            <p class="participant-counter muted" data-participant-filter-target="counter"></p>
+
+            {% if this.players() is empty %}
+                <p class="participant-empty muted">{{ 'game.create.no_players_yet'|trans }}</p>
+            {% else %}
                 <div class="participant-list">
                     {% for child in form.participants %}
                         <label class="participant-option" data-participant-filter-target="option">
@@ -71,11 +77,20 @@
                 <p class="participant-empty muted" data-participant-filter-target="empty" hidden>
                     {{ 'game.create.participants_no_match'|trans }}
                 </p>
+            {% endif %}
 
-                {{ form_errors(form.participants) }}
-            </fieldset>
+            {{ form_errors(form.participants) }}
+        </fieldset>
 
-            <button type="submit">{{ 'game.create.submit'|trans }}</button>
-        {{ form_end(form) }}
-    {% endif %}
+        <button type="submit">{{ 'game.create.submit'|trans }}</button>
+    {{ form_end(form) }}
+
+    <twig:Modal
+        :open="isModalOpen"
+        title="{{ 'game.create.modal.title'|trans }}"
+        data-action="modal:close->live#action"
+        data-live-action-param="closeModal"
+    >
+        <twig:CreatePlayerForm :ownerId="ownerId" />
+    </twig:Modal>
 </div>

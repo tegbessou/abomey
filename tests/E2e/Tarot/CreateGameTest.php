@@ -14,7 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 final class CreateGameTest extends WebTestCase
 {
     #[Test]
-    public function theFormShowsAnEmptyStateWhenTheUserHasNoPlayers(): void
+    public function theFormInvitesTheUserToAddPlayersWhenHeHasNone(): void
     {
         $client = static::createClient();
         $container = static::getContainer();
@@ -37,6 +37,7 @@ final class CreateGameTest extends WebTestCase
         $client->request('GET', '/games/new');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('.empty-state', 'pas encore de Joueurs');
+        self::assertSelectorTextContains('.participant-empty', 'Aucun Joueur dans votre carnet');
+        self::assertSelectorExists('button.participant-add');
     }
 }

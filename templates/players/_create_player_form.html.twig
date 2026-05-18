@@ -1,0 +1,27 @@
+<div {{ attributes.defaults({ 'class': 'create-player-form' }) }}>
+    {% if errorKey %}
+        <p class="flash flash--error">{{ errorKey|trans }}</p>
+    {% endif %}
+
+    {{ form_start(form, {
+        'attr': {
+            'class': 'modal-form',
+            'data-action': 'live#action:prevent',
+            'data-live-action-param': 'submit',
+        }
+    }) }}
+        <label for="{{ form.name.vars.id }}">{{ form.name.vars.label|trans }}</label>
+        {{ form_widget(form.name) }}
+        {{ form_errors(form.name) }}
+
+        <footer class="modal-actions">
+            <button
+                type="button"
+                class="secondary"
+                data-action="live#action"
+                data-live-action-param="cancel"
+            >{{ 'player.create.cancel'|trans }}</button>
+            <button type="submit">{{ 'player.create.submit'|trans }}</button>
+        </footer>
+    {{ form_end(form) }}
+</div>

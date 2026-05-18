@@ -63,7 +63,7 @@ Le projet exige trois niveaux de tests :
   custom, clients HTTP). Ils utilisent `KernelTestCase` et une
   base réelle, avec rollback automatique fourni par
   `dama/doctrine-test-bundle`.
-- **Tests end-to-end** sur les pages, avec Playwright PHP.
+- **Tests end-to-end** sur les pages, avec Panther.
   Chaque parcours utilisateur significatif doit avoir un test
   e2e.
 

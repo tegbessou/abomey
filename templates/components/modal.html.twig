@@ -1,0 +1,16 @@
+<dialog
+    {{ attributes.defaults({
+        'data-controller': 'modal',
+        'data-modal-open-value': open ? 'true' : 'false',
+        'class': 'modal',
+    }) }}
+>
+    <article class="modal-content">
+        {% if title is not empty %}
+            <header class="modal-header">
+                <h2>{{ title }}</h2>
+            </header>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </article>
+</dialog>

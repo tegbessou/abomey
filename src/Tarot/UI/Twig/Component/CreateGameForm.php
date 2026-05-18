@@ -23,6 +23,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
+use Symfony\UX\LiveComponent\Attribute\LiveArg;
+use Symfony\UX\LiveComponent\Attribute\LiveListener;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\ComponentWithFormTrait;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
@@ -42,8 +44,11 @@ final class CreateGameForm extends AbstractController
     #[LiveProp]
     public ?string $errorKey = null;
 
-    /** @var list<PlayerView> */
-    public array $players = [];
+    #[LiveProp]
+    public bool $isModalOpen = false;
+
+    /** @var list<PlayerView>|null */
+    private ?array $cachedPlayers = null;
 
     public function __construct(
         private readonly CommandBus $commandBus,
@@ -53,9 +58,6 @@ final class CreateGameForm extends AbstractController
     public function mount(string $ownerId): void
     {
         $this->ownerId = $ownerId;
-        /** @var list<PlayerView> $players */
-        $players = $this->queryBus->ask(new ListMyPlayersQuery($ownerId));
-        $this->players = $players;
     }
 
     /**
@@ -63,13 +65,14 @@ final class CreateGameForm extends AbstractController
      */
     public function players(): array
     {
-        if ([] === $this->players && '' !== $this->ownerId) {
-            /** @var list<PlayerView> $players */
-            $players = $this->queryBus->ask(new ListMyPlayersQuery($this->ownerId));
-            $this->players = $players;
+        if (null !== $this->cachedPlayers) {
+            return $this->cachedPlayers;
         }
 
-        return $this->players;
+        /** @var list<PlayerView> $players */
+        $players = $this->queryBus->ask(new ListMyPlayersQuery($this->ownerId));
+
+        return $this->cachedPlayers = $players;
     }
 
     /**
@@ -119,5 +122,38 @@ final class CreateGameForm extends AbstractController
 
             return null;
         }
+    }
+
+    #[LiveAction]
+    public function openModal(): void
+    {
+        $this->isModalOpen = true;
+    }
+
+    #[LiveAction]
+    public function closeModal(): void
+    {
+        $this->isModalOpen = false;
+    }
+
+    #[LiveListener('player_created')]
+    public function onPlayerCreated(#[LiveArg] string $playerId): void
+    {
+        /** @var list<string> $participants */
+        $participants = $this->formValues['participants'] ?? [];
+
+        if (!in_array($playerId, $participants, true)) {
+            $participants[] = $playerId;
+        }
+
+        $this->formValues['participants'] = $participants;
+
+        $this->isModalOpen = false;
+    }
+
+    #[LiveListener('cancelled')]
+    public function onCancelled(): void
+    {
+        $this->isModalOpen = false;
     }
 }

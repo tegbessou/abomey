@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'players')]
-class Player
+final class Player
 {
     private function __construct(
         #[ORM\Id]
@@ -24,7 +24,7 @@ class Player
     public static function create(PlayerId $id, string $owner, string $name): self
     {
         if ('' === trim($name)) {
-            throw new \InvalidArgumentException('Player name cannot be empty.');
+            throw new EmptyPlayerNameException();
         }
 
         return new self($id, $owner, $name);

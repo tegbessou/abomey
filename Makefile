@@ -1,4 +1,4 @@
-.PHONY: build up down restart shell composer-install composer-update migrate migrate-test unit-test integration-test e2e-test panther-test cs-check cs-fix phpstan rector-check rector-fix deps-check deptrac quality
+.PHONY: build up down restart shell composer-install composer-update migrate migrate-test assets-compile unit-test integration-test e2e-test panther-test cs-check cs-fix phpstan rector-check rector-fix deps-check deptrac quality
 
 ## Project
 build:
@@ -30,6 +30,10 @@ migrate-test:
 	@docker compose exec app php bin/console doctrine:database:create --env=test --if-not-exists
 	@docker compose exec app php bin/console doctrine:migrations:migrate --env=test --no-interaction
 
+## Assets
+assets-compile:
+	@docker compose exec app php bin/console asset-map:compile --env=test
+
 ## Tests
 unit-test:
 	@docker compose exec app php bin/phpunit --testsuite unit
@@ -40,7 +44,7 @@ integration-test:
 e2e-test:
 	@docker compose exec app php bin/phpunit --testsuite e2e
 
-panther-test:
+panther-test: assets-compile
 	@docker compose exec app php bin/phpunit --configuration phpunit.panther.xml.dist
 
 ## Quality

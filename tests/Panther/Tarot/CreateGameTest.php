@@ -6,23 +6,22 @@ namespace App\Tests\Panther\Tarot;
 
 use App\Account\Domain\User\UserId;
 use App\Account\Domain\User\UserRepository;
-use App\Tarot\Domain\Player\PlayerRepository;
 use App\Tests\Builder\Account\UserBuilder;
-use App\Tests\Builder\Tarot\PlayerBuilder;
 use App\Tests\Panther\AbomeyPantherTestCase;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\Panther\Client;
 
 final class CreateGameTest extends AbomeyPantherTestCase
 {
     #[Test]
-    public function aConnectedUserCanCreateAGameWithExistingPlayers(): void
+    public function aConnectedUserCreatesAGameByAddingPlayersOnTheFly(): void
     {
         $container = self::getContainer();
         /** @var UserRepository $userRepository */
         $userRepository = $container->get(UserRepository::class);
-        /** @var PlayerRepository $playerRepository */
-        $playerRepository = $container->get(PlayerRepository::class);
 
         $userId = UserId::fromString('eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee');
         $userRepository->create(
@@ -35,15 +34,6 @@ final class CreateGameTest extends AbomeyPantherTestCase
                 ->build(),
         );
 
-        $alice = PlayerBuilder::aPlayer()->withId('11111111-1111-4111-8111-aaaaaaaaaaaa')->ownedBy($userId->toString())->named('Alice')->build();
-        $bob = PlayerBuilder::aPlayer()->withId('22222222-2222-4222-8222-aaaaaaaaaaaa')->ownedBy($userId->toString())->named('Bob')->build();
-        $charlie = PlayerBuilder::aPlayer()->withId('33333333-3333-4333-8333-aaaaaaaaaaaa')->ownedBy($userId->toString())->named('Charlie')->build();
-        $david = PlayerBuilder::aPlayer()->withId('44444444-4444-4444-8444-aaaaaaaaaaaa')->ownedBy($userId->toString())->named('David')->build();
-        $playerRepository->create($alice);
-        $playerRepository->create($bob);
-        $playerRepository->create($charlie);
-        $playerRepository->create($david);
-
         $client = static::createPantherClient();
         $authPayload = json_encode(['id' => $userId->toString(), 'ctx' => []], \JSON_THROW_ON_ERROR);
 
@@ -55,16 +45,14 @@ final class CreateGameTest extends AbomeyPantherTestCase
 
         self::assertSelectorTextContains('h1', 'Créer une Partie');
 
-        $client->submitForm('Créer la Partie', [
-            'create_game_form[name]' => 'Soirée chez Paul',
-            'create_game_form[mode]' => '4',
-            'create_game_form[participants]' => [
-                $alice->getId()->toString(),
-                $bob->getId()->toString(),
-                $charlie->getId()->toString(),
-                $david->getId()->toString(),
-            ],
-        ]);
+        foreach (['Alice', 'Bob', 'Charlie', 'David'] as $playerName) {
+            $this->addPlayerThroughModal($client, $playerName);
+        }
+
+        $client->getCrawler()->filter('input[name="create_game_form[name]"]')->sendKeys('Soirée chez Paul');
+        $client->getCrawler()->filter('input[name="create_game_form[mode]"][value="4"]')->click();
+
+        $client->getCrawler()->filter('.game-form button[type="submit"]')->click();
 
         $client->waitForVisibility('.participant-chip');
 
@@ -72,5 +60,34 @@ final class CreateGameTest extends AbomeyPantherTestCase
         self::assertSelectorTextContains('.game-mode-badge', 'TAROT À 4');
         self::assertSelectorTextContains('.participant-list', 'Alice');
         self::assertSelectorTextContains('.participant-list', 'Bob');
+        self::assertSelectorTextContains('.participant-list', 'Charlie');
+        self::assertSelectorTextContains('.participant-list', 'David');
+    }
+
+    private function addPlayerThroughModal(Client $client, string $playerName): void
+    {
+        $client->getCrawler()->filter('button.participant-add')->click();
+
+        $client->waitFor('dialog[open]');
+
+        $input = $client->getCrawler()->filter('#create_player_form_name');
+        $input->sendKeys($playerName);
+
+        $client->getCrawler()->filter('.modal-form button[type="submit"]')->click();
+
+        $driver = $client->getWebDriver();
+        $driver->wait(5)->until(
+            WebDriverExpectedCondition::invisibilityOfElementLocated(
+                WebDriverBy::cssSelector('dialog[open]'),
+            ),
+        );
+
+        $driver->wait(5)->until(
+            WebDriverExpectedCondition::presenceOfElementLocated(
+                WebDriverBy::xpath(
+                    \sprintf('//label[contains(@class, "participant-option")]//span[normalize-space(text())="%s"]', $playerName),
+                ),
+            ),
+        );
     }
 }

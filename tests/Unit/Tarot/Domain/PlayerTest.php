@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Tarot\Domain;
 
+use App\Tarot\Domain\Player\EmptyPlayerNameException;
 use App\Tarot\Domain\Player\Player;
 use App\Tarot\Domain\Player\PlayerId;
 use PHPUnit\Framework\Attributes\Test;
@@ -27,7 +28,7 @@ final class PlayerTest extends TestCase
     #[Test]
     public function aPlayerCannotBeCreatedWithAnEmptyName(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(EmptyPlayerNameException::class);
 
         Player::create(
             PlayerId::fromString('01966000-0000-7000-8000-000000000001'),
@@ -39,7 +40,7 @@ final class PlayerTest extends TestCase
     #[Test]
     public function aPlayerCannotBeCreatedWithAWhitespaceOnlyName(): void
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(EmptyPlayerNameException::class);
 
         Player::create(
             PlayerId::fromString('01966000-0000-7000-8000-000000000001'),

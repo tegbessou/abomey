@@ -16,8 +16,8 @@ game:
         5: "Tarot à 5"
     create:
         title: "Créer une Partie"
-        no_players_message: "Vous n'avez pas encore de Joueurs dans votre carnet."
-        no_players_hint: "La création de Joueurs depuis ce formulaire arrivera dans une prochaine version."
+        no_players_yet: "Aucun Joueur dans votre carnet. Cliquez sur « Ajouter un Joueur » pour commencer."
+        add_player_button: "Ajouter un Joueur"
         name_label: "Nom de la Partie"
         name_placeholder: "Soirée chez Paul, vacances 2026…"
         mode_label: "Mode de tarot"
@@ -42,9 +42,20 @@ game:
             duplicate: "Un même Joueur ne peut pas être sélectionné plusieurs fois."
             not_owned: "Un des Joueurs sélectionnés ne fait pas partie de votre carnet."
             unknown: "La création de la Partie a échoué pour une raison inconnue."
+        modal:
+            title: "Ajouter un Joueur"
     show:
         participants_title: "Joueurs participants"
         donnes_placeholder: "La saisie des Donnes arrivera dans une prochaine tranche."
+
+player:
+    create:
+        name_label: "Nom du Joueur"
+        name_placeholder: "Alice, Bob, Eve…"
+        cancel: "Annuler"
+        submit: "Créer le Joueur"
+        error:
+            unknown: "La création du Joueur a échoué pour une raison inconnue."
 
 footer:
     legal_notice: "Mentions légales"
