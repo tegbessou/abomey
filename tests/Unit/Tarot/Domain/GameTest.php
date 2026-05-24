@@ -17,6 +17,8 @@ use PHPUnit\Framework\TestCase;
 
 final class GameTest extends TestCase
 {
+    private const string CREATED_AT_FIXTURE = '2026-05-24 12:00:00';
+
     #[Test]
     public function aGameCanBeCreatedWithAValidNameModeAndParticipants(): void
     {
@@ -28,6 +30,7 @@ final class GameTest extends TestCase
             'Soirée chez Paul',
             Mode::Four,
             ['p-1', 'p-2', 'p-3', 'p-4'],
+            self::aCreatedAt(),
         );
 
         self::assertSame($id, $game->getId());
@@ -49,6 +52,7 @@ final class GameTest extends TestCase
             $invalidName,
             Mode::Four,
             ['p-1', 'p-2', 'p-3', 'p-4'],
+            self::aCreatedAt(),
         );
     }
 
@@ -72,6 +76,7 @@ final class GameTest extends TestCase
             '  Soirée du 15 mai  ',
             Mode::Four,
             ['p-1', 'p-2', 'p-3', 'p-4'],
+            self::aCreatedAt(),
         );
 
         self::assertSame('Soirée du 15 mai', $game->getName());
@@ -88,6 +93,7 @@ final class GameTest extends TestCase
             'Soirée',
             Mode::Four,
             ['p-1', 'p-2', 'p-1', 'p-3'],
+            self::aCreatedAt(),
         );
     }
 
@@ -110,6 +116,7 @@ final class GameTest extends TestCase
             'Soirée',
             $mode,
             $participants,
+            self::aCreatedAt(),
         );
     }
 
@@ -142,6 +149,7 @@ final class GameTest extends TestCase
             'Soirée',
             $mode,
             $participants,
+            self::aCreatedAt(),
         );
     }
 
@@ -172,6 +180,7 @@ final class GameTest extends TestCase
             'Soirée',
             $mode,
             $participants,
+            self::aCreatedAt(),
         );
 
         self::assertCount($participantsCount, $game->getParticipantIds());
@@ -188,5 +197,27 @@ final class GameTest extends TestCase
         yield 'Four at max (6)' => [Mode::Four, 6];
         yield 'Five at min (5)' => [Mode::Five, 5];
         yield 'Five at max (7)' => [Mode::Five, 7];
+    }
+
+    #[Test]
+    public function aGameRemembersItsCreationDate(): void
+    {
+        $createdAt = new \DateTimeImmutable('2026-05-24 18:30:00');
+
+        $game = Game::create(
+            GameId::fromString('01966000-0000-7000-8000-000000000008'),
+            'owner-user-id',
+            'Soirée chez Paul',
+            Mode::Four,
+            ['p-1', 'p-2', 'p-3', 'p-4'],
+            $createdAt,
+        );
+
+        self::assertSame($createdAt, $game->getCreatedAt());
+    }
+
+    private static function aCreatedAt(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable(self::CREATED_AT_FIXTURE);
     }
 }

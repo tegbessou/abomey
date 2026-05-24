@@ -10,10 +10,10 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : attaquer la Tranche 0 (liste des
-  Parties + navbar + redirection `/` → `/games` + tests
-  d'isolation). `docs/scoring.md` partie classique sans
-  primes déjà créé en pré-requis de T1.
+- **Prochaine action** : attaquer la Tranche 1 (walking
+  skeleton — Donne classique à 4 joueurs, tablée = Mode,
+  sans primes). T0 livrée le 2026-05-24.
+  `docs/scoring.md` partie classique sans primes déjà créé.
 - **Spec** : `product/saisie-donnes.md`
 - **Notes** :
   - 2026-05-23 — problème validé en phase 1.
@@ -85,6 +85,40 @@
     état « pas encore de manche jouée »), empty state,
     tests isolation. La carte est enrichie en T1 avec
     nombre de Donnes et score cumulé par Joueur.
+  - 2026-05-24 — **T0 livrée**. Domain : `Game.createdAt`
+    + getter. Application : `CreateGameCommandHandler`
+    injecté avec `ClockInterface` (PSR-20) ; nouveau
+    `ListMyGamesQueryHandler` + `ListMyGamesQuery` +
+    `GameSummaryView`. Infra : `GameRepository::ofOwner`
+    sur l'interface, implémenté par `DoctrineGameRepository`
+    (`ORDER BY g.createdAt DESC`) et
+    `InMemoryGameRepository` (tri usort). Migration
+    `Version20260524120000` (ALTER TABLE games ADD
+    created_at). UI : `ListGamesController` (`/games`),
+    template `games/index.html.twig` (cartes / empty state),
+    navbar dans `base.html.twig` (4 liens connectés),
+    `HomeController` redirige `/` → `/games` pour
+    connectés, `home.html.twig` allégé en landing
+    publique, `LogtoAuthenticator` fallback
+    `app_games_index`. CSS cartes (grille responsive,
+    hauteur uniforme, hover ombré, badge mode). Tests : 1
+    unit Domain (`createdAt`), 1 unit Application
+    (`itStampsTheGameWithTheClockInstantAtCreation`), 3
+    unit Application sur `ListMyGames` (vide, mapping +
+    isolation, participantNames, tri), 2 integration
+    `DoctrineGameRepository::ofOwner` (tri, isolation), 4
+    e2e WebTestCase `ListGamesTest` (empty state, cartes,
+    isolation liste, 404 URL forgée) +
+    `HomePageTest::theHomePageRedirectsConnectedUsersToTheirGames`.
+    Total : 59 unit + 16 integration + 15 e2e, quality 0
+    violation. Dette 1 du suivi #002 fermée.
+  - 2026-05-24 — préférences capturées en mémoire
+    auto-memory : **lisibilité avant concision** (variables
+    nommées, foreach explicites, pas de first-class
+    callable `X::method(...)`, max 1 niveau d'imbrication
+    par fonction) ; **réponses concises** (recommandation
+    plutôt qu'options exhaustives). À appliquer
+    systématiquement.
 
 ## #002 — Création d'une Partie
 - **Ouvert le** : 2026-05-15

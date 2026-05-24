@@ -39,4 +39,19 @@ final readonly class DoctrineGameRepository implements GameRepository
 
         return $result;
     }
+
+    public function ofOwner(string $owner): array
+    {
+        /** @var list<Game> $results */
+        $results = $this->entityManager->createQueryBuilder()
+            ->select('g')
+            ->from(Game::class, 'g')
+            ->where('g.owner = :owner')
+            ->orderBy('g.createdAt', 'DESC')
+            ->setParameter('owner', $owner)
+            ->getQuery()
+            ->getResult();
+
+        return $results;
+    }
 }

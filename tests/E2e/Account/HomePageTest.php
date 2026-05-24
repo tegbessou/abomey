@@ -25,7 +25,7 @@ final class HomePageTest extends WebTestCase
     }
 
     #[Test]
-    public function theHomePageShowsTheUserNameWhenLoggedInWithConsent(): void
+    public function theHomePageRedirectsConnectedUsersToTheirGames(): void
     {
         $client = static::createClient();
         $container = static::getContainer();
@@ -45,8 +45,6 @@ final class HomePageTest extends WebTestCase
 
         $client->request('GET', '/');
 
-        self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Hugues Gobet');
-        self::assertSelectorExists('a[href$="/logout"]');
+        self::assertResponseRedirects('/games');
     }
 }

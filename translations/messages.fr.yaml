@@ -9,6 +9,20 @@ home:
     logout: "Se déconnecter"
     create_game: "Créer une Partie"
 
+nav:
+    my_games: "Mes Parties"
+    create_game: "Créer une Partie"
+    account: "Mon compte"
+    logout: "Se déconnecter"
+
+games:
+    index:
+        title: "Mes Parties"
+        no_donnes: "Pas encore de manche jouée"
+        empty:
+            message: "Vous n'avez pas encore créé de Partie."
+            cta: "Créer une Partie"
+
 game:
     mode:
         3: "Tarot à 3"

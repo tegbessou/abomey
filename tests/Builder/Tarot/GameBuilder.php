@@ -16,10 +16,12 @@ final class GameBuilder
     private Mode $mode = Mode::Four;
     /** @var list<string> */
     private array $participantIds = ['p-1', 'p-2', 'p-3', 'p-4'];
+    private \DateTimeImmutable $createdAt;
 
     private function __construct()
     {
         $this->id = GameId::fromString('01966000-0000-7000-8000-aa00000000aa');
+        $this->createdAt = new \DateTimeImmutable('2026-05-24 12:00:00');
     }
 
     public static function aGame(): self
@@ -65,8 +67,22 @@ final class GameBuilder
         return $this;
     }
 
+    public function createdAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
     public function build(): Game
     {
-        return Game::create($this->id, $this->owner, $this->name, $this->mode, $this->participantIds);
+        return Game::create(
+            $this->id,
+            $this->owner,
+            $this->name,
+            $this->mode,
+            $this->participantIds,
+            $this->createdAt,
+        );
     }
 }

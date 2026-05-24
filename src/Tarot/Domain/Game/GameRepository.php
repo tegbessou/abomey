@@ -9,4 +9,7 @@ interface GameRepository
     public function create(Game $game): void;
 
     public function ofId(GameId $id, string $owner): ?Game;
+
+    /** @return list<Game> */
+    public function ofOwner(string $owner): array;
 }

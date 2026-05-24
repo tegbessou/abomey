@@ -78,4 +78,61 @@ final class DoctrineGameRepositoryTest extends KernelTestCase
 
         self::assertNull($found);
     }
+
+    #[Test]
+    public function itReturnsGamesOfTheOwnerSortedByCreationDateDescending(): void
+    {
+        $olderGame = GameBuilder::aGame()
+            ->withId(GameId::fromString('44444444-4444-4444-8444-444444444444'))
+            ->ownedBy('owner-a')
+            ->named('Soirée du lundi')
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->createdAt(new \DateTimeImmutable('2026-05-20 19:00:00'))
+            ->build();
+        $newerGame = GameBuilder::aGame()
+            ->withId(GameId::fromString('55555555-5555-4555-8555-555555555555'))
+            ->ownedBy('owner-a')
+            ->named('Soirée du jeudi')
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->createdAt(new \DateTimeImmutable('2026-05-22 19:00:00'))
+            ->build();
+        $this->repository->create($olderGame);
+        $this->repository->create($newerGame);
+        $this->entityManager->clear();
+
+        $games = $this->repository->ofOwner('owner-a');
+
+        self::assertCount(2, $games);
+        self::assertSame('Soirée du jeudi', $games[0]->getName());
+        self::assertSame('Soirée du lundi', $games[1]->getName());
+    }
+
+    #[Test]
+    public function itDoesNotReturnGamesOfOtherOwners(): void
+    {
+        $ownGame = GameBuilder::aGame()
+            ->withId(GameId::fromString('66666666-6666-4666-8666-666666666666'))
+            ->ownedBy('owner-a')
+            ->named('Ma Partie')
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $foreignGame = GameBuilder::aGame()
+            ->withId(GameId::fromString('77777777-7777-4777-8777-777777777777'))
+            ->ownedBy('owner-b')
+            ->named('Partie d\'un autre')
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-9', 'p-10', 'p-11', 'p-12'])
+            ->build();
+        $this->repository->create($ownGame);
+        $this->repository->create($foreignGame);
+        $this->entityManager->clear();
+
+        $games = $this->repository->ofOwner('owner-a');
+
+        self::assertCount(1, $games);
+        self::assertSame('Ma Partie', $games[0]->getName());
+    }
 }

@@ -28,4 +28,18 @@ final class InMemoryGameRepository implements GameRepository
 
         return $game;
     }
+
+    public function ofOwner(string $owner): array
+    {
+        $owned = [];
+        foreach ($this->games as $game) {
+            if ($game->getOwner() === $owner) {
+                $owned[] = $game;
+            }
+        }
+
+        usort($owned, static fn (Game $a, Game $b): int => $b->getCreatedAt() <=> $a->getCreatedAt());
+
+        return $owned;
+    }
 }

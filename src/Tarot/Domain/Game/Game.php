@@ -26,6 +26,8 @@ final readonly class Game
         private Mode $mode,
         #[ORM\Column(name: 'participant_ids', type: Types::JSON)]
         private array $participantIds,
+        #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
+        private \DateTimeImmutable $createdAt,
     ) {}
 
     /**
@@ -37,6 +39,7 @@ final readonly class Game
         string $name,
         Mode $mode,
         array $participantIds,
+        \DateTimeImmutable $createdAt,
     ): self {
         $trimmedName = trim($name);
 
@@ -56,7 +59,7 @@ final readonly class Game
             throw new TooManyParticipantsException();
         }
 
-        return new self($id, $owner, $trimmedName, $mode, $participantIds);
+        return new self($id, $owner, $trimmedName, $mode, $participantIds, $createdAt);
     }
 
     public function getId(): GameId
@@ -83,5 +86,10 @@ final readonly class Game
     public function getParticipantIds(): array
     {
         return $this->participantIds;
+    }
+
+    public function getCreatedAt(): \DateTimeImmutable
+    {
+        return $this->createdAt;
     }
 }
