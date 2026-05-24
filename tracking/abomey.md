@@ -1,8 +1,94 @@
 # Suivi des sujets produit — Abomey
 
+## #003 — Saisie et calcul des Donnes
+- **Ouvert le** : 2026-05-23
+- **Dernière touche** : 2026-05-23
+- **Échéance** : —
+- **Contexte** : Permettre à un Utilisateur de saisir en
+  direct les Donnes successives d'une Partie, avec calcul
+  automatique des scores. Sujet qui débloque toute la valeur
+  d'Abomey : sans saisie de Donnes, l'investissement #001 et
+  #002 reste sans usage et l'utilisateur retourne à l'app
+  payante existante.
+- **Prochaine action** : attaquer la Tranche 0 (liste des
+  Parties + navbar + redirection `/` → `/games` + tests
+  d'isolation). `docs/scoring.md` partie classique sans
+  primes déjà créé en pré-requis de T1.
+- **Spec** : `product/saisie-donnes.md`
+- **Notes** :
+  - 2026-05-23 — problème validé en phase 1.
+  - Posture acceptée : saisie en direct entre deux Donnes
+    (pas en différé après la soirée).
+  - Cadrage du problème : substituer une app dédiée payante
+    qui se complexifie sans raison ; différenciateurs visés
+    = gratuité, simplicité (par soustraction), persistance
+    par Utilisateur.
+  - Alternatives écartées : (A) rester sur l'app payante,
+    rejet implicite ; (B) saisie de score libre sans calcul
+    auto, rejetée car régression par rapport à l'app cible et
+    contraire à `docs/domain.md` (« calcul automatique »).
+  - Posture retenue pour la phase 4 : périmètre minimal
+    d'abord, étendu ensuite (Alt. C). Acte explicite qu'on
+    s'autorise à livrer du « pas complet ».
+  - Critère de succès : une soirée complète (~15-30 Donnes)
+    tenue sur Abomey sans recours à l'app existante ni
+    calcul manuel, avec scores corrects, sans abandon en
+    cours de soirée. Dogfooding par moi en première instance.
+  - 2026-05-23 — incohérence préexistante résolue en
+    ouverture de sujet : `docs/glossary.md` mentionnait une
+    « Partie close » contradictoire avec `docs/domain.md`.
+    Aligné sur `domain.md` : pas d'état clos dans Abomey,
+    fin de Partie décidée par les joueurs physiques.
+  - 2026-05-23 — phase 2 explorée par Example Mapping
+    (Matt Wynne). Règles D1 à D26 identifiées :
+    saisie classique, saisie Vachette (en classement
+    strict, pas en points bruts), primes (PAB, Poignées
+    multi avec annonceur, Chelem, Misères Atouts/Tête en
+    +10×(N−1)/−10), gestion du Mort manuelle, correction
+    limitée à la dernière Donne, Scores cumulés dérivés.
+    Compromis assumé : pas de correction rétroactive.
+  - 2026-05-23 — phase 3 formalisée :
+    `product/saisie-donnes.md` créé. Dépendance préalable
+    explicitement notée : `docs/scoring.md` doit exister
+    avant la phase 4 (formules FFT, barème Vachette,
+    application des primes). Trois questions UX
+    (Qo4, Qo9, Qo11) reportées à la phase 4.
+  - 2026-05-23 — phase 4 découpée en **10 tranches**
+    verticales : T1 walking skeleton (classique à 4,
+    tablée = Mode, sans primes) ; T2a Petit au Bout ;
+    T2b Chelem ; T2c Poignée(s) ; T2d Misère(s) ;
+    T3 Mort manuel ; T4 Tarot à 5 (Partenaire / Preneur
+    seul) ; T5 Tarot à 3 ; T6 Donne Vachette ;
+    T7 correction de la dernière Donne. Critère de succès
+    du sujet atteint à la fin de T7. Posture de
+    validation : T1 et T2a validées par l'auteur après
+    livraison ; T2b/c/d enchaînées en série sans
+    revalidation systématique. `docs/scoring.md` créé en
+    pré-requis intégré, complété tranche par tranche.
+  - 2026-05-23 — `docs/scoring.md` créé (partie classique
+    sans primes : multiplicateurs Garde/Garde Sans/Garde
+    Contre = 1/2/4, buts 56/51/41/36, formule
+    `(25+|E|)×M`, convention « réalisé = but → Preneur
+    gagne », répartition à 4 joueurs ±3×Score / ∓Score, 4
+    exemples chiffrés). Pré-requis T1 acquis.
+  - 2026-05-24 — découpage révisé en **11 tranches** :
+    ajout d'une **T0 (Liste des Parties et navigation)** en
+    pré-requis de T1. Motivation : sans liste des Parties,
+    l'Utilisateur n'a pas d'accès stable à ses Parties
+    d'un jour à l'autre, et T1 n'est pas utilisable en
+    conditions réelles. T0 traite aussi la dette 1 du
+    suivi #002 (test d'isolation sur la liste et sur la
+    page détail). Contenu T0 : navbar enrichie pour les
+    connectés (Mes Parties / Créer / Compte / Déconnexion),
+    redirection `/` → `/games` pour les connectés,
+    liste sous forme de cartes (nom, Mode, participants,
+    état « pas encore de manche jouée »), empty state,
+    tests isolation. La carte est enrichie en T1 avec
+    nombre de Donnes et score cumulé par Joueur.
+
 ## #002 — Création d'une Partie
 - **Ouvert le** : 2026-05-15
-- **Dernière touche** : 2026-05-15
+- **Dernière touche** : 2026-05-18
 - **Échéance** : —
 - **Contexte** : Permettre à un utilisateur authentifié et
   consentant de créer une Partie de tarot dans son espace
@@ -11,8 +97,9 @@
   dans le même flux si nécessaire). C'est la fonctionnalité qui
   débloque la valeur d'Abomey : sans Partie, l'utilisateur ne
   peut rien faire après son inscription.
-- **Prochaine action** : découper en incréments (phase 4)
-- **Spec** : `produit/abomey/creation-partie.md`
+- **Prochaine action** : sujet fonctionnellement livré.
+  Ouvrir le sujet #003 (saisie des Donnes).
+- **Spec** : `product/creation-partie.md`
 - **Notes** :
   - 2026-05-15 — problème validé en phase 1
   - Confirmations clés : création de Joueurs autorisée dans le
@@ -25,6 +112,86 @@
     effectif max = Mode + 2, nom non vide). Modale pour
     création de Joueurs à la volée. Pas de page dédiée
     Joueurs dans ce sujet.
+  - 2026-05-17 — phase 4 non formalisée en tranches multiples :
+    le sujet a été traité en une seule tranche verticale, du
+    Domain à l'UI, dans un même commit
+    (`e24bdf0`, « Add account management, game creation, and
+    Panther E2E infrastructure »). À garder en tête pour les
+    sujets suivants : un découpage plus fin (par exemple
+    "création sans modale" puis "modale inline") aurait
+    permis des revues plus ciblées.
+  - 2026-05-17 — Domain `Game` : aggregate `final readonly`,
+    `Mode` enum (3, 4, 5), `GameId` VO + générateur,
+    `GameRepository`, exceptions métier
+    (`EmptyGameNameException`, `DuplicateParticipantsException`,
+    `TooFewParticipantsException`, `TooManyParticipantsException`,
+    `ParticipantNotOwnedException`). R1 et R3 garantis
+    structurellement (absence de mutateurs + `final readonly`).
+    R2, R6, R7, R8 vérifiés dans `Game::create`.
+  - 2026-05-17 — Application : `CreateGameCommandHandler` (R5
+    vérifié via `PlayerRepository::ofIds` :
+    `ParticipantNotOwnedException` si un participant n'appartient
+    pas au propriétaire) ; `ShowGameQueryHandler` + `GameView`
+    pour la page détail ; `ListMyPlayersQueryHandler` +
+    `PlayerView` pour alimenter la liste du formulaire.
+  - 2026-05-17 — Infrastructure : `DoctrineGameRepository`,
+    `GameIdType` (custom Doctrine type), `SymfonyGameIdGenerator`,
+    migration `Version20260515152753` (table `games`,
+    `participant_ids` en JSON).
+  - 2026-05-17 — UI : `CreateGameController` (`/games/new`),
+    `ShowGameController` (`/games/{id}`), Live Component
+    `CreateGameForm` (compteur en direct sur la plage du Mode),
+    `CreateGameFormType` / `CreateGameFormData`. Infrastructure
+    Panther mise en place (`AbomeyPantherTestCase`,
+    `TestAuthenticator` via cookie, target `panther-test`
+    dépendant de `assets-compile`).
+  - 2026-05-18 — Modale inline de création de Joueur pendant la
+    création de Partie (`20d661d`). Live Component
+    `CreatePlayerForm` extrait, émet `player_created` ;
+    `CreateGameForm` écoute via `LiveListener` et ajoute le
+    Joueur fraîchement créé aux participants sélectionnés.
+    Composant Twig partagé `Modal` (Stimulus + `<dialog>`
+    natif) placé dans `Shared/UI` car générique.
+    `Player::create` lève désormais `EmptyPlayerNameException`
+    (domain) au lieu de `\InvalidArgumentException` ; `Player`
+    devient `final`. La dette 4 du suivi #001 est partiellement
+    résolue ; reste à harmoniser `readonly`.
+  - 2026-05-18 — Tests pour ce sujet : 11 cas unit Domain
+    (`GameTest`), 2 cas unit Application
+    (`CreateGameCommandHandlerTest`, dont R5), 3 cas integration
+    (`DoctrineGameRepositoryTest`), 1 cas e2e WebTestCase
+    (`CreateGameTest`, empty state), 1 cas Panther E2E
+    (`CreateGameTest`, parcours complet 4 Joueurs créés via la
+    modale → atterrissage sur la page détail).
+  - **Sujet « Création d'une Partie » fonctionnellement livré.**
+  - **Critères de succès** :
+    1. Création en formulaire unique avec modale à la volée :
+       couvert par Panther E2E.
+    2. Règles R1–R8 : R1, R2, R6, R7, R8 couvertes par
+       `GameTest` ; R5 couverte par
+       `CreateGameCommandHandlerTest` ; R3 et R4 structurelles.
+    3. Atterrissage sur page détail : couvert par Panther E2E
+       (`CreateGameForm::submit` redirige `app_game_show`).
+    4. Isolation entre Utilisateurs côté affichage :
+       `ShowGameQueryHandler` filtre par `ownerId`, **non
+       couvert par un test explicite** « URL forgée d'un autre
+       user → 404 » — voir dette 1 ci-dessous.
+  - **Dettes identifiées** :
+    1. Isolation côté lecture des Parties : aucun test direct
+       du fait qu'un Utilisateur ne voit pas la Partie d'un
+       autre. Couvert structurellement par
+       `gameRepository->ofId(..., $ownerId)`. À ajouter en
+       première intervention sur Tarot.
+    2. `ShowGameQueryHandler` renvoie `'?'` pour un participant
+       non trouvé. Comportement de fallback silencieux — à
+       transformer en règle métier explicite quand on traitera
+       la suppression de Joueurs (hors-scope actuel).
+    3. `Player` est `final` mais pas `readonly` alors que
+       `Game` est `final readonly`. Harmonisation cosmétique
+       quand on retouche Tarot.
+    4. Dette 5 du suivi #001 (subscriber de consentement
+       supprimé, 403 brute possible) toujours ouverte ; pas
+       adressée dans #002.
 
 ## #001 — Comptes utilisateurs et isolation des données
 - **Ouvert le** : 2026-05-14
@@ -38,7 +205,7 @@
 - **Prochaine action** : étape B (configuration Logto) puis C
   (Symfony Security + UI + test e2e Playwright). Étape A
   (infrastructure persistance) terminée le 2026-05-14.
-- **Spec** : `produit/abomey/comptes-utilisateurs.md`
+- **Spec** : `product/comptes-utilisateurs.md`
 - **Notes** :
   - 2026-05-14 — problème validé en phase 1
   - 2026-05-14 — sujet "création d'une Partie" suspendu en
@@ -105,8 +272,7 @@
     (`WhenUserDeletedHandler` dans Tarot consomme), `DeleteAccount`
     command + handler, `AccountController`. Tests : unit (User,
     handler Tarot), integration (delete, deleteAllOf), e2e
-    (AccountDeletionTest). `Makefile` : memory_limit phpstan
-    monté à 512M.
+    (AccountDeletionTest). `Makefile` : memory_li 
   - 2026-05-15 — T5 livré (redirection URL initiale).
     `LogtoAuthenticator` utilise `TargetPathTrait`, `start()`
     sauvegarde la cible et redirige `app_home` (au lieu de
