@@ -10,6 +10,7 @@ home:
     create_game: "Créer une Partie"
 
 nav:
+    menu: "Menu"
     my_games: "Mes Parties"
     create_game: "Créer une Partie"
     account: "Mon compte"
