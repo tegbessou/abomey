@@ -519,6 +519,84 @@ body.has-drawer-open {
     font-size: 0.9rem;
 }
 
+.game-card__scores {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.game-card__scores > li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.game-card__score {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.game-card__score:last-child {
+    border-bottom: none;
+}
+
+.game-card__score-name {
+    font-weight: 500;
+}
+
+.game-card__score-value {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+
+/* Deals section */
+.deals-section__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.deals-section__header h2 {
+    margin: 0;
+}
+
+.deals-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+}
+
+.deals-table th,
+.deals-table td {
+    padding: 0.5rem 0.75rem;
+    text-align: right;
+    border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.deals-table th:first-child,
+.deals-table td:first-child {
+    text-align: left;
+}
+
+.deals-table thead th {
+    background-color: rgba(166, 124, 0, 0.06);
+    font-weight: 600;
+}
+
+.deals-table tfoot th {
+    border-top: 2px solid var(--pico-primary);
+    border-bottom: none;
+    background-color: rgba(166, 124, 0, 0.08);
+}
+
 /* Flash messages */
 .flash {
     padding: 1rem;

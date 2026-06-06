@@ -4,31 +4,40 @@ declare(strict_types=1);
 
 namespace App\Tarot\Domain\Game;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'games')]
-final readonly class Game
+final class Game
 {
+    /** @var Collection<int, Deal> */
+    #[ORM\OneToMany(mappedBy: 'game', targetEntity: Deal::class, cascade: ['persist'], orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
+    private Collection $deals;
+
     /**
      * @param list<string> $participantIds
      */
     private function __construct(
         #[ORM\Id]
         #[ORM\Column(type: 'game_id', length: 36)]
-        private GameId $id,
+        private readonly GameId $id,
         #[ORM\Column(name: 'owner_id', type: Types::STRING, length: 36)]
-        private string $owner,
+        private readonly string $owner,
         #[ORM\Column(type: Types::STRING, length: 255)]
-        private string $name,
+        private readonly string $name,
         #[ORM\Column(type: Types::SMALLINT, enumType: Mode::class)]
-        private Mode $mode,
+        private readonly Mode $mode,
         #[ORM\Column(name: 'participant_ids', type: Types::JSON)]
-        private array $participantIds,
+        private readonly array $participantIds,
         #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE)]
-        private \DateTimeImmutable $createdAt,
-    ) {}
+        private readonly \DateTimeImmutable $createdAt,
+    ) {
+        $this->deals = new ArrayCollection();
+    }
 
     /**
      * @param list<string> $participantIds
@@ -62,6 +71,28 @@ final readonly class Game
         return new self($id, $owner, $trimmedName, $mode, $participantIds, $createdAt);
     }
 
+    public function recordClassicDeal(
+        string $takerId,
+        Contract $contract,
+        Bouts $bouts,
+        int $pointsScored,
+    ): void {
+        if (count($this->participantIds) > $this->mode->value) {
+            throw new DeadPlayersNotYetSupportedException();
+        }
+
+        $deal = Deal::createClassic(
+            game: $this,
+            position: $this->deals->count() + 1,
+            activePlayerIds: $this->participantIds,
+            takerId: $takerId,
+            contract: $contract,
+            bouts: $bouts,
+            pointsScored: $pointsScored,
+        );
+        $this->deals->add($deal);
+    }
+
     public function getId(): GameId
     {
         return $this->id;
@@ -91,5 +122,11 @@ final readonly class Game
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    /** @return list<Deal> */
+    public function getDeals(): array
+    {
+        return array_values($this->deals->toArray());
     }
 }

@@ -6,6 +6,8 @@ namespace App\Tests\Unit\Tarot\Application;
 
 use App\Tarot\Application\ListMyGames\ListMyGamesQuery;
 use App\Tarot\Application\ListMyGames\ListMyGamesQueryHandler;
+use App\Tarot\Domain\Game\Bouts;
+use App\Tarot\Domain\Game\Contract;
 use App\Tarot\Domain\Game\Mode;
 use App\Tests\Builder\Tarot\GameBuilder;
 use App\Tests\Builder\Tarot\PlayerBuilder;
@@ -91,7 +93,10 @@ final class ListMyGamesQueryHandlerTest extends TestCase
         $result = $handler->handle(new ListMyGamesQuery('owner-user-id'));
 
         self::assertCount(1, $result);
-        self::assertSame(['Alice', 'Bob', 'Charlie', 'David'], $result[0]->participantNames);
+        self::assertSame(
+            ['Alice', 'Bob', 'Charlie', 'David'],
+            array_map(static fn ($p): string => $p->name, $result[0]->participants),
+        );
     }
 
     #[Test]
@@ -120,5 +125,39 @@ final class ListMyGamesQueryHandlerTest extends TestCase
         self::assertCount(2, $result);
         self::assertSame('Soirée du jeudi', $result[0]->name);
         self::assertSame('Soirée du lundi', $result[1]->name);
+    }
+
+    #[Test]
+    public function aGameSummaryExposesItsDealCountAndCumulativeScoresByPlayerId(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withId('01966000-0000-7000-8000-0000000000f1')
+            ->ownedBy('owner-user-id')
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $game->recordClassicDeal(
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+        );
+        $gameRepository = new InMemoryGameRepository();
+        $gameRepository->create($game);
+
+        $handler = new ListMyGamesQueryHandler($gameRepository, new InMemoryPlayerRepository());
+
+        $result = $handler->handle(new ListMyGamesQuery('owner-user-id'));
+
+        self::assertCount(1, $result);
+        self::assertSame(1, $result[0]->dealCount);
+
+        $cumulativesById = [];
+        foreach ($result[0]->participants as $participant) {
+            $cumulativesById[$participant->id] = $participant->cumulativeScore;
+        }
+        self::assertSame(
+            ['p-1' => 102, 'p-2' => -34, 'p-3' => -34, 'p-4' => -34],
+            $cumulativesById,
+        );
     }
 }

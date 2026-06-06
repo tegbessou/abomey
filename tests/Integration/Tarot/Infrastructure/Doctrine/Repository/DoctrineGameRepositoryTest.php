@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Integration\Tarot\Infrastructure\Doctrine\Repository;
 
+use App\Tarot\Domain\Game\Bouts;
+use App\Tarot\Domain\Game\Contract;
 use App\Tarot\Domain\Game\GameId;
 use App\Tarot\Domain\Game\Mode;
 use App\Tarot\Infrastructure\Doctrine\Repository\DoctrineGameRepository;
@@ -107,6 +109,45 @@ final class DoctrineGameRepositoryTest extends KernelTestCase
         self::assertCount(2, $games);
         self::assertSame('Soirée du jeudi', $games[0]->getName());
         self::assertSame('Soirée du lundi', $games[1]->getName());
+    }
+
+    #[Test]
+    public function itPersistsAndReloadsRecordedDealsInOrder(): void
+    {
+        $gameId = GameId::fromString('88888888-8888-4888-8888-888888888888');
+        $game = GameBuilder::aGame()
+            ->withId($gameId)
+            ->ownedBy('owner-a')
+            ->named('Soirée avec donnes')
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $game->recordClassicDeal(
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+        );
+        $game->recordClassicDeal(
+            takerId: 'p-2',
+            contract: Contract::GardeSans,
+            bouts: Bouts::Zero,
+            pointsScored: 50,
+        );
+        $this->repository->create($game);
+        $this->entityManager->clear();
+
+        $reloaded = $this->repository->ofId($gameId, 'owner-a');
+
+        self::assertNotNull($reloaded);
+        $deals = $reloaded->getDeals();
+        self::assertCount(2, $deals);
+        self::assertSame(1, $deals[0]->getPosition());
+        self::assertSame(2, $deals[1]->getPosition());
+        self::assertSame(
+            ['p-1' => 102, 'p-2' => -34, 'p-3' => -34, 'p-4' => -34],
+            $deals[0]->pointsByPlayer(),
+        );
     }
 
     #[Test]

@@ -1,5 +1,7 @@
 common:
     back_to_home: "Retour à l'accueil"
+    back_to_games: "Retour à mes Parties"
+    back_to_game: "Retour à la Partie"
 
 home:
     title: "Abomey"
@@ -20,6 +22,7 @@ games:
     index:
         title: "Mes Parties"
         no_donnes: "Pas encore de manche jouée"
+        deal_count: "{1} 1 Donne jouée|]1,Inf[ %count% Donnes jouées"
         empty:
             message: "Vous n'avez pas encore créé de Partie."
             cta: "Créer une Partie"
@@ -62,6 +65,28 @@ game:
     show:
         participants_title: "Joueurs participants"
         donnes_placeholder: "La saisie des Donnes arrivera dans une prochaine tranche."
+        deals_title: "Donnes"
+        deals_empty: "Aucune Donne saisie pour cette Partie."
+        deal_position: "#"
+        total: "Total"
+        add_classic_deal: "Ajouter une Donne classique"
+
+deal:
+    create:
+        title: "Ajouter une Donne — %game%"
+        taker_label: "Preneur"
+        taker_placeholder: "Choisir le Preneur"
+        contract_label: "Contrat"
+        contract:
+            garde: "Garde"
+            garde_sans: "Garde Sans"
+            garde_contre: "Garde Contre"
+        bouts_label: "Nombre de Bouts du Preneur"
+        points_label: "Points réalisés par le Preneur (0 à 91)"
+        submit: "Enregistrer la Donne"
+        error:
+            dead_players_not_supported: "La saisie pour les tablées variables (avec Mort) arrivera dans une prochaine tranche."
+            unknown: "L'enregistrement de la Donne a échoué pour une raison inconnue."
 
 player:
     create:

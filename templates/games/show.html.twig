@@ -11,15 +11,55 @@
     <section>
         <h2>{{ 'game.show.participants_title'|trans }}</h2>
         <ul class="participant-list">
-            {% for name in game.participantNames %}
-                <li class="participant-chip">{{ name }}</li>
+            {% for participant in game.participants %}
+                <li class="participant-chip">{{ participant.name }}</li>
             {% endfor %}
         </ul>
     </section>
 
-    <article class="placeholder-card">
-        <p class="muted">{{ 'game.show.donnes_placeholder'|trans }}</p>
-    </article>
+    <section class="deals-section">
+        <div class="deals-section__header">
+            <h2>{{ 'game.show.deals_title'|trans }}</h2>
+            {% if game.participants|length == game.mode and game.mode == 4 %}
+                <a href="{{ path('app_game_deal_new', {id: game.id}) }}" role="button" class="deal-add">
+                    {{ 'game.show.add_classic_deal'|trans }}
+                </a>
+            {% endif %}
+        </div>
 
-    <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+        {% if game.deals|length == 0 %}
+            <p class="muted">{{ 'game.show.deals_empty'|trans }}</p>
+        {% else %}
+            <table class="deals-table">
+                <thead>
+                    <tr>
+                        <th>{{ 'game.show.deal_position'|trans }}</th>
+                        {% for participant in game.participants %}
+                            <th>{{ participant.name }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for deal in game.deals %}
+                        <tr>
+                            <td>{{ deal.position }}</td>
+                            {% for participant in game.participants %}
+                                <td>{{ deal.pointsByPlayerId[participant.id] ?? 0 }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th>{{ 'game.show.total'|trans }}</th>
+                        {% for participant in game.participants %}
+                            <th>{{ participant.cumulativeScore }}</th>
+                        {% endfor %}
+                    </tr>
+                </tfoot>
+            </table>
+        {% endif %}
+    </section>
+
+    <p><a href="{{ path('app_games_index') }}">← {{ 'common.back_to_games'|trans }}</a></p>
 {% endblock %}

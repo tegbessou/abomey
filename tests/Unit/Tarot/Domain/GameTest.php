@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Tarot\Domain;
 
+use App\Tarot\Domain\Game\Bouts;
+use App\Tarot\Domain\Game\Contract;
+use App\Tarot\Domain\Game\DeadPlayersNotYetSupportedException;
 use App\Tarot\Domain\Game\DuplicateParticipantsException;
 use App\Tarot\Domain\Game\EmptyGameNameException;
 use App\Tarot\Domain\Game\Game;
@@ -11,6 +14,7 @@ use App\Tarot\Domain\Game\GameId;
 use App\Tarot\Domain\Game\Mode;
 use App\Tarot\Domain\Game\TooFewParticipantsException;
 use App\Tarot\Domain\Game\TooManyParticipantsException;
+use App\Tests\Builder\Tarot\GameBuilder;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -214,6 +218,39 @@ final class GameTest extends TestCase
         );
 
         self::assertSame($createdAt, $game->getCreatedAt());
+    }
+
+    #[Test]
+    public function aClassicDealCanBeRecordedOnAGameWithMatchingTableSize(): void
+    {
+        $game = GameBuilder::aGame()->build();
+
+        $game->recordClassicDeal(
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+        );
+
+        self::assertCount(1, $game->getDeals());
+    }
+
+    #[Test]
+    public function recordingAClassicDealIsNotYetSupportedWhenTheTableExceedsTheMode(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+            ->build();
+
+        $this->expectException(DeadPlayersNotYetSupportedException::class);
+
+        $game->recordClassicDeal(
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+        );
     }
 
     private static function aCreatedAt(): \DateTimeImmutable

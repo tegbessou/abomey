@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'deal.create.title'|trans({'%game%': game.name}) }}{% endblock %}
+
+{% block body %}
+    <section class="game-hero">
+        <span class="game-mode-badge">{{ ('game.mode.' ~ game.mode)|trans }}</span>
+        <h1>{{ 'deal.create.title'|trans({'%game%': game.name}) }}</h1>
+    </section>
+
+    {% if errorKey is not null %}
+        <p class="flash flash--error">{{ errorKey|trans }}</p>
+    {% endif %}
+
+    {{ form_start(form, {attr: {class: 'deal-form'}}) }}
+        {{ form_row(form.takerId) }}
+        {{ form_row(form.contract) }}
+        {{ form_row(form.bouts) }}
+        {{ form_row(form.pointsScored) }}
+        {{ form_row(form.submit) }}
+    {{ form_end(form) }}
+
+    <p><a href="{{ path('app_game_show', {id: game.id}) }}">← {{ 'common.back_to_game'|trans }}</a></p>
+{% endblock %}

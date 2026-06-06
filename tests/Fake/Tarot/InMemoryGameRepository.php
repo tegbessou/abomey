@@ -18,6 +18,11 @@ final class InMemoryGameRepository implements GameRepository
         $this->games[$game->getId()->toString()] = $game;
     }
 
+    public function update(Game $game): void
+    {
+        $this->games[$game->getId()->toString()] = $game;
+    }
+
     public function ofId(GameId $id, string $owner): ?Game
     {
         $game = $this->games[$id->toString()] ?? null;

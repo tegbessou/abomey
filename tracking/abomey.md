@@ -2,7 +2,7 @@
 
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
-- **Dernière touche** : 2026-05-23
+- **Dernière touche** : 2026-06-06
 - **Échéance** : —
 - **Contexte** : Permettre à un Utilisateur de saisir en
   direct les Donnes successives d'une Partie, avec calcul
@@ -10,10 +10,10 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : attaquer la Tranche 1 (walking
-  skeleton — Donne classique à 4 joueurs, tablée = Mode,
-  sans primes). T0 livrée le 2026-05-24.
-  `docs/scoring.md` partie classique sans primes déjà créé.
+- **Prochaine action** : attaquer la Tranche 2a (Petit au
+  Bout). T0 et T1 livrées. Branche de travail :
+  `feat/003-saisie-donnes` (commits empilés jusqu'à fin de
+  l'US, push à la fin).
 - **Spec** : `product/saisie-donnes.md`
 - **Notes** :
   - 2026-05-23 — problème validé en phase 1.
@@ -119,6 +119,78 @@
     par fonction) ; **réponses concises** (recommandation
     plutôt qu'options exhaustives). À appliquer
     systématiquement.
+  - 2026-05-24 — convention exception command handler
+    actée et capturée en mémoire : aggregate introuvable
+    = `DomainException` dédiée (ex. `GameNotFoundException`),
+    pas `\LogicException`. **Dette transverse identifiée**
+    sur les handlers déjà livrés à harmoniser hors-T1 :
+    `AcceptPrivacyPolicyCommandHandler`,
+    `DeleteAccountCommandHandler` (Account, both throw
+    `\LogicException` quand user introuvable) ;
+    `GetUserDisplayNameQueryHandler` (Account, query
+    devrait retourner null plutôt qu'exception). À
+    cadrer comme tranche de refacto dédiée après T1, ou
+    sujet #004 « Harmonisation des exceptions au boundary ».
+    Doc à ajouter : convention « handler not found »
+    explicite (dans `symfony-conventions` skill, ADR
+    dédiée, ou CLAUDE.md projet — à arbitrer).
+  - 2026-06-06 — **T1 livrée** (walking skeleton : Donne
+    classique à 4 joueurs, tablée = Mode, sans primes).
+    Domain : `Deal` Entity interne à l'Aggregate `Game`
+    (validation D2/D5 + calcul FFT `pointsByPlayer`),
+    enums `Contract` (multiplicateur via method) et `Bouts`
+    (but FFT via method), `Game::recordClassicDeal` (verrou
+    D9 temporaire `DeadPlayersNotYetSupportedException`,
+    incrémentation auto de la position). Application :
+    `RecordClassicDealCommandHandler` (avec
+    `GameNotFoundException` dédiée, pas `\LogicException`),
+    `ShowGameQueryHandler` enrichi (deals + cumulatives par
+    participant via `ParticipantSummaryView`),
+    `ListMyGamesQueryHandler` enrichi (dealCount + scores
+    cumulés sur la carte). Read model partagé
+    `App\Tarot\Application\Shared\ParticipantSummaryView`
+    (id, name, cumulativeScore) consommé par les deux
+    queries. Infra : OneToMany cascade `Game` → `Deal` avec
+    `OrderBy position ASC`, `GameRepository::update`,
+    migration `Version20260525120000` (table `deals`).
+    UI : `RecordClassicDealController`
+    (`/games/{id}/deals/new`, GET/POST), form symfony
+    classique, template `new_deal.html.twig`, `show.html.twig`
+    enrichi (tableau cumulatif Donnes en lignes / Joueurs
+    en colonnes / Total en pied), carte de liste enrichie
+    (scores cumulés au lieu de « pas encore de manche »
+    quand `dealCount > 0`). CSS pour deals-table et
+    game-card__scores. Tests : 8 unit Domain `Deal` (formule
+    FFT sur 4 cas, validations D2/D5), 2 unit Domain `Game`
+    (happy + verrou D9), 2 unit Application
+    `RecordClassicDealCommandHandler`, 3 unit Application
+    `ShowGameQueryHandler`, 1 unit Application
+    `ListMyGamesQueryHandler` (cumulatives), 1 integration
+    `DoctrineGameRepository` (round-trip deals), 2 e2e
+    `RecordClassicDealTest`. Total : 74 unit + 17
+    integration + 17 e2e, quality 0 violation.
+  - **Choix non-triviaux T1** :
+    - `Bouts` enum int-backed (la valeur = nombre de
+      Bouts), `Contract` enum string-backed avec method
+      `multiplier()` (sémantique métier). Asymétrie
+      assumée.
+    - `Deal::createClassic(Game, position, ...)` non
+      nullable. Correction d'un compromis précédent
+      (`?Game` pour préserver les tests Deal isolés) :
+      les tests passent un Game via `GameBuilder` au prix
+      d'un peu de boilerplate, le modèle reste propre.
+    - `Deal` Doctrine Entity interne avec ID
+      auto-incrémental (pas de DealId VO), pas de
+      DealRepository (accès uniquement via `Game`).
+    - Calcul des points à la lecture
+      (`Deal::pointsByPlayer()` recalcule à chaque appel,
+      pas stocké) — choix DDD strict : règles peuvent
+      évoluer sans migration des Donnes existantes.
+    - Verrou côté UI : bouton « Ajouter une Donne » visible
+      seulement si `Mode == 4` et `tablée == Mode`. Verrou
+      côté Domain : exception si `tablée > Mode`. Tarot à 3
+      et 5 sans Partenaire passent gratuitement par la
+      formule (mais hors-scope T1).
 
 ## #002 — Création d'une Partie
 - **Ouvert le** : 2026-05-15

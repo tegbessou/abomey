@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tarot\Application\ListMyGames;
 
+use App\Tarot\Application\Shared\ParticipantSummaryView;
+use App\Tarot\Domain\Game\Deal;
 use App\Tarot\Domain\Game\Game;
 use App\Tarot\Domain\Game\GameRepository;
 use App\Tarot\Domain\Player\PlayerRepository;
@@ -29,7 +31,8 @@ final readonly class ListMyGamesQueryHandler
                 id: $game->getId()->toString(),
                 name: $game->getName(),
                 mode: $game->getMode()->value,
-                participantNames: $this->participantNamesOf($game, $playerNamesById),
+                dealCount: count($game->getDeals()),
+                participants: $this->participantsOf($game, $playerNamesById),
             );
         }
 
@@ -50,15 +53,32 @@ final readonly class ListMyGamesQueryHandler
     /**
      * @param array<string, string> $playerNamesById
      *
-     * @return list<string>
+     * @return list<ParticipantSummaryView>
      */
-    private function participantNamesOf(Game $game, array $playerNamesById): array
+    private function participantsOf(Game $game, array $playerNamesById): array
     {
-        $participantNames = [];
+        $participants = [];
         foreach ($game->getParticipantIds() as $participantId) {
-            $participantNames[] = $playerNamesById[$participantId] ?? '?';
+            $participants[] = new ParticipantSummaryView(
+                id: $participantId,
+                name: $playerNamesById[$participantId] ?? '?',
+                cumulativeScore: $this->cumulativeScoreOf($participantId, $game->getDeals()),
+            );
         }
 
-        return $participantNames;
+        return $participants;
+    }
+
+    /**
+     * @param list<Deal> $deals
+     */
+    private function cumulativeScoreOf(string $playerId, array $deals): int
+    {
+        $total = 0;
+        foreach ($deals as $deal) {
+            $total += $deal->pointsByPlayer()[$playerId] ?? 0;
+        }
+
+        return $total;
     }
 }

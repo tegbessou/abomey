@@ -21,6 +21,11 @@ final readonly class DoctrineGameRepository implements GameRepository
         $this->entityManager->flush();
     }
 
+    public function update(Game $game): void
+    {
+        $this->entityManager->flush();
+    }
+
     public function ofId(GameId $id, string $owner): ?Game
     {
         $result = $this->entityManager->createQueryBuilder()

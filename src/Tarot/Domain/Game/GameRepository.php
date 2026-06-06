@@ -8,6 +8,8 @@ interface GameRepository
 {
     public function create(Game $game): void;
 
+    public function update(Game $game): void;
+
     public function ofId(GameId $id, string $owner): ?Game;
 
     /** @return list<Game> */
