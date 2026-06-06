@@ -12,11 +12,168 @@
         <p class="flash flash--error">{{ errorKey|trans }}</p>
     {% endif %}
 
+    {% set participantById = {} %}
+    {% for participant in game.participants %}
+        {% set participantById = participantById|merge({(participant.id): participant}) %}
+    {% endfor %}
+
     {{ form_start(form, {attr: {class: 'deal-form'}}) }}
         {{ form_row(form.takerId) }}
         {{ form_row(form.contract) }}
         {{ form_row(form.bouts) }}
         {{ form_row(form.pointsScored) }}
+        {{ form_row(form.petitAuBout) }}
+        {{ form_row(form.chelem) }}
+
+        <fieldset
+            class="form-collection"
+            data-controller="form-collection"
+            data-form-collection-name-prefix-value="{{ form.poignees.vars.full_name }}"
+            data-form-collection-index-value="{{ form.poignees|length }}"
+            data-form-collection-remove-label-value="{{ 'deal.create.poignees_remove'|trans }}"
+        >
+            <legend>{{ 'deal.create.poignees_label'|trans }}</legend>
+
+            <ul data-form-collection-target="list" class="form-collection-list">
+                {% for poigneeForm in form.poignees %}
+                    {% set announcerId = poigneeForm.announcerId.vars.value %}
+                    {% set size = poigneeForm.size.vars.value %}
+                    <li class="form-collection-line">
+                        <span class="form-collection-line__label">
+                            {{ participantById[announcerId] is defined ? participantById[announcerId].name : '?' }}
+                            —
+                            {{ ('deal.create.poignee.size.' ~ size)|trans }}
+                        </span>
+                        {{ form_widget(poigneeForm.announcerId, {attr: {hidden: true}}) }}
+                        {{ form_widget(poigneeForm.size, {attr: {hidden: true}}) }}
+                        <button
+                            type="button"
+                            class="form-collection-remove"
+                            aria-label="{{ 'deal.create.poignees_remove'|trans }}"
+                            data-action="click->form-collection#remove"
+                        >×</button>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <button
+                type="button"
+                class="form-collection-add"
+                data-action="click->form-collection#openModal"
+            >{{ 'deal.create.poignees_add'|trans }}</button>
+
+            <dialog data-form-collection-target="modal" class="modal">
+                <article class="modal-content">
+                    <header class="modal-header">
+                        <h2>{{ 'deal.create.poignees_add'|trans }}</h2>
+                    </header>
+                    <div class="modal-form">
+                        <label>
+                            {{ 'deal.create.poignee.announcer_label'|trans }}
+                            <select data-form-collection-target="field" data-field-name="announcerId">
+                                {% for participant in game.participants %}
+                                    <option value="{{ participant.id }}">{{ participant.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            {{ 'deal.create.poignee.size_label'|trans }}
+                            <select data-form-collection-target="field" data-field-name="size">
+                                <option value="single">{{ 'deal.create.poignee.size.single'|trans }}</option>
+                                <option value="double">{{ 'deal.create.poignee.size.double'|trans }}</option>
+                                <option value="triple">{{ 'deal.create.poignee.size.triple'|trans }}</option>
+                            </select>
+                        </label>
+                        <div class="modal-actions">
+                            <button
+                                type="button"
+                                class="secondary"
+                                data-action="click->form-collection#closeModal"
+                            >{{ 'common.cancel'|trans }}</button>
+                            <button
+                                type="button"
+                                data-action="click->form-collection#confirmAdd"
+                            >{{ 'deal.create.poignees_add'|trans }}</button>
+                        </div>
+                    </div>
+                </article>
+            </dialog>
+        </fieldset>
+
+        <fieldset
+            class="form-collection"
+            data-controller="form-collection"
+            data-form-collection-name-prefix-value="{{ form.miseres.vars.full_name }}"
+            data-form-collection-index-value="{{ form.miseres|length }}"
+            data-form-collection-remove-label-value="{{ 'deal.create.miseres_remove'|trans }}"
+        >
+            <legend>{{ 'deal.create.miseres_label'|trans }}</legend>
+
+            <ul data-form-collection-target="list" class="form-collection-list">
+                {% for misereForm in form.miseres %}
+                    {% set announcerId = misereForm.announcerId.vars.value %}
+                    {% set type = misereForm.type.vars.value %}
+                    <li class="form-collection-line">
+                        <span class="form-collection-line__label">
+                            {{ participantById[announcerId] is defined ? participantById[announcerId].name : '?' }}
+                            —
+                            {{ ('deal.create.misere.type.' ~ type)|trans }}
+                        </span>
+                        {{ form_widget(misereForm.announcerId, {attr: {hidden: true}}) }}
+                        {{ form_widget(misereForm.type, {attr: {hidden: true}}) }}
+                        <button
+                            type="button"
+                            class="form-collection-remove"
+                            aria-label="{{ 'deal.create.miseres_remove'|trans }}"
+                            data-action="click->form-collection#remove"
+                        >×</button>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            <button
+                type="button"
+                class="form-collection-add"
+                data-action="click->form-collection#openModal"
+            >{{ 'deal.create.miseres_add'|trans }}</button>
+
+            <dialog data-form-collection-target="modal" class="modal">
+                <article class="modal-content">
+                    <header class="modal-header">
+                        <h2>{{ 'deal.create.miseres_add'|trans }}</h2>
+                    </header>
+                    <div class="modal-form">
+                        <label>
+                            {{ 'deal.create.misere.announcer_label'|trans }}
+                            <select data-form-collection-target="field" data-field-name="announcerId">
+                                {% for participant in game.participants %}
+                                    <option value="{{ participant.id }}">{{ participant.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <label>
+                            {{ 'deal.create.misere.type_label'|trans }}
+                            <select data-form-collection-target="field" data-field-name="type">
+                                <option value="atouts">{{ 'deal.create.misere.type.atouts'|trans }}</option>
+                                <option value="tete">{{ 'deal.create.misere.type.tete'|trans }}</option>
+                            </select>
+                        </label>
+                        <div class="modal-actions">
+                            <button
+                                type="button"
+                                class="secondary"
+                                data-action="click->form-collection#closeModal"
+                            >{{ 'common.cancel'|trans }}</button>
+                            <button
+                                type="button"
+                                data-action="click->form-collection#confirmAdd"
+                            >{{ 'deal.create.miseres_add'|trans }}</button>
+                        </div>
+                    </div>
+                </article>
+            </dialog>
+        </fieldset>
+
         {{ form_row(form.submit) }}
     {{ form_end(form) }}
 

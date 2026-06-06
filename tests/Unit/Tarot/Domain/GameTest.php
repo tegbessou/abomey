@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Tarot\Domain;
 
 use App\Tarot\Domain\Game\Bouts;
+use App\Tarot\Domain\Game\Chelem;
 use App\Tarot\Domain\Game\Contract;
 use App\Tarot\Domain\Game\DeadPlayersNotYetSupportedException;
 use App\Tarot\Domain\Game\DuplicateParticipantsException;
@@ -12,6 +13,7 @@ use App\Tarot\Domain\Game\EmptyGameNameException;
 use App\Tarot\Domain\Game\Game;
 use App\Tarot\Domain\Game\GameId;
 use App\Tarot\Domain\Game\Mode;
+use App\Tarot\Domain\Game\PetitAuBout;
 use App\Tarot\Domain\Game\TooFewParticipantsException;
 use App\Tarot\Domain\Game\TooManyParticipantsException;
 use App\Tests\Builder\Tarot\GameBuilder;
@@ -230,6 +232,10 @@ final class GameTest extends TestCase
             contract: Contract::Garde,
             bouts: Bouts::One,
             pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
         );
 
         self::assertCount(1, $game->getDeals());
@@ -250,6 +256,10 @@ final class GameTest extends TestCase
             contract: Contract::Garde,
             bouts: Bouts::One,
             pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
         );
     }
 

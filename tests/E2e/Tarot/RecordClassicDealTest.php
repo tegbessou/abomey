@@ -84,6 +84,68 @@ final class RecordClassicDealTest extends WebTestCase
     }
 
     #[Test]
+    public function aClassicDealWithPetitAuBoutOnTakerSideAddsTheBonusToTheTakerScore(): void
+    {
+        $client = static::createClient();
+        $container = static::getContainer();
+        /** @var UserRepository $userRepository */
+        $userRepository = $container->get(UserRepository::class);
+        /** @var GameRepository $gameRepository */
+        $gameRepository = $container->get(GameRepository::class);
+        /** @var PlayerRepository $playerRepository */
+        $playerRepository = $container->get(PlayerRepository::class);
+
+        $userId = UserId::fromString('eeeeeeee-ffff-4aaa-8bbb-eeeeeeeeeeee');
+        $userRepository->create(
+            UserBuilder::aUser()
+                ->withId($userId)
+                ->withExternalIdentifier('external-pab-taker')
+                ->withEmail('pab-taker@example.com')
+                ->named('Tester')
+                ->havingAcceptedPrivacyPolicy()
+                ->build(),
+        );
+        foreach (['Alice', 'Bob', 'Charlie', 'David'] as $index => $name) {
+            $playerRepository->create(
+                PlayerBuilder::aPlayer()
+                    ->withId('pab-'.($index + 1))
+                    ->ownedBy($userId->toString())
+                    ->named($name)
+                    ->build(),
+            );
+        }
+        $gameId = GameId::fromString('ffffffff-aaaa-4bbb-8ccc-ffffffffffff');
+        $gameRepository->create(
+            GameBuilder::aGame()
+                ->withId($gameId)
+                ->ownedBy($userId->toString())
+                ->named('Soirée PAB')
+                ->withMode(Mode::Four)
+                ->withParticipants(['pab-1', 'pab-2', 'pab-3', 'pab-4'])
+                ->build(),
+        );
+
+        $client->loginUser(new SecurityUser($userId));
+
+        $crawler = $client->request('GET', '/games/'.$gameId->toString().'/deals/new');
+        self::assertResponseIsSuccessful();
+
+        $form = $crawler->selectButton('record_classic_deal_form[submit]')->form([
+            'record_classic_deal_form[takerId]' => 'pab-1',
+            'record_classic_deal_form[contract]' => 'garde',
+            'record_classic_deal_form[bouts]' => '1',
+            'record_classic_deal_form[pointsScored]' => '60',
+            'record_classic_deal_form[petitAuBout]' => 'taker',
+        ]);
+        $client->submit($form);
+
+        self::assertResponseRedirects('/games/'.$gameId->toString());
+        $client->followRedirect();
+        self::assertSelectorExists('.deals-table');
+        self::assertSelectorTextContains('.deals-table', '132');
+    }
+
+    #[Test]
     public function recordingADealIsForbiddenWhenTheTableExceedsTheMode(): void
     {
         $client = static::createClient();

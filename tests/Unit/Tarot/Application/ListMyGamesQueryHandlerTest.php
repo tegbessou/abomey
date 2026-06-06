@@ -7,8 +7,10 @@ namespace App\Tests\Unit\Tarot\Application;
 use App\Tarot\Application\ListMyGames\ListMyGamesQuery;
 use App\Tarot\Application\ListMyGames\ListMyGamesQueryHandler;
 use App\Tarot\Domain\Game\Bouts;
+use App\Tarot\Domain\Game\Chelem;
 use App\Tarot\Domain\Game\Contract;
 use App\Tarot\Domain\Game\Mode;
+use App\Tarot\Domain\Game\PetitAuBout;
 use App\Tests\Builder\Tarot\GameBuilder;
 use App\Tests\Builder\Tarot\PlayerBuilder;
 use App\Tests\Fake\Tarot\InMemoryGameRepository;
@@ -140,6 +142,10 @@ final class ListMyGamesQueryHandlerTest extends TestCase
             contract: Contract::Garde,
             bouts: Bouts::One,
             pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
         );
         $gameRepository = new InMemoryGameRepository();
         $gameRepository->create($game);

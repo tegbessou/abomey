@@ -10,10 +10,10 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : attaquer la Tranche 2a (Petit au
-  Bout). T0 et T1 livrées. Branche de travail :
-  `feat/003-saisie-donnes` (commits empilés jusqu'à fin de
-  l'US, push à la fin).
+- **Prochaine action** : attaquer la Tranche 3 (Mort
+  manuel). T0, T1, T2 (a+b+c+d) livrées. Branche de
+  travail : `feat/003-saisie-donnes` (commits empilés
+  jusqu'à fin de l'US, push à la fin).
 - **Spec** : `product/saisie-donnes.md`
 - **Notes** :
   - 2026-05-23 — problème validé en phase 1.
@@ -169,6 +169,69 @@
     `DoctrineGameRepository` (round-trip deals), 2 e2e
     `RecordClassicDealTest`. Total : 74 unit + 17
     integration + 17 e2e, quality 0 violation.
+  - 2026-06-06 — **T2 complète livrée** (T2a Petit au Bout,
+    T2b Chelem, T2c Poignée(s), T2d Misère(s)).
+    - Domain : enums `PetitAuBout`, `Chelem`,
+      `PoigneeSize`, `MisereType` avec methods métier
+      (`bonus`, `multiplier`, etc.). VOs `Poignee`,
+      `Misere` (immutables). Exceptions dédiées
+      (`PoigneeAnnouncerNotActiveException`,
+      `MisereAnnouncerNotActiveException`,
+      `DuplicateMisereException`). Mécaniques de calcul
+      intégrées dans `Deal::pointsByPlayer` : PAB / Chelem
+      / Poignées dans `score_net` (multiplié par
+      defendersCount pour Preneur, à somme nulle) ;
+      Misères en post-traitement (annonceur reçoit
+      +10×(Mode−1), autres actifs −10, somme nulle par
+      Misère).
+    - Convention métier actée pour le Chelem : option (c)
+      « grosse récompense » — bonus multiplié par
+      defendersCount pour le Preneur, cohérent avec la
+      mécanique des autres primes.
+    - Migrations : `Version20260606120000` (petit_au_bout),
+      `Version20260606130000` (chelem),
+      `Version20260606140000` (poignees JSON),
+      `Version20260606150000` (miseres JSON).
+    - UI : `RecordClassicDealFormType` enrichi avec
+      ChoiceType PAB/Chelem, CollectionType pour
+      Poignées/Misères. `PoigneeFormType` et
+      `MisereFormType` sub-forms. Modale `<dialog>` natif
+      par collection avec liste compacte et icône `×`.
+    - Stimulus `form_collection_controller` **générique**
+      (refactor T2d) : targets `field` + `data-field-name`,
+      utilisable pour Poignée et Misère. Pattern réutilisable
+      pour futurs sujets multi-entrées.
+    - Refacto symfony-conventions §3 : split du
+      `RecordClassicDealController` en deux —
+      `ShowRecordClassicDealFormController` (GET) et
+      `RecordClassicDealController` (POST). Plus de mélange
+      Query/Command dans un seul `__invoke`. Routes
+      `app_game_deal_new` (GET) et `app_game_deal_record`
+      (POST) sur le même path `/games/{id}/deals/new`.
+    - Refacto qualité de code : `Deal::$poignees` →
+      `Deal::$poigneesData` et idem Misères (signaler
+      stockage Doctrine, pas VOs métier directs).
+      `applyMiseres` → `withMiseresApplied` (immutable
+      retournant un nouveau tableau, fin de la mutation
+      par référence).
+    - Tests : 4 unit Deal pour PAB (4 scénarios via data
+      provider), 2 unit Deal pour Chelem, 3 unit Deal pour
+      Poignée(s) (single, multi, announcer not active),
+      4 unit Deal pour Misère(s) (single, double type,
+      duplicate, announcer not active), 1 test Panther
+      `RecordClassicDealWithPoigneeTest`. Total : 84 unit +
+      17 integration + 18 e2e + 2 Panther, quality 0
+      violation.
+  - 2026-06-06 — **dette identifiée à traiter en refacto
+    dédiée** : `Deal::$poigneesData` et `Deal::$miseresData`
+    sont stockées comme `array<int, array{...}>` (JSON) côté
+    Doctrine et reconstruites en VOs `Poignee`/`Misere` à
+    l'appel de `Deal::createClassic`. Le naming `*Data` a
+    été choisi pour signaler qu'il s'agit de la
+    représentation persistance plutôt que des VOs métier
+    eux-mêmes. À refacto proprement : stockage des VOs
+    directement (Doctrine embeddable list / custom JSON
+    type), avec round-trip transparent. Acté hors T2.
   - 2026-06-06 — **dette exceptions handler fermée**.
     `UserNotFoundException` créée dans
     `App\Account\Domain\User\` (extends `\DomainException`).

@@ -38,6 +38,10 @@ final class RecordClassicDealCommandHandlerTest extends TestCase
             contract: 'garde',
             bouts: 1,
             pointsScored: 60,
+            petitAuBout: 'none',
+            chelem: 'none',
+            poignees: [],
+            miseres: [],
         ));
 
         $updated = $gameRepository->ofId($gameId, 'owner-user-id');
@@ -59,6 +63,10 @@ final class RecordClassicDealCommandHandlerTest extends TestCase
             contract: 'garde',
             bouts: 1,
             pointsScored: 60,
+            petitAuBout: 'none',
+            chelem: 'none',
+            poignees: [],
+            miseres: [],
         ));
     }
 }

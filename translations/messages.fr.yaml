@@ -2,6 +2,7 @@ common:
     back_to_home: "Retour à l'accueil"
     back_to_games: "Retour à mes Parties"
     back_to_game: "Retour à la Partie"
+    cancel: "Annuler"
 
 home:
     title: "Abomey"
@@ -83,6 +84,38 @@ deal:
             garde_contre: "Garde Contre"
         bouts_label: "Nombre de Bouts du Preneur"
         points_label: "Points réalisés par le Preneur (0 à 91)"
+        petit_au_bout_label: "Petit au Bout"
+        petit_au_bout:
+            none: "Aucun"
+            taker: "Preneur"
+            defense: "Défense"
+        chelem_label: "Chelem"
+        chelem:
+            none: "Aucun"
+            realised: "Réalisé sans annonce"
+            announced_realised: "Annoncé et réalisé"
+            announced_failed: "Annoncé non réalisé"
+        poignees_label: "Poignée(s)"
+        poignees_add: "Ajouter une Poignée"
+        poignees_remove: "Retirer"
+        poignee:
+            announcer_label: "Annoncée par"
+            announcer_placeholder: "Choisir un Joueur"
+            size_label: "Taille"
+            size:
+                single: "Simple"
+                double: "Double"
+                triple: "Triple"
+        miseres_label: "Misère(s)"
+        miseres_add: "Ajouter une Misère"
+        miseres_remove: "Retirer"
+        misere:
+            announcer_label: "Annoncée par"
+            announcer_placeholder: "Choisir un Joueur"
+            type_label: "Type"
+            type:
+                atouts: "Atouts"
+                tete: "Tête"
         submit: "Enregistrer la Donne"
         error:
             dead_players_not_supported: "La saisie pour les tablées variables (avec Mort) arrivera dans une prochaine tranche."

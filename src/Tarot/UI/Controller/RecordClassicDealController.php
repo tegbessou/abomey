@@ -19,7 +19,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/games/{id}/deals/new', name: 'app_game_deal_new', methods: ['GET', 'POST'])]
+#[Route('/games/{id}/deals/new', name: 'app_game_deal_record', methods: ['POST'])]
 final class RecordClassicDealController extends AbstractController
 {
     public function __construct(
@@ -31,7 +31,7 @@ final class RecordClassicDealController extends AbstractController
     {
         $user = $this->getUser();
         if (null === $user) {
-            throw new \LogicException('User must be authenticated to access /games/{id}/deals/new.');
+            throw new \LogicException('User must be authenticated to submit a Donne.');
         }
 
         $view = $this->queryBus->ask(new ShowGameQuery(
@@ -51,11 +51,10 @@ final class RecordClassicDealController extends AbstractController
         $form = $this->createForm(RecordClassicDealFormType::class, $formData, [
             'participants' => $view->participants,
         ]);
-
         $form->handleRequest($request);
-        $errorKey = null;
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        $errorKey = null;
+        if ($form->isValid()) {
             try {
                 $this->commandBus->dispatch(new RecordClassicDealCommand(
                     ownerId: $user->getUserIdentifier(),
@@ -64,6 +63,10 @@ final class RecordClassicDealController extends AbstractController
                     contract: (string) $formData->contract,
                     bouts: (int) $formData->bouts,
                     pointsScored: (int) $formData->pointsScored,
+                    petitAuBout: (string) $formData->petitAuBout,
+                    chelem: (string) $formData->chelem,
+                    poignees: $formData->poignees,
+                    miseres: $formData->miseres,
                 ));
 
                 return $this->redirectToRoute('app_game_show', ['id' => $id]);

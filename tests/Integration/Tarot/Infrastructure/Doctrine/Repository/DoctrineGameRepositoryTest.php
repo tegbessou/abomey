@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Tests\Integration\Tarot\Infrastructure\Doctrine\Repository;
 
 use App\Tarot\Domain\Game\Bouts;
+use App\Tarot\Domain\Game\Chelem;
 use App\Tarot\Domain\Game\Contract;
 use App\Tarot\Domain\Game\GameId;
 use App\Tarot\Domain\Game\Mode;
+use App\Tarot\Domain\Game\PetitAuBout;
 use App\Tarot\Infrastructure\Doctrine\Repository\DoctrineGameRepository;
 use App\Tests\Builder\Tarot\GameBuilder;
 use Doctrine\ORM\EntityManagerInterface;
@@ -127,12 +129,20 @@ final class DoctrineGameRepositoryTest extends KernelTestCase
             contract: Contract::Garde,
             bouts: Bouts::One,
             pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
         );
         $game->recordClassicDeal(
             takerId: 'p-2',
             contract: Contract::GardeSans,
             bouts: Bouts::Zero,
             pointsScored: 50,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
         );
         $this->repository->create($game);
         $this->entityManager->clear();

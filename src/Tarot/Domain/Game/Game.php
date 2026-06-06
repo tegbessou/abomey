@@ -71,11 +71,19 @@ final class Game
         return new self($id, $owner, $trimmedName, $mode, $participantIds, $createdAt);
     }
 
+    /**
+     * @param list<Poignee> $poignees
+     * @param list<Misere>  $miseres
+     */
     public function recordClassicDeal(
         string $takerId,
         Contract $contract,
         Bouts $bouts,
         int $pointsScored,
+        PetitAuBout $petitAuBout,
+        Chelem $chelem,
+        array $poignees,
+        array $miseres,
     ): void {
         if (count($this->participantIds) > $this->mode->value) {
             throw new DeadPlayersNotYetSupportedException();
@@ -89,6 +97,10 @@ final class Game
             contract: $contract,
             bouts: $bouts,
             pointsScored: $pointsScored,
+            petitAuBout: $petitAuBout,
+            chelem: $chelem,
+            poignees: $poignees,
+            miseres: $miseres,
         );
         $this->deals->add($deal);
     }

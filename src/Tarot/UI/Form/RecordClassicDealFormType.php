@@ -7,6 +7,7 @@ namespace App\Tarot\UI\Form;
 use App\Tarot\Application\Shared\ParticipantSummaryView;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -61,6 +62,51 @@ final class RecordClassicDealFormType extends AbstractType
                     'max' => 91,
                     'placeholder' => '0 à 91',
                 ],
+            ])
+            ->add('petitAuBout', ChoiceType::class, [
+                'label' => 'deal.create.petit_au_bout_label',
+                'choices' => [
+                    'deal.create.petit_au_bout.none' => 'none',
+                    'deal.create.petit_au_bout.taker' => 'taker',
+                    'deal.create.petit_au_bout.defense' => 'defense',
+                ],
+                'expanded' => true,
+                'multiple' => false,
+            ])
+            ->add('chelem', ChoiceType::class, [
+                'label' => 'deal.create.chelem_label',
+                'choices' => [
+                    'deal.create.chelem.none' => 'none',
+                    'deal.create.chelem.realised' => 'realised',
+                    'deal.create.chelem.announced_realised' => 'announced_realised',
+                    'deal.create.chelem.announced_failed' => 'announced_failed',
+                ],
+                'expanded' => true,
+                'multiple' => false,
+            ])
+            ->add('poignees', CollectionType::class, [
+                'label' => 'deal.create.poignees_label',
+                'entry_type' => PoigneeFormType::class,
+                'entry_options' => [
+                    'label' => false,
+                    'participants' => $participants,
+                ],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true,
+            ])
+            ->add('miseres', CollectionType::class, [
+                'label' => 'deal.create.miseres_label',
+                'entry_type' => MisereFormType::class,
+                'entry_options' => [
+                    'label' => false,
+                    'participants' => $participants,
+                ],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true,
             ])
             ->add('submit', SubmitType::class, [
                 'label' => 'deal.create.submit',

@@ -6,6 +6,10 @@ namespace App\Tarot\Application\RecordClassicDeal;
 
 final readonly class RecordClassicDealCommand
 {
+    /**
+     * @param list<array{announcerId: string, size: string}> $poignees
+     * @param list<array{announcerId: string, type: string}> $miseres
+     */
     public function __construct(
         public string $ownerId,
         public string $gameId,
@@ -13,5 +17,9 @@ final readonly class RecordClassicDealCommand
         public string $contract,
         public int $bouts,
         public int $pointsScored,
+        public string $petitAuBout,
+        public string $chelem,
+        public array $poignees,
+        public array $miseres,
     ) {}
 }
