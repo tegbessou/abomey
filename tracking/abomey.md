@@ -169,6 +169,23 @@
     `DoctrineGameRepository` (round-trip deals), 2 e2e
     `RecordClassicDealTest`. Total : 74 unit + 17
     integration + 17 e2e, quality 0 violation.
+  - 2026-06-06 — **dette exceptions handler fermée**.
+    `UserNotFoundException` créée dans
+    `App\Account\Domain\User\` (extends `\DomainException`).
+    `AcceptPrivacyPolicyCommandHandler` et
+    `DeleteAccountCommandHandler` lèvent désormais
+    `UserNotFoundException` au lieu de `\LogicException`.
+    Code mort `GetUserDisplayName*` (Query + handler +
+    test) supprimé : orpheline depuis T0 quand
+    `HomeController` a basculé en redirection. Test
+    characterization ajouté pour
+    `DeleteAccountCommandHandler` (filet absent avant la
+    refacto). `StubMessageBus` introduit dans
+    `tests/Stub/Shared/` pour instancier `EventBus`
+    sans dépendre du framework Messenger en unit test.
+    Doc actée dans `~/teg/skills/symfony-conventions/`
+    (thème 12, section « Exceptions métier côté handler »
+    en amont du catch boundary).
   - **Choix non-triviaux T1** :
     - `Bouts` enum int-backed (la valeur = nombre de
       Bouts), `Contract` enum string-backed avec method

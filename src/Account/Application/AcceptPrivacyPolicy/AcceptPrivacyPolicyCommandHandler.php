@@ -6,6 +6,7 @@ namespace App\Account\Application\AcceptPrivacyPolicy;
 
 use App\Account\Domain\User\PrivacyPolicyVersion;
 use App\Account\Domain\User\UserId;
+use App\Account\Domain\User\UserNotFoundException;
 use App\Account\Domain\User\UserRepository;
 use Psr\Clock\ClockInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -23,7 +24,7 @@ final readonly class AcceptPrivacyPolicyCommandHandler
         $user = $this->userRepository->ofId(UserId::fromString($command->userId));
 
         if (null === $user) {
-            throw new \LogicException(sprintf('User "%s" not found.', $command->userId));
+            throw new UserNotFoundException();
         }
 
         $user->acceptPrivacyPolicy(PrivacyPolicyVersion::from($command->version), $this->clock->now());

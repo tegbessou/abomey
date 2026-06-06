@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Account\Application\DeleteAccount;
 
 use App\Account\Domain\User\UserId;
+use App\Account\Domain\User\UserNotFoundException;
 use App\Account\Domain\User\UserRepository;
 use App\Shared\Application\Bus\EventBus;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -22,7 +23,7 @@ final readonly class DeleteAccountCommandHandler
         $user = $this->userRepository->ofId(UserId::fromString($command->userId));
 
         if (null === $user) {
-            throw new \LogicException(sprintf('User "%s" not found.', $command->userId));
+            throw new UserNotFoundException();
         }
 
         $user->delete();

@@ -8,6 +8,7 @@ use App\Account\Application\AcceptPrivacyPolicy\AcceptPrivacyPolicyCommand;
 use App\Account\Application\AcceptPrivacyPolicy\AcceptPrivacyPolicyCommandHandler;
 use App\Account\Domain\User\PrivacyPolicyVersion;
 use App\Account\Domain\User\UserId;
+use App\Account\Domain\User\UserNotFoundException;
 use App\Tests\Builder\Account\UserBuilder;
 use App\Tests\Fake\Account\InMemoryUserRepository;
 use PHPUnit\Framework\Attributes\Test;
@@ -46,7 +47,7 @@ final class AcceptPrivacyPolicyCommandHandlerTest extends TestCase
             new MockClock(new \DateTimeImmutable('2026-05-15T12:00:00+00:00')),
         );
 
-        $this->expectException(\LogicException::class);
+        $this->expectException(UserNotFoundException::class);
 
         $handler->handle(new AcceptPrivacyPolicyCommand(
             userId: '01900000-0000-7000-8000-000000000031',
