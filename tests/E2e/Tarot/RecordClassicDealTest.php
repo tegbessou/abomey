@@ -79,8 +79,9 @@ final class RecordClassicDealTest extends WebTestCase
 
         $client->followRedirect();
         self::assertResponseIsSuccessful();
-        self::assertSelectorExists('.deals-table');
-        self::assertSelectorTextContains('.deals-table', '102');
+        self::assertSelectorExists('.ab-donne-card');
+        self::assertSelectorTextContains('.game-scoreboard', '102');
+        self::assertSelectorTextContains('.ab-donnes-matrix', '102');
     }
 
     #[Test]
@@ -141,8 +142,9 @@ final class RecordClassicDealTest extends WebTestCase
 
         self::assertResponseRedirects('/games/'.$gameId->toString());
         $client->followRedirect();
-        self::assertSelectorExists('.deals-table');
-        self::assertSelectorTextContains('.deals-table', '132');
+        self::assertSelectorExists('.ab-donne-card');
+        self::assertSelectorTextContains('.game-scoreboard', '132');
+        self::assertSelectorTextContains('.ab-donnes-matrix', '132');
     }
 
     #[Test]

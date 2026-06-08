@@ -78,8 +78,8 @@ final class ListGamesTest extends WebTestCase
         $client->request('GET', '/games');
 
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('.game-card__title', 'Soirée chez Paul');
-        self::assertSelectorTextContains('.game-mode-badge', 'Tarot à 4');
+        self::assertSelectorTextContains('.ab-game-card__title', 'Soirée chez Paul');
+        self::assertSelectorTextContains('.ab-badge', 'Tarot à 4');
     }
 
     #[Test]

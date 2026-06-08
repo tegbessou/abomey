@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Tarot\Application;
 
+use App\Tarot\Application\ShowGame\DealScoreLine;
 use App\Tarot\Application\ShowGame\ShowGameQuery;
 use App\Tarot\Application\ShowGame\ShowGameQueryHandler;
 use App\Tarot\Domain\Game\Bouts;
@@ -106,6 +107,15 @@ final class ShowGameQueryHandlerTest extends TestCase
             ['p-1' => 102, 'p-2' => -34, 'p-3' => -34, 'p-4' => -34],
             $view->deals[0]->pointsByPlayerId,
         );
+        self::assertEquals(
+            [
+                new DealScoreLine('Alice', 102),
+                new DealScoreLine('Bob', -34),
+                new DealScoreLine('Charlie', -34),
+                new DealScoreLine('David', -34),
+            ],
+            $view->deals[0]->scores,
+        );
         self::assertSame(
             ['p-1' => 102, 'p-2' => -34, 'p-3' => -34, 'p-4' => -34],
             self::cumulativesById($view->participants),
@@ -169,6 +179,10 @@ final class ShowGameQueryHandlerTest extends TestCase
             ['p-1' => 133, 'p-2' => -127, 'p-3' => -3, 'p-4' => -3],
             self::cumulativesById($view->participants),
         );
+        self::assertSame(
+            ['Alice', 'Charlie', 'David', 'Bob'],
+            self::namesOf($view->standings),
+        );
     }
 
     /**
@@ -184,5 +198,20 @@ final class ShowGameQueryHandlerTest extends TestCase
         }
 
         return $cumulativesById;
+    }
+
+    /**
+     * @param list<\App\Tarot\Application\Shared\ParticipantSummaryView> $participants
+     *
+     * @return list<string>
+     */
+    private static function namesOf(array $participants): array
+    {
+        $names = [];
+        foreach ($participants as $participant) {
+            $names[] = $participant->name;
+        }
+
+        return $names;
     }
 }

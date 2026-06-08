@@ -9,7 +9,8 @@ use App\Tarot\Application\Shared\ParticipantSummaryView;
 final readonly class GameSummaryView
 {
     /**
-     * @param list<ParticipantSummaryView> $participants
+     * @param list<ParticipantSummaryView> $participants the roster, in join order
+     * @param list<ParticipantSummaryView> $standings    the same players, ranked by cumulative score (highest first)
      */
     public function __construct(
         public string $id,
@@ -17,5 +18,6 @@ final readonly class GameSummaryView
         public int $mode,
         public int $dealCount,
         public array $participants,
+        public array $standings,
     ) {}
 }

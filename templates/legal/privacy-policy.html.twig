@@ -3,6 +3,7 @@
 {% block title %}{{ 'privacy_policy.title'|trans }}{% endblock %}
 
 {% block body %}
+    <div class="legal-prose">
     <h1>{{ 'privacy_policy.title'|trans }}</h1>
 
     <p><em>{{ 'privacy_policy.placeholder_warning'|trans }}</em></p>
@@ -22,4 +23,5 @@
     <p><small>{{ 'privacy_policy.version_label'|trans({'%version%': privacy_policy_version}) }}</small></p>
 
     <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+    </div>
 {% endblock %}

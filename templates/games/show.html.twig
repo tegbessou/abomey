@@ -4,7 +4,7 @@
 
 {% block body %}
     <section class="game-hero">
-        <span class="game-mode-badge">{{ ('game.mode.' ~ game.mode)|trans }}</span>
+        <twig:badge>{{ ('game.mode.' ~ game.mode)|trans }}</twig:badge>
         <h1>{{ game.name }}</h1>
     </section>
 
@@ -30,34 +30,23 @@
         {% if game.deals|length == 0 %}
             <p class="muted">{{ 'game.show.deals_empty'|trans }}</p>
         {% else %}
-            <table class="deals-table">
-                <thead>
-                    <tr>
-                        <th>{{ 'game.show.deal_position'|trans }}</th>
-                        {% for participant in game.participants %}
-                            <th>{{ participant.name }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for deal in game.deals %}
-                        <tr>
-                            <td>{{ deal.position }}</td>
-                            {% for participant in game.participants %}
-                                <td>{{ deal.pointsByPlayerId[participant.id] ?? 0 }}</td>
-                            {% endfor %}
-                        </tr>
+            <div class="game-scoreboard">
+                <h3 class="game-scoreboard__title">{{ 'game.show.total'|trans }}</h3>
+                {% set leading_score = game.standings[0].cumulativeScore %}
+                <ul class="game-scoreboard__rows">
+                    {% for participant in game.standings %}
+                        <li><twig:player_score_row :name="participant.name" :value="participant.cumulativeScore" :emphasis="participant.cumulativeScore == leading_score" /></li>
                     {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th>{{ 'game.show.total'|trans }}</th>
-                        {% for participant in game.participants %}
-                            <th>{{ participant.cumulativeScore }}</th>
-                        {% endfor %}
-                    </tr>
-                </tfoot>
-            </table>
+                </ul>
+            </div>
+
+            <div class="deals-list">
+                {% for deal in game.deals %}
+                    <twig:donne_card :position="deal.position" :scores="deal.scores" />
+                {% endfor %}
+            </div>
+
+            <twig:donnes_matrix :game="game" />
         {% endif %}
     </section>
 

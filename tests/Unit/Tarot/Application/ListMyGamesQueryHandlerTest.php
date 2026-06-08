@@ -165,5 +165,11 @@ final class ListMyGamesQueryHandlerTest extends TestCase
             ['p-1' => 102, 'p-2' => -34, 'p-3' => -34, 'p-4' => -34],
             $cumulativesById,
         );
+
+        $standingsCumulatives = [];
+        foreach ($result[0]->standings as $participant) {
+            $standingsCumulatives[] = $participant->cumulativeScore;
+        }
+        self::assertSame([102, -34, -34, -34], $standingsCumulatives);
     }
 }

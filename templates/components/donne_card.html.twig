@@ -1,0 +1,10 @@
+{% props position, scores %}
+
+<article{{ attributes.defaults({ class: 'ab-donne-card' }) }}>
+    <h3 class="ab-donne-card__title">{{ 'game.show.deal_label'|trans({'%position%': position}) }}</h3>
+    <div class="ab-donne-card__scores">
+        {% for line in scores %}
+            <twig:player_score_row :name="line.name" :value="line.points" :signed="true" />
+        {% endfor %}
+    </div>
+</article>

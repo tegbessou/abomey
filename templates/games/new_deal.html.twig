@@ -4,7 +4,7 @@
 
 {% block body %}
     <section class="game-hero">
-        <span class="game-mode-badge">{{ ('game.mode.' ~ game.mode)|trans }}</span>
+        <twig:badge>{{ ('game.mode.' ~ game.mode)|trans }}</twig:badge>
         <h1>{{ 'deal.create.title'|trans({'%game%': game.name}) }}</h1>
     </section>
 

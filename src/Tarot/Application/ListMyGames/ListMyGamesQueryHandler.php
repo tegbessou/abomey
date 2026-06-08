@@ -27,16 +27,34 @@ final readonly class ListMyGamesQueryHandler
 
         $views = [];
         foreach ($games as $game) {
+            $participants = $this->participantsOf($game, $playerNamesById);
             $views[] = new GameSummaryView(
                 id: $game->getId()->toString(),
                 name: $game->getName(),
                 mode: $game->getMode()->value,
                 dealCount: count($game->getDeals()),
-                participants: $this->participantsOf($game, $playerNamesById),
+                participants: $participants,
+                standings: $this->standingsOf($participants),
             );
         }
 
         return $views;
+    }
+
+    /**
+     * @param list<ParticipantSummaryView> $participants
+     *
+     * @return list<ParticipantSummaryView>
+     */
+    private function standingsOf(array $participants): array
+    {
+        $standings = $participants;
+        usort(
+            $standings,
+            static fn (ParticipantSummaryView $a, ParticipantSummaryView $b): int => $b->cumulativeScore <=> $a->cumulativeScore,
+        );
+
+        return $standings;
     }
 
     /** @return array<string, string> */

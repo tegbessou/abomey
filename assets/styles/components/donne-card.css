@@ -1,0 +1,23 @@
+/* DonneCard — one deal's detail: the per-deal écart for each player. */
+.ab-donne-card {
+    padding: var(--ab-space-sm);
+    border: 1px solid var(--ab-color-border);
+    border-radius: var(--ab-radius-md);
+    background-color: var(--ab-color-surface-1);
+}
+
+.ab-donne-card__title {
+    margin: 0 0 var(--ab-space-2xs);
+    font-size: var(--ab-text-section);
+    font-weight: var(--ab-weight-medium);
+    color: var(--ab-color-text);
+}
+
+.ab-donne-card__scores {
+    display: flex;
+    flex-direction: column;
+}
+
+.ab-donne-card__scores > * + * {
+    border-top: 1px solid var(--ab-color-border);
+}

@@ -1,0 +1,14 @@
+{% props name, value, signed = false, emphasis = false %}
+
+<div{{ attributes.defaults({ class: 'ab-score-row' }) }}>
+    <span class="ab-score-row__name">{{ name }}</span>
+    <span class="ab-score-row__value{{ emphasis ? ' ab-score-row__value--emphasis' : '' }}" data-tabular>
+        {%- if signed and value > 0 -%}
+            +{{ value }}
+        {%- elseif signed and value < 0 -%}
+            −{{ value|abs }}
+        {%- else -%}
+            {{ value }}
+        {%- endif -%}
+    </span>
+</div>

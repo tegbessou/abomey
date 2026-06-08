@@ -32,14 +32,32 @@ final readonly class ShowGameQueryHandler
         }
 
         $playerNamesById = $this->loadPlayerNamesByIdOf($query->ownerId);
+        $participants = $this->participantsOf($game, $playerNamesById);
 
         return new GameView(
             id: $game->getId()->toString(),
             name: $game->getName(),
             mode: $game->getMode()->value,
-            participants: $this->participantsOf($game, $playerNamesById),
-            deals: $this->dealViewsOf($game),
+            participants: $participants,
+            standings: $this->standingsOf($participants),
+            deals: $this->dealViewsOf($game, $playerNamesById),
         );
+    }
+
+    /**
+     * @param list<ParticipantSummaryView> $participants
+     *
+     * @return list<ParticipantSummaryView>
+     */
+    private function standingsOf(array $participants): array
+    {
+        $standings = $participants;
+        usort(
+            $standings,
+            static fn (ParticipantSummaryView $a, ParticipantSummaryView $b): int => $b->cumulativeScore <=> $a->cumulativeScore,
+        );
+
+        return $standings;
     }
 
     /** @return array<string, string> */
@@ -72,8 +90,12 @@ final readonly class ShowGameQueryHandler
         return $participants;
     }
 
-    /** @return list<DealView> */
-    private function dealViewsOf(Game $game): array
+    /**
+     * @param array<string, string> $playerNamesById
+     *
+     * @return list<DealView>
+     */
+    private function dealViewsOf(Game $game, array $playerNamesById): array
     {
         $views = [];
         $position = 0;
@@ -82,10 +104,32 @@ final readonly class ShowGameQueryHandler
             $views[] = new DealView(
                 position: $position,
                 pointsByPlayerId: $deal->pointsByPlayer(),
+                scores: $this->dealScoreLinesOf($deal, $game->getParticipantIds(), $playerNamesById),
             );
         }
 
         return $views;
+    }
+
+    /**
+     * @param list<string>          $participantIds
+     * @param array<string, string> $playerNamesById
+     *
+     * @return list<DealScoreLine>
+     */
+    private function dealScoreLinesOf(Deal $deal, array $participantIds, array $playerNamesById): array
+    {
+        $pointsByPlayerId = $deal->pointsByPlayer();
+
+        $lines = [];
+        foreach ($participantIds as $participantId) {
+            $lines[] = new DealScoreLine(
+                name: $playerNamesById[$participantId] ?? '?',
+                points: $pointsByPlayerId[$participantId] ?? 0,
+            );
+        }
+
+        return $lines;
     }
 
     /**

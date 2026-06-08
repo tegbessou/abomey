@@ -106,8 +106,8 @@ final class RecordClassicDealWithPoigneeTest extends AbomeyPantherTestCase
         self::assertSelectorTextContains('.form-collection-line__label', 'Bob — Simple');
 
         $client->getCrawler()->filter('.deal-form button[type="submit"]')->click();
-        $client->waitFor('.deals-table');
+        $client->waitFor('.game-scoreboard');
 
-        self::assertSelectorTextContains('.deals-table', '162');
+        self::assertSelectorTextContains('.game-scoreboard', '162');
     }
 }

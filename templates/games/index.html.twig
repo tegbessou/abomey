@@ -19,34 +19,7 @@
     {% else %}
         <ul class="game-cards">
             {% for game in games %}
-                <li class="game-card">
-                    <a href="{{ path('app_game_show', {id: game.id}) }}" class="game-card__link">
-                        <header class="game-card__header">
-                            <h2 class="game-card__title">{{ game.name }}</h2>
-                            <span class="game-mode-badge">{{ ('game.mode.' ~ game.mode)|trans }}</span>
-                        </header>
-                        {% if game.dealCount == 0 %}
-                            <ul class="game-card__participants">
-                                {% for participant in game.participants %}
-                                    <li class="participant-chip">{{ participant.name }}</li>
-                                {% endfor %}
-                            </ul>
-                            <p class="game-card__state muted">{{ 'games.index.no_donnes'|trans }}</p>
-                        {% else %}
-                            <ul class="game-card__scores">
-                                {% for participant in game.participants %}
-                                    <li class="game-card__score">
-                                        <span class="game-card__score-name">{{ participant.name }}</span>
-                                        <span class="game-card__score-value">{{ participant.cumulativeScore }}</span>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                            <p class="game-card__state muted">
-                                {{ 'games.index.deal_count'|trans({'%count%': game.dealCount}, null, null) }}
-                            </p>
-                        {% endif %}
-                    </a>
-                </li>
+                <li><twig:game_card :game="game" /></li>
             {% endfor %}
         </ul>
     {% endif %}

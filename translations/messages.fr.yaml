@@ -70,6 +70,7 @@ game:
         deals_empty: "Aucune Donne saisie pour cette Partie."
         deal_position: "#"
         total: "Total"
+        deal_label: "Donne %position%"
         add_classic_deal: "Ajouter une Donne classique"
 
 deal:

@@ -27,7 +27,7 @@ abstract class AbomeyPantherTestCase extends PantherTestCase
         $em = self::getContainer()->get(EntityManagerInterface::class);
         $conn = $em->getConnection();
         $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 0');
-        foreach (['games', 'players', 'users'] as $table) {
+        foreach (['deals', 'games', 'players', 'users'] as $table) {
             $conn->executeStatement('TRUNCATE TABLE '.$table);
         }
         $conn->executeStatement('SET FOREIGN_KEY_CHECKS = 1');
