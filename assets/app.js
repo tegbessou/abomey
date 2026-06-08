@@ -5,6 +5,7 @@ import './styles/components/player-score-row.css';
 import './styles/components/donne-card.css';
 import './styles/components/game-card.css';
 import './styles/components/donnes-matrix.css';
+import './styles/components/segmented-control.css';
 import './stimulus_bootstrap.js';
 /*
  * Welcome to your app's main JavaScript file!

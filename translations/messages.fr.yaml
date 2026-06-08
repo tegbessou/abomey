@@ -76,6 +76,8 @@ game:
 deal:
     create:
         title: "Ajouter une Donne — %game%"
+        group_core: "La Donne"
+        group_announces: "Les Annonces"
         taker_label: "Preneur"
         taker_placeholder: "Choisir le Preneur"
         contract_label: "Contrat"

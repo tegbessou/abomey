@@ -329,7 +329,7 @@ main.container {
 .site-header__overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.45);
+    background-color: var(--ab-color-scrim);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
@@ -478,37 +478,37 @@ body.has-drawer-open {
 
 /* Form collection (Poignées, Misères) */
 .form-collection {
-    border: 1px solid var(--ab-color-border);
-    border-radius: var(--ab-radius-sm);
-    padding: var(--ab-space-sm);
-    margin: var(--ab-space-sm) 0;
+    border: none;
+    padding: 0;
+    margin: 0;
 }
 
-.form-collection legend {
-    font-weight: var(--ab-weight-semibold);
-    padding: 0 var(--ab-space-2xs);
+.form-collection__legend {
+    padding: 0;
+    margin-bottom: var(--ab-space-2xs);
+    font-weight: var(--ab-weight-medium);
+    color: var(--ab-color-text);
 }
 
 .form-collection-list {
     padding: 0;
     margin: 0 0 var(--ab-space-xs);
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: var(--ab-space-2xs);
 }
 
 .form-collection-line {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--ab-space-xs);
-    padding: var(--ab-space-2xs) var(--ab-space-xs);
+    gap: var(--ab-space-2xs);
+    padding: var(--ab-space-3xs) var(--ab-space-2xs);
     background-color: var(--ab-color-surface-1);
     border: 1px solid var(--ab-color-border);
-    border-radius: calc(var(--ab-radius-sm) / 2);
+    border-radius: var(--ab-radius-lg);
 }
 
 .form-collection-line__label {
-    flex: 1;
     font-weight: var(--ab-weight-medium);
 }
 
@@ -536,7 +536,27 @@ body.has-drawer-open {
 }
 
 .form-collection-add {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ab-space-3xs);
+    min-height: var(--ab-tap-target);
     margin: 0;
+    background: none;
+    border: 1px solid var(--ab-color-border);
+    border-radius: var(--ab-radius-lg);
+    color: var(--ab-color-positive);
+}
+
+.form-collection-add::before {
+    content: "+";
+    font-size: 1.25em;
+    line-height: 0;
+}
+
+.form-collection-add:hover {
+    background: none;
+    border-color: var(--ab-color-positive);
+    color: var(--ab-color-positive);
 }
 
 .modal-actions {
@@ -544,6 +564,94 @@ body.has-drawer-open {
     justify-content: flex-end;
     gap: var(--ab-space-2xs);
     margin-top: var(--ab-space-sm);
+}
+
+/* Deal form — two groups separated by space + a discreet rule (no frames).
+   The group's flex gap is the single source of vertical rhythm between fields. */
+.deal-form__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ab-space-md);
+    margin-bottom: var(--ab-space-lg);
+}
+
+.deal-form__group + .deal-form__group {
+    padding-top: var(--ab-space-lg);
+    border-top: 1px solid var(--ab-color-border);
+}
+
+.deal-form__group-title {
+    margin: 0;
+    font-size: var(--ab-text-section);
+    font-weight: var(--ab-weight-medium);
+}
+
+/* Field labels read as labels, not as body text. */
+.deal-form label {
+    color: var(--ab-color-text-muted);
+}
+
+/* The group gap owns the rhythm — drop Pico's per-field bottom margin. */
+.deal-form :where(input, select) {
+    margin-bottom: 0;
+}
+
+/* Points: a narrow field, sized to its content, not the form width. */
+.deal-form__points {
+    max-width: 130px;
+    font-variant-numeric: tabular-nums;
+}
+
+.deal-form button[type="submit"] {
+    width: 100%;
+}
+
+.deal-form button,
+.modal button {
+    border-radius: var(--ab-radius-lg);
+}
+
+@media (min-width: 768px) {
+    .deal-form {
+        max-width: 560px;
+        margin-inline: auto;
+    }
+}
+
+/* Announce dialog — a true floating layer: L2 surface + a subtle shadow. */
+.modal {
+    max-width: min(90vw, 420px);
+    padding: 0;
+    border: 1px solid var(--ab-color-border);
+    border-radius: var(--ab-radius-md);
+    background-color: var(--ab-color-surface-2);
+    color: var(--ab-color-text);
+    box-shadow: var(--ab-shadow-floating);
+}
+
+.modal::backdrop {
+    background-color: var(--ab-color-scrim);
+}
+
+.modal-content {
+    padding: var(--ab-space-md);
+}
+
+.modal-header h2 {
+    margin: 0 0 var(--ab-space-sm);
+    font-size: var(--ab-text-section);
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ab-space-sm);
+}
+
+.modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ab-space-3xs);
 }
 
 /* Flash messages */

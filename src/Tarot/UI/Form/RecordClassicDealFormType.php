@@ -61,6 +61,8 @@ final class RecordClassicDealFormType extends AbstractType
                     'min' => 0,
                     'max' => 91,
                     'placeholder' => '0 à 91',
+                    'inputmode' => 'numeric',
+                    'class' => 'deal-form__points',
                 ],
             ])
             ->add('petitAuBout', ChoiceType::class, [
@@ -81,8 +83,6 @@ final class RecordClassicDealFormType extends AbstractType
                     'deal.create.chelem.announced_realised' => 'announced_realised',
                     'deal.create.chelem.announced_failed' => 'announced_failed',
                 ],
-                'expanded' => true,
-                'multiple' => false,
             ])
             ->add('poignees', CollectionType::class, [
                 'label' => 'deal.create.poignees_label',

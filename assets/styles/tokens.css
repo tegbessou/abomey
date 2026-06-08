@@ -91,6 +91,9 @@
        warm palette; used as an accent (border, focus ring), not body text. */
     --ab-color-success: #5ea784;
 
+    /* Scrim — the dim behind modals and the mobile drawer. */
+    --ab-color-scrim: rgba(0, 0, 0, 0.5);
+
     /* Typography — families. */
     --ab-font-title: "Bricolage Grotesque", system-ui, sans-serif;
     --ab-font-body: "Inter", system-ui, sans-serif;
@@ -121,6 +124,7 @@
     /* Radius — not specified in the design doc; chosen here, open to revision. */
     --ab-radius-sm: 8px;
     --ab-radius-md: 12px;
+    --ab-radius-lg: 16px;
 
     /* Elevation — shadow only for true floating layers (popover, modal). */
     --ab-shadow-floating: 0 8px 24px rgba(0, 0, 0, 0.45);
