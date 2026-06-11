@@ -17,9 +17,9 @@ final class Deal
     private ?int $id = null;
 
     /**
-     * @param list<string>                                   $activePlayerIds
-     * @param list<array{announcerId: string, size: string}> $poigneesData
-     * @param list<array{announcerId: string, type: string}> $miseresData
+     * @param list<string>  $activePlayerIds
+     * @param list<Poignee> $poignees
+     * @param list<Misere>  $miseres
      */
     private function __construct(
         #[ORM\ManyToOne(targetEntity: Game::class, inversedBy: 'deals')]
@@ -41,10 +41,10 @@ final class Deal
         private readonly PetitAuBout $petitAuBout,
         #[ORM\Column(name: 'chelem', type: Types::STRING, length: 20, enumType: Chelem::class)]
         private readonly Chelem $chelem,
-        #[ORM\Column(name: 'poignees', type: Types::JSON)]
-        private readonly array $poigneesData,
-        #[ORM\Column(name: 'miseres', type: Types::JSON)]
-        private readonly array $miseresData,
+        #[ORM\Column(name: 'poignees', type: 'poignee_list')]
+        private readonly array $poignees,
+        #[ORM\Column(name: 'miseres', type: 'misere_list')]
+        private readonly array $miseres,
     ) {}
 
     /**
@@ -73,18 +73,12 @@ final class Deal
             throw new PointsScoredOutOfRangeException();
         }
 
-        $poigneesData = [];
         foreach ($poignees as $poignee) {
             if (!in_array($poignee->announcerId, $activePlayerIds, true)) {
                 throw new PoigneeAnnouncerNotActiveException();
             }
-            $poigneesData[] = [
-                'announcerId' => $poignee->announcerId,
-                'size' => $poignee->size->value,
-            ];
         }
 
-        $miseresData = [];
         $seenMiseres = [];
         foreach ($miseres as $misere) {
             if (!in_array($misere->announcerId, $activePlayerIds, true)) {
@@ -95,13 +89,9 @@ final class Deal
                 throw new DuplicateMisereException();
             }
             $seenMiseres[] = $signature;
-            $miseresData[] = [
-                'announcerId' => $misere->announcerId,
-                'type' => $misere->type->value,
-            ];
         }
 
-        return new self($game, $position, $activePlayerIds, $takerId, $contract, $bouts, $pointsScored, $petitAuBout, $chelem, $poigneesData, $miseresData);
+        return new self($game, $position, $activePlayerIds, $takerId, $contract, $bouts, $pointsScored, $petitAuBout, $chelem, $poignees, $miseres);
     }
 
     public function getPosition(): int
@@ -141,8 +131,8 @@ final class Deal
     private function poigneesBonus(): int
     {
         $total = 0;
-        foreach ($this->poigneesData as $poignee) {
-            $total += PoigneeSize::from($poignee['size'])->bonus();
+        foreach ($this->poignees as $poignee) {
+            $total += $poignee->size->bonus();
         }
 
         return $total;
@@ -156,8 +146,8 @@ final class Deal
     private function withMiseresApplied(array $pointsByPlayer): array
     {
         $othersCount = count($this->activePlayerIds) - 1;
-        foreach ($this->miseresData as $misere) {
-            $announcerId = $misere['announcerId'];
+        foreach ($this->miseres as $misere) {
+            $announcerId = $misere->announcerId;
             $pointsByPlayer[$announcerId] += 10 * $othersCount;
             foreach ($this->activePlayerIds as $playerId) {
                 if ($playerId !== $announcerId) {

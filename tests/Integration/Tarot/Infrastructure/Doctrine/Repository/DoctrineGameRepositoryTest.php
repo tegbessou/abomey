@@ -8,8 +8,12 @@ use App\Tarot\Domain\Game\Bouts;
 use App\Tarot\Domain\Game\Chelem;
 use App\Tarot\Domain\Game\Contract;
 use App\Tarot\Domain\Game\GameId;
+use App\Tarot\Domain\Game\Misere;
+use App\Tarot\Domain\Game\MisereType;
 use App\Tarot\Domain\Game\Mode;
 use App\Tarot\Domain\Game\PetitAuBout;
+use App\Tarot\Domain\Game\Poignee;
+use App\Tarot\Domain\Game\PoigneeSize;
 use App\Tarot\Infrastructure\Doctrine\Repository\DoctrineGameRepository;
 use App\Tests\Builder\Tarot\GameBuilder;
 use Doctrine\ORM\EntityManagerInterface;
@@ -156,6 +160,41 @@ final class DoctrineGameRepositoryTest extends KernelTestCase
         self::assertSame(2, $deals[1]->getPosition());
         self::assertSame(
             ['p-1' => 102, 'p-2' => -34, 'p-3' => -34, 'p-4' => -34],
+            $deals[0]->pointsByPlayer(),
+        );
+    }
+
+    #[Test]
+    public function itPersistsAndReloadsAnnouncedPoigneesAndMiseres(): void
+    {
+        $gameId = GameId::fromString('99999999-9999-4999-8999-999999999999');
+        $game = GameBuilder::aGame()
+            ->withId($gameId)
+            ->ownedBy('owner-a')
+            ->named('Soirée avec annonces')
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $game->recordClassicDeal(
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [new Poignee(announcerId: 'p-1', size: PoigneeSize::Single)],
+            miseres: [new Misere(announcerId: 'p-2', type: MisereType::Atouts)],
+        );
+        $this->repository->create($game);
+        $this->entityManager->clear();
+
+        $reloaded = $this->repository->ofId($gameId, 'owner-a');
+
+        self::assertNotNull($reloaded);
+        $deals = $reloaded->getDeals();
+        self::assertCount(1, $deals);
+        self::assertSame(
+            ['p-1' => 152, 'p-2' => -24, 'p-3' => -64, 'p-4' => -64],
             $deals[0]->pointsByPlayer(),
         );
     }
