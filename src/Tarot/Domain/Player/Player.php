@@ -9,7 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'players')]
-final class Player
+final readonly class Player
 {
     private function __construct(
         #[ORM\Id]
