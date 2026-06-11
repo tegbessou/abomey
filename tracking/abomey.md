@@ -2,7 +2,7 @@
 
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
-- **Dernière touche** : 2026-06-06
+- **Dernière touche** : 2026-06-10
 - **Échéance** : —
 - **Contexte** : Permettre à un Utilisateur de saisir en
   direct les Donnes successives d'une Partie, avec calcul
@@ -11,9 +11,11 @@
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
 - **Prochaine action** : attaquer la Tranche 3 (Mort
-  manuel). T0, T1, T2 (a+b+c+d) livrées. Branche de
-  travail : `feat/003-saisie-donnes` (commits empilés
-  jusqu'à fin de l'US, push à la fin).
+  manuel). T0, T1, T2 (a+b+c+d) livrées + système de design
+  posé + dettes ouvertes corrigées (stockage VOs, fallback
+  `'?'`, `Player readonly`). Branche de travail :
+  `feat/003-saisie-donnes` (commits empilés jusqu'à fin de
+  l'US, push à la fin).
 - **Spec** : `product/saisie-donnes.md`
 - **Notes** :
   - 2026-05-23 — problème validé en phase 1.
@@ -249,6 +251,88 @@
     Doc actée dans `~/teg/skills/symfony-conventions/`
     (thème 12, section « Exceptions métier côté handler »
     en amont du catch boundary).
+  - 2026-06-08 — **système de design posé** (`1b8e6dd`).
+    Parenthèse hors découpage T0–T7, assumée : on remplace
+    le style quasi-défaut Pico par un système de design
+    explicite avant d'empiler les tranches d'UI restantes
+    (cohérent avec le principe « système design en couche
+    de premier rang » du CLAUDE.md global).
+    - `tokens.css` source unique de vérité (palette, échelle
+      typo, espacement, rayon, élévation), consommé par Pico
+      via un adaptateur. Thème dark-only. Polices
+      auto-hébergées (Bricolage Grotesque / Inter).
+    - TwigComponents anonymes : `badge`, `player_score_row`,
+      `donne_card`, `game_card`, `donnes_matrix` (matrice
+      desktop-only, remplacée par cartes empilées < 768px).
+    - Page détail Partie retravaillée mobile-first :
+      scoreboard de classement trié + cartes de Donne
+      empilées, matrice en progressive enhancement. Score
+      du leader mis en avant (ocre), écarts par Donne signés.
+    - Read models enrichis : classement trié et lignes de
+      score par Donne résolues. `ShowGame` expose
+      `DealScoreLine` ; `GameSummaryView` / `ListMyGames`
+      ajustés.
+    - Tests : 3 nouveaux tests d'intégration de composants
+      (`GameCardTest`, `DonneCardTest`, `PlayerScoreRowTest`)
+      dans `tests/Integration/UI/Component/`.
+  - 2026-06-08 — **formulaire de saisie redesigné**
+    (`ded2b83`).
+    - Deux groupes clairs (« La Donne » / « Les Annonces »)
+      séparés par l'espace et un filet discret, sans cadres
+      bordés.
+    - Choix à faible cardinalité (Contract, Bouts, Petit au
+      bout) rendus en segmented control via un form theme ;
+      les radios restent réels (a11y + binding). Chelem
+      devient un select, Points un champ numérique étroit.
+    - Poignées / Misères rendues comme des champs via le
+      form theme (supprime le `form_rest` orphelin émis
+      après le bouton submit) ; entrées ajoutées affichées
+      en chips compactes supprimables.
+    - Modale d'annonce sur la surface L2 ; boutons d'ajout
+      secondaires (ocre, « + »). Nouveaux tokens
+      `--ab-color-scrim` (uniformise le dim modale / drawer)
+      et `--ab-radius-lg`. Template `form/deal_form.html.twig`
+      extrait + `segmented-control.css`.
+  - 2026-06-10 — **passe de correction des dettes ouvertes**
+    (3 dettes, 1 commit par dette, session conduite par
+    `refactoring-loop` pour les deux refactos).
+    - **Dette stockage VOs Poignée/Misère fermée** (refacto
+      comportement préservé). Deux types Doctrine custom
+      `PoigneeListType` / `MisereListType` (étendent
+      `JsonType`, mappent `JSON ↔ list<Poignee|Misere>`),
+      enregistrés en config. `Deal` manipule désormais
+      `list<Poignee>` / `list<Misere>` (fin du naming `*Data`
+      et des tableaux bruts) ; `createClassic` valide sans
+      reflatten ; `poigneesBonus` / `withMiseresApplied`
+      lisent les VOs. **Pas de migration** : forme JSON
+      sérialisée identique, seul le mapping PHP change.
+      Filet posé avant refacto (round-trip repository
+      Poignée+Misère non vides, absent jusque-là) + 2 tests
+      d'intégration directs par type (vide / multi ordonné).
+      Choix : deux types concrets plutôt qu'un type générique
+      paramétré (les types Doctrine sont des singletons
+      enregistrés par nom, se paramètrent mal). Duplication
+      résiduelle entre les deux types assumée (règle de trois
+      pas atteinte).
+    - **Dette `Player readonly` fermée** (suivi #002 dette 3) :
+      `Player` passe `final readonly`, aligné sur `Game`.
+    - **Dette fallback `'?'` fermée** (suivi #002 dette 2),
+      en TDD car changement de comportement. Réserve actée :
+      on n'a **pas** introduit la règle métier spéculative
+      « Joueur supprimé » (la suppression de Joueurs n'existe
+      pas). Un nom de participant introuvable est aujourd'hui
+      un **invariant** (Joueurs non supprimables, participants
+      validés possédés à la création) ; le `?? '?'` silencieux
+      (dupliqué par le commit design system en deux endroits)
+      est remplacé par un `\LogicException` via
+      `ShowGameQueryHandler::participantNameOf`. Quand la
+      suppression de Joueurs arrivera, ce sera une vraie
+      décision de domaine à reposer. Les `?? 0` sur les points
+      restent (deviendront légitimes avec T3 : un participant
+      qui ne joue pas une Donne marque 0).
+    - Vérifs : 85 unit + 31 integration verts, `make quality`
+      0 violation. e2e/Panther non relancés (changements
+      cantonnés domain/application/infra).
   - **Choix non-triviaux T1** :
     - `Bouts` enum int-backed (la valeur = nombre de
       Bouts), `Contract` enum string-backed avec method
@@ -368,13 +452,15 @@
        autre. Couvert structurellement par
        `gameRepository->ofId(..., $ownerId)`. À ajouter en
        première intervention sur Tarot.
-    2. `ShowGameQueryHandler` renvoie `'?'` pour un participant
-       non trouvé. Comportement de fallback silencieux — à
-       transformer en règle métier explicite quand on traitera
-       la suppression de Joueurs (hors-scope actuel).
-    3. `Player` est `final` mais pas `readonly` alors que
-       `Game` est `final readonly`. Harmonisation cosmétique
-       quand on retouche Tarot.
+    2. ~~`ShowGameQueryHandler` renvoie `'?'` pour un
+       participant non trouvé.~~ **Fermée le 2026-06-10**
+       (voir #003). Remplacé par `\LogicException`
+       (invariant), pas par une règle métier « Joueur
+       supprimé » — décision repoussée à l'arrivée de la
+       suppression de Joueurs.
+    3. ~~`Player` est `final` mais pas `readonly`.~~
+       **Fermée le 2026-06-10** : `Player` passe
+       `final readonly`, aligné sur `Game`.
     4. Dette 5 du suivi #001 (subscriber de consentement
        supprimé, 403 brute possible) toujours ouverte ; pas
        adressée dans #002.

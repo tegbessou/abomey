@@ -82,7 +82,7 @@ final readonly class ShowGameQueryHandler
         foreach ($game->getParticipantIds() as $participantId) {
             $participants[] = new ParticipantSummaryView(
                 id: $participantId,
-                name: $playerNamesById[$participantId] ?? '?',
+                name: $this->participantNameOf($participantId, $playerNamesById),
                 cumulativeScore: $this->cumulativeScoreOf($participantId, $game->getDeals()),
             );
         }
@@ -124,12 +124,24 @@ final readonly class ShowGameQueryHandler
         $lines = [];
         foreach ($participantIds as $participantId) {
             $lines[] = new DealScoreLine(
-                name: $playerNamesById[$participantId] ?? '?',
+                name: $this->participantNameOf($participantId, $playerNamesById),
                 points: $pointsByPlayerId[$participantId] ?? 0,
             );
         }
 
         return $lines;
+    }
+
+    /**
+     * @param array<string, string> $playerNamesById
+     */
+    private function participantNameOf(string $participantId, array $playerNamesById): string
+    {
+        if (!isset($playerNamesById[$participantId])) {
+            throw new \LogicException(sprintf('No player name resolved for participant "%s".', $participantId));
+        }
+
+        return $playerNamesById[$participantId];
     }
 
     /**

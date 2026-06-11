@@ -185,6 +185,39 @@ final class ShowGameQueryHandlerTest extends TestCase
         );
     }
 
+    #[Test]
+    public function itFailsLoudlyWhenAParticipantHasNoResolvableName(): void
+    {
+        $gameId = GameId::fromString('01966000-0000-7000-8000-0000000000e4');
+        $game = GameBuilder::aGame()
+            ->withId($gameId)
+            ->ownedBy('owner-user-id')
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $gameRepository = new InMemoryGameRepository();
+        $gameRepository->create($game);
+
+        $playerRepository = new InMemoryPlayerRepository();
+        foreach (['Alice', 'Bob', 'Charlie'] as $index => $name) {
+            $playerRepository->create(
+                PlayerBuilder::aPlayer()
+                    ->withId('p-'.($index + 1))
+                    ->ownedBy('owner-user-id')
+                    ->named($name)
+                    ->build(),
+            );
+        }
+
+        $handler = new ShowGameQueryHandler($gameRepository, $playerRepository);
+
+        $this->expectException(\LogicException::class);
+
+        $handler->handle(new ShowGameQuery(
+            ownerId: 'owner-user-id',
+            gameId: $gameId->toString(),
+        ));
+    }
+
     /**
      * @param list<\App\Tarot\Application\Shared\ParticipantSummaryView> $participants
      *
