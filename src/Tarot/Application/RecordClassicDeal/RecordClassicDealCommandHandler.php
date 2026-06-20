@@ -52,6 +52,8 @@ final readonly class RecordClassicDealCommandHandler
         }
 
         $game->recordClassicDeal(
+            deadPlayerIds: $command->deadPlayerIds,
+            partnerId: $command->partnerId,
             takerId: $command->takerId,
             contract: Contract::from($command->contract),
             bouts: Bouts::from($command->bouts),

@@ -37,12 +37,9 @@ final class ShowRecordClassicDealFormController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        if (count($view->participants) > $view->mode) {
-            throw new NotFoundHttpException();
-        }
-
         $form = $this->createForm(RecordClassicDealFormType::class, new RecordClassicDealFormData(), [
             'participants' => $view->participants,
+            'mode' => $view->mode,
         ]);
 
         return $this->render('games/new_deal.html.twig', [

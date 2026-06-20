@@ -1,6 +1,7 @@
-/* SegmentedControl — single choice among short options, rendered from an
-   expanded ChoiceType. The radios stay real (a11y + form binding) but hidden;
-   the labels are the pills. Wraps to a second row when the labels don't fit
+/* SegmentedControl — choice among short options, rendered from an expanded
+   ChoiceType. Single choice (radios) or multiple (checkboxes, toggling pills
+   independently). The inputs stay real (a11y + form binding) but hidden; the
+   labels are the pills. Wraps to a second row when the labels don't fit
    (the "Garde contre" fallback under ~360px) rather than shrinking the text. */
 .ab-segmented {
     display: flex;
@@ -14,7 +15,8 @@
     cursor: pointer;
 }
 
-.ab-segmented__option input[type="radio"] {
+.ab-segmented__option input[type="radio"],
+.ab-segmented__option input[type="checkbox"] {
     position: absolute;
     opacity: 0;
     pointer-events: none;

@@ -138,6 +138,8 @@ final class ListMyGamesQueryHandlerTest extends TestCase
             ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
             ->build();
         $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
             takerId: 'p-1',
             contract: Contract::Garde,
             bouts: Bouts::One,

@@ -29,6 +29,8 @@ final class Deal
         private readonly int $position,
         #[ORM\Column(name: 'active_player_ids', type: Types::JSON)]
         private readonly array $activePlayerIds,
+        #[ORM\Column(name: 'partner_id', type: Types::STRING, length: 36, nullable: true)]
+        private readonly ?string $partnerId,
         #[ORM\Column(name: 'taker_id', type: Types::STRING, length: 36)]
         private readonly string $takerId,
         #[ORM\Column(type: Types::STRING, length: 20, enumType: Contract::class)]
@@ -56,6 +58,7 @@ final class Deal
         Game $game,
         int $position,
         array $activePlayerIds,
+        ?string $partnerId,
         string $takerId,
         Contract $contract,
         Bouts $bouts,
@@ -91,7 +94,7 @@ final class Deal
             $seenMiseres[] = $signature;
         }
 
-        return new self($game, $position, $activePlayerIds, $takerId, $contract, $bouts, $pointsScored, $petitAuBout, $chelem, $poignees, $miseres);
+        return new self($game, $position, $activePlayerIds, $partnerId, $takerId, $contract, $bouts, $pointsScored, $petitAuBout, $chelem, $poignees, $miseres);
     }
 
     public function getPosition(): int
@@ -114,12 +117,17 @@ final class Deal
             + $this->petitAuBout->bonus($multiplier)
             + $this->chelem->bonus()
             + $signedPoigneesBonus;
-        $defendersCount = count($this->activePlayerIds) - 1;
+
+        $hasPartner = null !== $this->partnerId;
+        $defendersCount = count($this->activePlayerIds) - ($hasPartner ? 2 : 1);
+        $takerShare = $hasPartner ? $defendersCount - 1 : $defendersCount;
 
         $pointsByPlayer = [];
         foreach ($this->activePlayerIds as $playerId) {
             if ($playerId === $this->takerId) {
-                $pointsByPlayer[$playerId] = $defendersCount * $netScore;
+                $pointsByPlayer[$playerId] = $takerShare * $netScore;
+            } elseif ($playerId === $this->partnerId) {
+                $pointsByPlayer[$playerId] = $netScore;
             } else {
                 $pointsByPlayer[$playerId] = -$netScore;
             }
@@ -145,15 +153,28 @@ final class Deal
      */
     private function withMiseresApplied(array $pointsByPlayer): array
     {
-        $othersCount = count($this->activePlayerIds) - 1;
         foreach ($this->miseres as $misere) {
-            $announcerId = $misere->announcerId;
-            $pointsByPlayer[$announcerId] += 10 * $othersCount;
-            foreach ($this->activePlayerIds as $playerId) {
-                if ($playerId !== $announcerId) {
-                    $pointsByPlayer[$playerId] -= 10;
-                }
+            $pointsByPlayer = $this->withMisereApplied($misere, $pointsByPlayer);
+        }
+
+        return $pointsByPlayer;
+    }
+
+    /**
+     * @param array<string, int> $pointsByPlayer
+     *
+     * @return array<string, int>
+     */
+    private function withMisereApplied(Misere $misere, array $pointsByPlayer): array
+    {
+        $othersCount = count($this->activePlayerIds) - 1;
+        $pointsByPlayer[$misere->announcerId] += 10 * $othersCount;
+
+        foreach ($this->activePlayerIds as $playerId) {
+            if ($playerId === $misere->announcerId) {
+                continue;
             }
+            $pointsByPlayer[$playerId] -= 10;
         }
 
         return $pointsByPlayer;

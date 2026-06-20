@@ -9,7 +9,6 @@ use App\Shared\Application\Bus\QueryBus;
 use App\Tarot\Application\RecordClassicDeal\RecordClassicDealCommand;
 use App\Tarot\Application\ShowGame\GameView;
 use App\Tarot\Application\ShowGame\ShowGameQuery;
-use App\Tarot\Domain\Game\DeadPlayersNotYetSupportedException;
 use App\Tarot\UI\Form\RecordClassicDealFormData;
 use App\Tarot\UI\Form\RecordClassicDealFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -43,13 +42,10 @@ final class RecordClassicDealController extends AbstractController
             throw new NotFoundHttpException();
         }
 
-        if (count($view->participants) > $view->mode) {
-            throw new NotFoundHttpException();
-        }
-
         $formData = new RecordClassicDealFormData();
         $form = $this->createForm(RecordClassicDealFormType::class, $formData, [
             'participants' => $view->participants,
+            'mode' => $view->mode,
         ]);
         $form->handleRequest($request);
 
@@ -59,6 +55,8 @@ final class RecordClassicDealController extends AbstractController
                 $this->commandBus->dispatch(new RecordClassicDealCommand(
                     ownerId: $user->getUserIdentifier(),
                     gameId: $id,
+                    deadPlayerIds: $formData->deadPlayerIds,
+                    partnerId: $formData->partnerId,
                     takerId: (string) $formData->takerId,
                     contract: (string) $formData->contract,
                     bouts: (int) $formData->bouts,
@@ -70,11 +68,8 @@ final class RecordClassicDealController extends AbstractController
                 ));
 
                 return $this->redirectToRoute('app_game_show', ['id' => $id]);
-            } catch (HandlerFailedException $e) {
-                $original = $e->getPrevious() ?? $e;
-                $errorKey = $original instanceof DeadPlayersNotYetSupportedException
-                    ? 'deal.create.error.dead_players_not_supported'
-                    : 'deal.create.error.unknown';
+            } catch (HandlerFailedException) {
+                $errorKey = 'deal.create.error.unknown';
             }
         }
 

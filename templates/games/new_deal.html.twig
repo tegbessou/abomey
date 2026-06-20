@@ -19,10 +19,21 @@
         {% set participantById = participantById|merge({(participant.id): participant}) %}
     {% endfor %}
 
-    {{ form_start(form, {attr: {class: 'deal-form'}}) }}
+    {% set form_attr = {class: 'deal-form'} %}
+    {% if game.mode == 5 %}
+        {% set form_attr = form_attr|merge({'data-controller': 'partner-choice'}) %}
+    {% endif %}
+
+    {{ form_start(form, {attr: form_attr}) }}
         <section class="deal-form__group">
             <h2 class="deal-form__group-title">{{ 'deal.create.group_core'|trans }}</h2>
+            {% if game.participants|length > game.mode %}
+                {{ form_row(form.deadPlayerIds) }}
+            {% endif %}
             {{ form_row(form.takerId) }}
+            {% if game.mode == 5 %}
+                {{ form_row(form.partnerId) }}
+            {% endif %}
             {{ form_row(form.contract) }}
             {{ form_row(form.bouts) }}
             {{ form_row(form.pointsScored) }}

@@ -12,7 +12,7 @@ référence la tranche concernée.
 ## Périmètre couvert
 
 À ce jour, le document couvre les besoins des tranches
-**T1** et **T2** (toutes les primes) :
+**T1**, **T2**, **T3** et **T4** :
 
 - Donne classique
 - Tarot à 4 joueurs, tablée égale au Mode (pas de Mort)
@@ -20,14 +20,23 @@ référence la tranche concernée.
 - Prime Chelem (T2b)
 - Prime Poignée(s) (T2c)
 - Prime Misère(s) (T2d)
+- Neutralisation du Mort (T3)
+- Tarot à 5 avec Partenaire ou Preneur seul (T4)
 
 Restent à formaliser dans les tranches suivantes :
 
-- Désignation et neutralisation du Mort (T3)
-- Tarot à 5 et répartition avec Partenaire ou Preneur seul
-  (T4)
 - Tarot à 3 et répartition (T5)
 - Barème Vachette par Mode (T6)
+
+## Neutralisation du Mort (T3)
+
+Lorsque la tablée dépasse le Mode, un ou plusieurs Joueurs
+sont désignés Morts avant la Donne. Les Joueurs morts ne
+participent pas à la répartition du Score. Leur résultat
+pour la Donne est 0.
+
+Le score de la Donne se calcule uniquement sur les Joueurs
+actifs (les `activePlayerIds`), en nombre égal au Mode.
 
 ## Donne classique — base FFT
 
@@ -424,3 +433,70 @@ Total final :
 - Bob, Charlie, David : `−34 − 10 = −44` chacun.
 
 Vérification : `132 − 3 × 44 = 0`.
+
+## Répartition à 5 joueurs (T4)
+
+À 5 joueurs actifs, deux configurations sont possibles :
+le Preneur désigne un Partenaire, ou le Preneur joue seul.
+
+Le `score_net` est calculé par la même formule qu'à 4
+joueurs :
+
+```
+score_net = signe × S + bonus_PAB + bonus_chelem + signe × bonus_poignees
+```
+
+La répartition diffère selon la configuration.
+
+### Avec Partenaire
+
+Le Partenaire est un Joueur actif distinct du Preneur,
+désigné avant le Contrat. Le Preneur et le Partenaire
+forment le camp attaquant (2 joueurs) contre 3 Défenseurs.
+
+| Joueur | Points reçus |
+|---|---|
+| Preneur | `+2 × score_net` |
+| Partenaire | `+1 × score_net` |
+| Chaque Défenseur (×3) | `−1 × score_net` |
+
+Somme : `2 + 1 − 3 = 0`.
+
+### Preneur seul
+
+Le Preneur joue seul contre les 4 autres Joueurs actifs.
+
+| Joueur | Points reçus |
+|---|---|
+| Preneur | `+4 × score_net` |
+| Chaque Défenseur (×4) | `−1 × score_net` |
+
+Somme : `4 − 4 = 0`.
+
+### Exemples chiffrés à 5 joueurs
+
+#### Exemple 12 — Garde, Preneur réussit, avec Partenaire
+
+Tablée à 5 joueurs actifs : Alice (Preneur), Bob (Partenaire),
+Charlie, David, Eve.
+
+- Contrat : Garde (`M = 1`), Bouts : 1 (`B = 51`), `R = 60`.
+- `E = 9`, `S = (25 + 9) × 1 = 34`.
+- Pas de PAB, Chelem, Poignée.
+- `score_net = +1 × 34 = +34`.
+
+Répartition : Alice `+68`, Bob `+34`, Charlie/David/Eve
+`−34` chacun.
+Vérification : `68 + 34 − 3 × 34 = 0`.
+
+#### Exemple 13 — Garde, Preneur réussit, Preneur seul
+
+Tablée à 5 joueurs actifs : Alice (Preneur seul), Bob,
+Charlie, David, Eve.
+
+- Contrat : Garde (`M = 1`), Bouts : 1 (`B = 51`), `R = 60`.
+- `E = 9`, `S = 34`. `score_net = +34`.
+
+Répartition : Alice `+136`, Bob/Charlie/David/Eve `−34`
+chacun.
+Vérification : `136 − 4 × 34 = 0`.

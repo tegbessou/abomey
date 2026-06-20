@@ -2,7 +2,7 @@
 
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
-- **Dernière touche** : 2026-06-10
+- **Dernière touche** : 2026-06-20 (T4 livrée)
 - **Échéance** : —
 - **Contexte** : Permettre à un Utilisateur de saisir en
   direct les Donnes successives d'une Partie, avec calcul
@@ -10,13 +10,16 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : attaquer la Tranche 3 (Mort
-  manuel). T0, T1, T2 (a+b+c+d) livrées + système de design
-  posé + dettes ouvertes corrigées (stockage VOs, fallback
-  `'?'`, `Player readonly`). Branche de travail :
-  `feat/003-saisie-donnes` (commits empilés jusqu'à fin de
-  l'US, push à la fin).
+- **Prochaine action** : attaquer T5 (Tarot à 3). Task
+  produit-prête : `tasks/saisie-donnes/5-tarot-a-3.md`.
+  Pré-requis : compléter `docs/scoring.md` avec la
+  répartition à 3 joueurs (Preneur +2×, deux Défenseurs −×).
+  Enchaîner `technical-plan` puis `tdd-loop`. Branche de
+  travail : `feat/003-saisie-donnes` (commits empilés jusqu'à
+  fin de l'US, push à la fin).
 - **Spec** : `product/saisie-donnes.md`
+- **Tasks** : `tasks/saisie-donnes/` (T3, T4 livrées ;
+  T5→T7 produit-prêtes)
 - **Notes** :
   - 2026-05-23 — problème validé en phase 1.
   - Posture acceptée : saisie en direct entre deux Donnes
@@ -355,6 +358,48 @@
       côté Domain : exception si `tablée > Mode`. Tarot à 3
       et 5 sans Partenaire passent gratuitement par la
       formule (mais hors-scope T1).
+  - 2026-06-20 — **T3 livrée** (Mort manuel). Domaine :
+    `Game::recordClassicDeal` reçoit `deadPlayerIds`,
+    calcule `activePlayerIds = participants − morts`, valide
+    D22 (`DeadPlayerNotParticipantException`) et D1
+    (`ActivePlayerCountMismatchException`). Suppression du
+    verrou UI/Domain `tablée == Mode` (et de
+    `DeadPlayersNotYetSupportedException`, code mort). UI :
+    `ChoiceType` multi+expanded des Morts visible si
+    `tablée > Mode`. e2e Panther
+    (`RecordClassicDealWithDeadPlayerTest`). Au passage :
+    pattern Panther des segmented controls corrigé — cliquer
+    `label.ab-segmented__option:has(input[...])`, pas
+    l'`<input>` masqué (test Poignée existant réparé).
+  - 2026-06-20 — **T4 livrée** (Tarot à 5, Partenaire /
+    Preneur seul, D10). Domaine : `partnerId: ?string` sur
+    `Deal` et `Game::recordClassicDeal` (null = Preneur
+    seul) ; `pointsByPlayer()` répartit ×2/×1/−1 avec
+    Partenaire, ×4/−1 sans ; invariants
+    `PartnerMustBeActivePlayerException` (couvre aussi le
+    Partenaire-Mort) et `PartnerCannotBeTakerException`.
+    Migration `partner_id VARCHAR(36) NULL` sur `deals`
+    (`Version20260620190037`, réduite au seul ajout, bruit
+    de diff écarté). UI : champ Partenaire conditionnel
+    (`mode == 5`), placeholder « Preneur seul » → `null` ;
+    contrôleur Stimulus `partner_choice` qui exclut en
+    direct le Preneur sélectionné et les Morts du choix
+    Partenaire ; bouton de saisie rouvert au `mode == 5`.
+    e2e Panther (`RecordClassicDealWithPartnerTest`).
+    Refacto opportuniste (déclenché par `reading-load`) :
+    `withMiseresApplied` éclatée — extraction de
+    `withMisereApplied` (une Misère) + guard clause, fin de
+    l'imbrication à 3 niveaux. `scoring.md` complété T3 + T4.
+    Choix : `partnerId: ?string` plutôt qu'un VO
+    `Configuration` (divergence = un coefficient, pas de
+    polymorphisme justifié). Tension notée sur
+    `pointsByPlayer` (Divergent Change) : décision de
+    structure reportée à T6 (Vachette, barème incompatible).
+    Reste e2e non couvert : exclusion des Morts du choix
+    Partenaire en partie 6-7 à 5 (cas rare ; géré par le
+    contrôleur, non testé en parcours).
+    Vérifs : 92 unit + 31 integration + 4 Panther verts,
+    `make quality` 0 violation.
 
 ## #002 — Création d'une Partie
 - **Ouvert le** : 2026-05-15

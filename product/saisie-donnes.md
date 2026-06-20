@@ -322,192 +322,27 @@ ne peuvent être ni implémentées ni vérifiées par des tests.
   exacte sur la page Partie, flux de retour après
   correction.
 
-## Découpage en incréments
+## Tasks
 
-Onze tranches verticales successives. Chaque tranche
-traverse les couches Domain → Application → Infrastructure
-→ UI et porte ses propres tests (unit Domain, intégration
-persistance, e2e ou Panther si pertinent).
+Découpage en tranches verticales livrables. L'état
+d'avancement (livrée, en cours) vit dans `tracking/`, pas
+ici. Le détail produit des tranches restant à livrer vit dans
+`tasks/saisie-donnes/`.
 
-### Tranche 0 — Liste des Parties et navigation
-
-Pré-requis à T1 : sans cette tranche, l'Utilisateur n'a pas
-d'accès stable à ses Parties d'un jour à l'autre, et la
-valeur livrée par T1 ne tient pas en conditions réelles.
-Cette tranche adresse aussi la dette d'isolation héritée de
-#002.
-
-- **Critère d'acceptation** :
-  - Pour un Utilisateur connecté, l'accueil `/` redirige
-    vers la page « Mes Parties » (`/games`).
-  - La navbar (header global) contient pour un connecté :
-    « Mes Parties », « Créer une Partie », « Mon compte »,
-    « Déconnexion ». Pour un non-connecté, pas de
-    navigation supplémentaire.
-  - La page « Mes Parties » affiche les Parties de
-    l'Utilisateur sous forme de cartes (nom de la Partie
-    en titre, Mode, noms des participants, état
-    « Pas encore de manche jouée » tant qu'aucune Donne
-    n'est saisissable).
-  - Empty state explicite si l'Utilisateur n'a aucune
-    Partie, avec CTA « Créer une Partie ».
-  - Le clic sur une carte mène à la page détail de la
-    Partie.
-  - L'Utilisateur ne voit pas les Parties d'un autre dans
-    sa liste.
-  - L'accès direct à `/games/{id}` d'une Partie qui ne lui
-    appartient pas retourne 404.
-- **Règles couvertes** : aucune règle métier nouvelle.
-  Adresse la dette 1 du suivi #002.
-- **Tests** : unit Application (`ListMyGamesQueryHandler`,
-  dont isolation), intégration (méthode `ofOwner` sur le
-  repository Doctrine), e2e WebTestCase (redirection,
-  isolation URL forgée, empty state), Panther (parcours
-  liste → page détail).
-- **Reporté** : tri, filtre, pagination, indicateurs
-  visuels au-delà du nombre de manches.
-
-### Tranche 1 — Walking skeleton : Donne classique à 4 joueurs, tablée = Mode, sans primes
-
-- **Critère d'acceptation** : sur une Partie en Tarot à 4
-  avec tablée égale au Mode (pas de Mort), l'Utilisateur
-  ajoute une Donne classique en renseignant Preneur,
-  Contrat, Bouts et points réalisés. La Donne est
-  persistée et apparaît dans le tableau cumulatif sur la
-  page Partie, avec une ligne par Donne et un total cumulé
-  par Joueur en bas. Dans la liste « Mes Parties » (T0),
-  la carte de la Partie affiche désormais le nombre de
-  Donnes saisies et le score cumulé par Joueur au lieu de
-  l'état « Pas encore de manche jouée ».
-- **Règles couvertes** : D1, D2, D3, D4, D5, D6 (sans
-  primes), D7, D11, D21, D22, D23, D24, D25, D26.
-- **Pré-requis intégré** : créer `docs/scoring.md` avec la
-  partie classique sans primes (multiplicateurs de
-  Contrat, buts par nombre de Bouts, formule de base,
-  répartition entre Preneur et Défense à 4 joueurs).
-- **Verrou explicite** : si la Partie a une tablée
-  supérieure à son Mode, le formulaire d'ajout de Donne
-  n'est pas accessible et un message indique « pas encore
-  supporté » (en attente de la tranche 3).
-- **Reporté** : primes, Mort, autres Modes, Vachette,
-  correction.
-
-### Tranche 2a — Petit au Bout
-
-- **Critère d'acceptation** : sur le formulaire de Donne
-  classique, l'Utilisateur indique le Petit au Bout
-  (aucun / Preneur / Défense). Le calcul du Score
-  l'intègre.
-- **Règles couvertes** : D14.
-- **Pré-requis intégré** : compléter `docs/scoring.md`
-  (Petit au Bout multiplié par le Contrat).
-- **Reporté** : autres primes, Mort, autres Modes,
-  Vachette, correction.
-
-### Tranche 2b — Chelem
-
-- **Critère d'acceptation** : sur le formulaire de Donne
-  classique, l'Utilisateur indique le Chelem (aucun /
-  réalisé non annoncé / annoncé et réalisé / annoncé non
-  réalisé). Le calcul intègre la prime ou la pénalité au
-  Preneur.
-- **Règles couvertes** : D16.
-- **Pré-requis intégré** : compléter `docs/scoring.md`
-  (Chelem +400 / +200 / −200 attribué au Preneur).
-- **Reporté** : Poignée, Misère, Mort, autres Modes,
-  Vachette, correction.
-
-### Tranche 2c — Poignée(s)
-
-- **Critère d'acceptation** : sur le formulaire de Donne
-  classique, l'Utilisateur ajoute zéro ou plusieurs
-  Poignées, chacune avec un Joueur actif annonceur et une
-  taille (Simple, Double, Triple). Le calcul intègre la
-  somme des primes Poignée, attribuée au camp gagnant la
-  Donne.
-- **Règles couvertes** : D15.
-- **Pré-requis intégré** : compléter `docs/scoring.md`
-  (Poignée fixe 20 / 30 / 40 au camp gagnant).
-- **Reporté** : Misère, Mort, autres Modes, Vachette,
-  correction.
-
-### Tranche 2d — Misère(s)
-
-- **Critère d'acceptation** : sur le formulaire de Donne
-  classique, l'Utilisateur ajoute zéro ou plusieurs
-  Misères, chacune avec un Joueur actif annonceur et un
-  type (Atouts, Tête). Le calcul applique la mécanique de
-  paiement (+10 × (Mode − 1) à l'annonceur, −10 aux autres
-  Joueurs actifs), indépendamment du Contrat et du
-  résultat.
-- **Règles couvertes** : D17.
-- **Pré-requis intégré** : compléter `docs/scoring.md`
-  (mécanique Misère).
-- **Reporté** : Mort, autres Modes, Vachette, correction.
-
-### Tranche 3 — Mort manuel (tablée > Mode)
-
-- **Critère d'acceptation** : sur une Partie en Tarot à 4
-  dont la tablée dépasse le Mode (5 ou 6 Joueurs), une
-  étape de désignation manuelle du ou des Morts apparaît
-  au début de la saisie d'une Donne classique. Les Morts
-  désignés ne reçoivent ni ne perdent de points. Le
-  verrou explicite de la tranche 1 est levé.
-- **Règles couvertes** : D9 (avec D22).
-- **Reporté** : autres Modes, Vachette, correction.
-
-### Tranche 4 — Tarot à 5 (Partenaire ou Preneur seul)
-
-- **Critère d'acceptation** : sur une Partie en Tarot à 5,
-  une étape supplémentaire entre choix du Preneur et choix
-  du Contrat permet de désigner le Partenaire (Joueur
-  actif différent du Preneur) ou « Preneur seul ». Le
-  calcul du Score adapte la répartition entre Preneur,
-  Partenaire éventuel et Défense.
-- **Règles couvertes** : D10.
-- **Pré-requis intégré** : compléter `docs/scoring.md`
-  (répartition à 5 avec et sans Partenaire).
-- **Reporté** : Tarot à 3, Vachette, correction.
-
-### Tranche 5 — Tarot à 3
-
-- **Critère d'acceptation** : sur une Partie en Tarot à 3,
-  le calcul du Score classique fonctionne avec la
-  répartition adaptée (Preneur contre deux Défenseurs).
-- **Règles couvertes** : confirmation de D11, répartition
-  à 3.
-- **Pré-requis intégré** : compléter `docs/scoring.md`
-  (répartition à 3).
-- **Reporté** : Vachette, correction.
-
-### Tranche 6 — Donne Vachette
-
-- **Critère d'acceptation** : un bouton « Ajouter une
-  Vachette » est disponible sur la page Partie. Le flux
-  de saisie demande le classement strict des Joueurs
-  actifs (positions 1 à N, N = Mode), puis applique le
-  barème fixe au calcul. La Vachette s'intègre au tableau
-  cumulatif comme une Donne classique.
-- **Règles couvertes** : D12.
-- **Pré-requis intégré** : ajouter le barème Vachette à
-  `docs/scoring.md`.
-- **Reporté** : correction.
-
-### Tranche 7 — Correction de la dernière Donne
-
-- **Critère d'acceptation** : un bouton « Modifier la
-  dernière Donne » apparaît sur la page Partie si elle
-  contient au moins une Donne. Le formulaire s'ouvre
-  pré-rempli ; toute modification est possible, y compris
-  basculer Classique ↔ Vachette ; après validation, le
-  tableau cumulatif reflète la correction.
-- **Règles couvertes** : D18, D19, D20.
-
-### Posture de validation
-
-T1 et T2a sont à valider après leur livraison. T2a fixe le
-pattern d'enrichissement du formulaire pour une prime
-optionnelle. Une fois T2a validée par l'auteur, les
-sous-tranches T2b, T2c et T2d sont livrées en série sans
-revalidation intermédiaire systématique, sauf signal
-contraire.
+- **T0 — Liste des Parties et navigation** — livrée.
+- **T1 — Walking skeleton : Donne classique à 4, tablée =
+  Mode, sans primes** — livrée.
+- **T2a — Petit au Bout** — livrée.
+- **T2b — Chelem** — livrée.
+- **T2c — Poignée(s)** — livrée.
+- **T2d — Misère(s)** — livrée.
+- **T3 — [Mort manuel (tablée > Mode)](../tasks/saisie-donnes/3-mort-manuel.md)**
+  — désignation manuelle du ou des Morts, neutralisés au score.
+- **T4 — [Tarot à 5 (Partenaire ou Preneur seul)](../tasks/saisie-donnes/4-tarot-a-5.md)**
+  — désignation du Partenaire ou jeu en solo, répartition à 5.
+- **T5 — [Tarot à 3](../tasks/saisie-donnes/5-tarot-a-3.md)**
+  — Donne classique à 3, Preneur seul contre deux Défenseurs.
+- **T6 — [Donne Vachette](../tasks/saisie-donnes/6-donne-vachette.md)**
+  — saisie au classement strict, barème fixe par Mode.
+- **T7 — [Correction de la dernière Donne](../tasks/saisie-donnes/7-correction-derniere-donne.md)**
+  — modification de la dernière Donne, recalcul du cumul.

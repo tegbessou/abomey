@@ -22,18 +22,43 @@ final class RecordClassicDealFormType extends AbstractType
     {
         /** @var list<ParticipantSummaryView> $participants */
         $participants = $options['participants'];
+        $mode = $options['mode'];
 
-        $takerChoices = [];
+        $participantChoices = [];
         foreach ($participants as $participant) {
-            $takerChoices[$participant->name] = $participant->id;
+            $participantChoices[$participant->name] = $participant->id;
+        }
+
+        if (count($participants) > $mode) {
+            $builder->add('deadPlayerIds', ChoiceType::class, [
+                'label' => 'deal.create.dead_players_label',
+                'choices' => $participantChoices,
+                'multiple' => true,
+                'expanded' => true,
+                'required' => false,
+            ]);
         }
 
         $builder
             ->add('takerId', ChoiceType::class, [
                 'label' => 'deal.create.taker_label',
-                'choices' => $takerChoices,
-                'placeholder' => 'deal.create.taker_placeholder',
-            ])
+                'choices' => $participantChoices,
+                'expanded' => true,
+                'multiple' => false,
+            ]);
+
+        if (5 === $mode) {
+            $builder->add('partnerId', ChoiceType::class, [
+                'label' => 'deal.create.partner_label',
+                'choices' => $participantChoices,
+                'placeholder' => 'deal.create.partner_alone',
+                'required' => false,
+                'expanded' => true,
+                'multiple' => false,
+            ]);
+        }
+
+        $builder
             ->add('contract', ChoiceType::class, [
                 'label' => 'deal.create.contract_label',
                 'choices' => [
@@ -83,6 +108,8 @@ final class RecordClassicDealFormType extends AbstractType
                     'deal.create.chelem.announced_realised' => 'announced_realised',
                     'deal.create.chelem.announced_failed' => 'announced_failed',
                 ],
+                'expanded' => true,
+                'multiple' => false,
             ])
             ->add('poignees', CollectionType::class, [
                 'label' => 'deal.create.poignees_label',
@@ -118,8 +145,10 @@ final class RecordClassicDealFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => RecordClassicDealFormData::class,
             'participants' => [],
+            'mode' => 4,
             'translation_domain' => 'messages',
         ]);
         $resolver->setAllowedTypes('participants', 'array');
+        $resolver->setAllowedTypes('mode', 'int');
     }
 }

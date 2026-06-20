@@ -6,6 +6,10 @@ namespace App\Tarot\UI\Form;
 
 final class RecordClassicDealFormData
 {
+    /** @var list<string> */
+    public array $deadPlayerIds = [];
+
+    public ?string $partnerId = null;
     public ?string $takerId = null;
     public ?string $contract = null;
     public ?int $bouts = null;

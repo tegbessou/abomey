@@ -72,10 +72,13 @@ final class Game
     }
 
     /**
+     * @param list<string>  $deadPlayerIds
      * @param list<Poignee> $poignees
      * @param list<Misere>  $miseres
      */
     public function recordClassicDeal(
+        array $deadPlayerIds,
+        ?string $partnerId,
         string $takerId,
         Contract $contract,
         Bouts $bouts,
@@ -85,14 +88,31 @@ final class Game
         array $poignees,
         array $miseres,
     ): void {
-        if (count($this->participantIds) > $this->mode->value) {
-            throw new DeadPlayersNotYetSupportedException();
+        foreach ($deadPlayerIds as $deadId) {
+            if (!in_array($deadId, $this->participantIds, true)) {
+                throw new DeadPlayerNotParticipantException();
+            }
+        }
+
+        $activePlayerIds = array_values(array_diff($this->participantIds, $deadPlayerIds));
+
+        if (count($activePlayerIds) !== $this->mode->value) {
+            throw new ActivePlayerCountMismatchException();
+        }
+
+        if (null !== $partnerId && !in_array($partnerId, $activePlayerIds, true)) {
+            throw new PartnerMustBeActivePlayerException();
+        }
+
+        if (null !== $partnerId && $partnerId === $takerId) {
+            throw new PartnerCannotBeTakerException();
         }
 
         $deal = Deal::createClassic(
             game: $this,
             position: $this->deals->count() + 1,
-            activePlayerIds: $this->participantIds,
+            activePlayerIds: $activePlayerIds,
+            partnerId: $partnerId,
             takerId: $takerId,
             contract: $contract,
             bouts: $bouts,

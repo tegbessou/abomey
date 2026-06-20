@@ -34,6 +34,8 @@ final class RecordClassicDealCommandHandlerTest extends TestCase
         $handler->handle(new RecordClassicDealCommand(
             ownerId: 'owner-user-id',
             gameId: $gameId->toString(),
+            deadPlayerIds: [],
+            partnerId: null,
             takerId: 'p-1',
             contract: 'garde',
             bouts: 1,
@@ -59,6 +61,8 @@ final class RecordClassicDealCommandHandlerTest extends TestCase
         $handler->handle(new RecordClassicDealCommand(
             ownerId: 'owner-user-id',
             gameId: '01966000-0000-7000-8000-0000000000ff',
+            deadPlayerIds: [],
+            partnerId: null,
             takerId: 'p-1',
             contract: 'garde',
             bouts: 1,

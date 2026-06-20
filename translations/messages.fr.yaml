@@ -78,8 +78,10 @@ deal:
         title: "Ajouter une Donne — %game%"
         group_core: "La Donne"
         group_announces: "Les Annonces"
+        dead_players_label: "Mort(s)"
         taker_label: "Preneur"
-        taker_placeholder: "Choisir le Preneur"
+        partner_label: "Partenaire"
+        partner_alone: "Preneur seul"
         contract_label: "Contrat"
         contract:
             garde: "Garde"
@@ -121,7 +123,6 @@ deal:
                 tete: "Tête"
         submit: "Enregistrer la Donne"
         error:
-            dead_players_not_supported: "La saisie pour les tablées variables (avec Mort) arrivera dans une prochaine tranche."
             unknown: "L'enregistrement de la Donne a échoué pour une raison inconnue."
 
 player:

@@ -129,6 +129,8 @@ final class DoctrineGameRepositoryTest extends KernelTestCase
             ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
             ->build();
         $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
             takerId: 'p-1',
             contract: Contract::Garde,
             bouts: Bouts::One,
@@ -139,6 +141,8 @@ final class DoctrineGameRepositoryTest extends KernelTestCase
             miseres: [],
         );
         $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
             takerId: 'p-2',
             contract: Contract::GardeSans,
             bouts: Bouts::Zero,
@@ -176,6 +180,8 @@ final class DoctrineGameRepositoryTest extends KernelTestCase
             ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
             ->build();
         $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
             takerId: 'p-1',
             contract: Contract::Garde,
             bouts: Bouts::One,

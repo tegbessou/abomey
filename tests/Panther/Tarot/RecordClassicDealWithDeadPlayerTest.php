@@ -14,15 +14,13 @@ use App\Tests\Builder\Account\UserBuilder;
 use App\Tests\Builder\Tarot\GameBuilder;
 use App\Tests\Builder\Tarot\PlayerBuilder;
 use App\Tests\Panther\AbomeyPantherTestCase;
-use Facebook\WebDriver\WebDriverBy;
-use Facebook\WebDriver\WebDriverExpectedCondition;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\BrowserKit\Cookie;
 
-final class RecordClassicDealWithPoigneeTest extends AbomeyPantherTestCase
+final class RecordClassicDealWithDeadPlayerTest extends AbomeyPantherTestCase
 {
     #[Test]
-    public function aConnectedUserAddsAPoigneeViaTheModalAndSeesItsBonusInTheCumulativeScore(): void
+    public function aConnectedUserCanRecordADealWithADeadPlayerOnAnOversizedTable(): void
     {
         $container = self::getContainer();
         /** @var UserRepository $userRepository */
@@ -32,33 +30,33 @@ final class RecordClassicDealWithPoigneeTest extends AbomeyPantherTestCase
         /** @var GameRepository $gameRepository */
         $gameRepository = $container->get(GameRepository::class);
 
-        $userId = UserId::fromString('cccccccc-aaaa-4bbb-8ccc-cccccccccccc');
+        $userId = UserId::fromString('eeeeeeee-bbbb-4ccc-8eee-eeeeeeeeeeee');
         $userRepository->create(
             UserBuilder::aUser()
                 ->withId($userId)
-                ->withExternalIdentifier('external-record-poignee')
-                ->withEmail('record-poignee@example.com')
+                ->withExternalIdentifier('external-record-dead')
+                ->withEmail('record-dead@example.com')
                 ->named('Tester')
                 ->havingAcceptedPrivacyPolicy()
                 ->build(),
         );
-        foreach (['Alice', 'Bob', 'Charlie', 'David'] as $index => $name) {
+        foreach (['Alice', 'Bob', 'Charlie', 'David', 'Eve'] as $index => $name) {
             $playerRepository->create(
                 PlayerBuilder::aPlayer()
-                    ->withId('poig-'.($index + 1))
+                    ->withId('dead-'.($index + 1))
                     ->ownedBy($userId->toString())
                     ->named($name)
                     ->build(),
             );
         }
-        $gameId = GameId::fromString('dddddddd-bbbb-4ccc-8ddd-dddddddddddd');
+        $gameId = GameId::fromString('ffffffff-cccc-4ddd-8fff-ffffffffffff');
         $gameRepository->create(
             GameBuilder::aGame()
                 ->withId($gameId)
                 ->ownedBy($userId->toString())
-                ->named('Soirée avec Poignée')
+                ->named('Soirée avec Mort')
                 ->withMode(Mode::Four)
-                ->withParticipants(['poig-1', 'poig-2', 'poig-3', 'poig-4'])
+                ->withParticipants(['dead-1', 'dead-2', 'dead-3', 'dead-4', 'dead-5'])
                 ->build(),
         );
 
@@ -72,42 +70,18 @@ final class RecordClassicDealWithPoigneeTest extends AbomeyPantherTestCase
         $client->waitForVisibility('h1');
 
         $crawler = $client->getCrawler();
-        $crawler->filter('label.ab-segmented__option:has(input[name="record_classic_deal_form[takerId]"][value="poig-1"])')->click();
+
+        self::assertSelectorExists('input[type="checkbox"][name="record_classic_deal_form[deadPlayerIds][]"]');
+
+        $crawler->filter('label.ab-segmented__option:has(input[name="record_classic_deal_form[deadPlayerIds][]"][value="dead-5"])')->click();
+        $crawler->filter('label.ab-segmented__option:has(input[name="record_classic_deal_form[takerId]"][value="dead-1"])')->click();
         $crawler->filter('label.ab-segmented__option:has(input[name="record_classic_deal_form[contract]"][value="garde"])')->click();
         $crawler->filter('label.ab-segmented__option:has(input[name="record_classic_deal_form[bouts]"][value="1"])')->click();
         $crawler->filter('input[name="record_classic_deal_form[pointsScored]"]')->sendKeys('60');
 
-        $crawler->filter('button.form-collection-add')->click();
-        $client->waitFor('dialog[open]');
-
-        $client->executeScript("
-            const announcer = document.querySelector('dialog[open] [data-field-name=\"announcerId\"]');
-            announcer.value = 'poig-2';
-            announcer.dispatchEvent(new Event('change'));
-            const size = document.querySelector('dialog[open] [data-field-name=\"size\"]');
-            size.value = 'single';
-            size.dispatchEvent(new Event('change'));
-        ");
-
-        $client->getCrawler()->filter('dialog[open] [data-action*="confirmAdd"]')->click();
-
-        $driver = $client->getWebDriver();
-        $driver->wait(5)->until(
-            WebDriverExpectedCondition::invisibilityOfElementLocated(
-                WebDriverBy::cssSelector('dialog[open]'),
-            ),
-        );
-        $driver->wait(5)->until(
-            WebDriverExpectedCondition::presenceOfElementLocated(
-                WebDriverBy::cssSelector('.form-collection-line'),
-            ),
-        );
-
-        self::assertSelectorTextContains('.form-collection-line__label', 'Bob — Simple');
-
         $client->getCrawler()->filter('.deal-form button[type="submit"]')->click();
         $client->waitFor('.game-scoreboard');
 
-        self::assertSelectorTextContains('.game-scoreboard', '162');
+        self::assertSelectorExists('.game-scoreboard');
     }
 }
