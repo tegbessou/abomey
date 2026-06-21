@@ -13,11 +13,13 @@ use App\Tarot\Domain\Game\DuplicateParticipantsException;
 use App\Tarot\Domain\Game\EmptyGameNameException;
 use App\Tarot\Domain\Game\Game;
 use App\Tarot\Domain\Game\GameId;
+use App\Tarot\Domain\Game\InvalidRankingException;
 use App\Tarot\Domain\Game\Mode;
 use App\Tarot\Domain\Game\PartnerCannotBeTakerException;
 use App\Tarot\Domain\Game\PartnerMustBeActivePlayerException;
 use App\Tarot\Domain\Game\PartnerRequiresFivePlayerModeException;
 use App\Tarot\Domain\Game\PetitAuBout;
+use App\Tarot\Domain\Game\Ranking;
 use App\Tarot\Domain\Game\TooFewParticipantsException;
 use App\Tarot\Domain\Game\TooManyParticipantsException;
 use App\Tests\Builder\Tarot\GameBuilder;
@@ -429,6 +431,44 @@ final class GameTest extends TestCase
         self::assertSame(-124, $scores['p-1']);
         self::assertSame(62, $scores['p-2']);
         self::assertSame(62, $scores['p-3']);
+    }
+
+    #[Test]
+    public function aVachetteCanBeRecordedOnAGame(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+
+        $game->recordVachette(
+            deadPlayerIds: [],
+            ranking: new Ranking(['p-1', 'p-2', 'p-3', 'p-4']),
+        );
+
+        $deals = $game->getDeals();
+        self::assertCount(1, $deals);
+        $scores = $deals[0]->pointsByPlayer();
+        self::assertSame(120, $scores['p-1']);
+        self::assertSame(60, $scores['p-2']);
+        self::assertSame(-60, $scores['p-3']);
+        self::assertSame(-120, $scores['p-4']);
+    }
+
+    #[Test]
+    public function aVachetteRejectsARankingThatDoesNotCoverTheActivePlayers(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+
+        $this->expectException(InvalidRankingException::class);
+
+        $game->recordVachette(
+            deadPlayerIds: [],
+            ranking: new Ranking(['p-1', 'p-2', 'p-3', 'intrus']),
+        );
     }
 
     #[Test]

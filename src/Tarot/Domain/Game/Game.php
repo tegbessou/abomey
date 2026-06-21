@@ -88,17 +88,7 @@ final class Game
         array $poignees,
         array $miseres,
     ): void {
-        foreach ($deadPlayerIds as $deadId) {
-            if (!in_array($deadId, $this->participantIds, true)) {
-                throw new DeadPlayerNotParticipantException();
-            }
-        }
-
-        $activePlayerIds = array_values(array_diff($this->participantIds, $deadPlayerIds));
-
-        if (count($activePlayerIds) !== $this->mode->value) {
-            throw new ActivePlayerCountMismatchException();
-        }
+        $activePlayerIds = $this->activePlayerIdsAfterNeutralizing($deadPlayerIds);
 
         if (null !== $partnerId && Mode::Five !== $this->mode) {
             throw new PartnerRequiresFivePlayerModeException();
@@ -112,7 +102,7 @@ final class Game
             throw new PartnerCannotBeTakerException();
         }
 
-        $deal = Deal::createClassic(
+        $deal = ClassicDeal::createClassic(
             game: $this,
             position: $this->deals->count() + 1,
             activePlayerIds: $activePlayerIds,
@@ -127,6 +117,50 @@ final class Game
             miseres: $miseres,
         );
         $this->deals->add($deal);
+    }
+
+    /**
+     * @param list<string> $deadPlayerIds
+     */
+    public function recordVachette(array $deadPlayerIds, Ranking $ranking): void
+    {
+        $activePlayerIds = $this->activePlayerIdsAfterNeutralizing($deadPlayerIds);
+
+        $rankedPlayerIds = $ranking->players();
+        sort($rankedPlayerIds);
+        sort($activePlayerIds);
+        if ($rankedPlayerIds !== $activePlayerIds) {
+            throw new InvalidRankingException();
+        }
+
+        $deal = VachetteDeal::create(
+            game: $this,
+            position: $this->deals->count() + 1,
+            ranking: $ranking,
+        );
+        $this->deals->add($deal);
+    }
+
+    /**
+     * @param list<string> $deadPlayerIds
+     *
+     * @return list<string>
+     */
+    private function activePlayerIdsAfterNeutralizing(array $deadPlayerIds): array
+    {
+        foreach ($deadPlayerIds as $deadId) {
+            if (!in_array($deadId, $this->participantIds, true)) {
+                throw new DeadPlayerNotParticipantException();
+            }
+        }
+
+        $activePlayerIds = array_values(array_diff($this->participantIds, $deadPlayerIds));
+
+        if (count($activePlayerIds) !== $this->mode->value) {
+            throw new ActivePlayerCountMismatchException();
+        }
+
+        return $activePlayerIds;
     }
 
     public function getId(): GameId
