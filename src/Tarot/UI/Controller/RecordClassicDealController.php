@@ -13,6 +13,7 @@ use App\Tarot\Domain\Game\GameNotFoundException;
 use App\Tarot\UI\Form\RecordClassicDealFormData;
 use App\Tarot\UI\Form\RecordClassicDealFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -51,11 +52,7 @@ final class RecordClassicDealController extends AbstractController
         $form->handleRequest($request);
 
         if (!$form->isValid()) {
-            return $this->render('games/new_deal.html.twig', [
-                'game' => $view,
-                'form' => $form->createView(),
-                'errorKey' => null,
-            ]);
+            return $this->renderDealForm($view, $form, null);
         }
 
         try {
@@ -74,19 +71,27 @@ final class RecordClassicDealController extends AbstractController
                 miseres: $formData->miseres,
             ));
         } catch (HandlerFailedException $exception) {
-            return $this->render('games/new_deal.html.twig', [
-                'game' => $view,
-                'form' => $form->createView(),
-                'errorKey' => $this->errorKeyForFailedDeal($exception),
-            ]);
+            return $this->renderDealForm($view, $form, $this->errorKeyForFailedDeal($exception));
         }
 
         return $this->redirectToRoute('app_game_show', ['id' => $id]);
     }
 
+    /**
+     * @param FormInterface<RecordClassicDealFormData> $form
+     */
+    private function renderDealForm(GameView $view, FormInterface $form, ?string $errorKey): Response
+    {
+        return $this->render('games/new_deal.html.twig', [
+            'game' => $view,
+            'form' => $form->createView(),
+            'errorKey' => $errorKey,
+        ], new Response(status: Response::HTTP_UNPROCESSABLE_ENTITY));
+    }
+
     private function errorKeyForFailedDeal(HandlerFailedException $exception): string
     {
-        $original = $exception->getWrappedExceptions()[0] ?? $exception;
+        $original = array_first($exception->getWrappedExceptions()) ?? $exception;
 
         if ($original instanceof GameNotFoundException) {
             throw new NotFoundHttpException();
