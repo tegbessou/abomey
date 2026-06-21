@@ -100,6 +100,10 @@ final class Game
             throw new ActivePlayerCountMismatchException();
         }
 
+        if (null !== $partnerId && Mode::Five !== $this->mode) {
+            throw new PartnerRequiresFivePlayerModeException();
+        }
+
         if (null !== $partnerId && !in_array($partnerId, $activePlayerIds, true)) {
             throw new PartnerMustBeActivePlayerException();
         }

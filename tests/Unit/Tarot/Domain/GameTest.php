@@ -16,6 +16,7 @@ use App\Tarot\Domain\Game\GameId;
 use App\Tarot\Domain\Game\Mode;
 use App\Tarot\Domain\Game\PartnerCannotBeTakerException;
 use App\Tarot\Domain\Game\PartnerMustBeActivePlayerException;
+use App\Tarot\Domain\Game\PartnerRequiresFivePlayerModeException;
 use App\Tarot\Domain\Game\PetitAuBout;
 use App\Tarot\Domain\Game\TooFewParticipantsException;
 use App\Tarot\Domain\Game\TooManyParticipantsException;
@@ -317,6 +318,30 @@ final class GameTest extends TestCase
         $game->recordClassicDeal(
             deadPlayerIds: ['p-6'],
             partnerId: 'p-6',
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+    }
+
+    #[Test]
+    public function aPartnerCanOnlyBeDesignatedInFivePlayerMode(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+
+        $this->expectException(PartnerRequiresFivePlayerModeException::class);
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: 'p-2',
             takerId: 'p-1',
             contract: Contract::Garde,
             bouts: Bouts::One,

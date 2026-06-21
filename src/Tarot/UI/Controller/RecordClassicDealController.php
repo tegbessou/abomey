@@ -9,6 +9,7 @@ use App\Shared\Application\Bus\QueryBus;
 use App\Tarot\Application\RecordClassicDeal\RecordClassicDealCommand;
 use App\Tarot\Application\ShowGame\GameView;
 use App\Tarot\Application\ShowGame\ShowGameQuery;
+use App\Tarot\Domain\Game\GameNotFoundException;
 use App\Tarot\UI\Form\RecordClassicDealFormData;
 use App\Tarot\UI\Form\RecordClassicDealFormType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -49,34 +50,52 @@ final class RecordClassicDealController extends AbstractController
         ]);
         $form->handleRequest($request);
 
-        $errorKey = null;
-        if ($form->isValid()) {
-            try {
-                $this->commandBus->dispatch(new RecordClassicDealCommand(
-                    ownerId: $user->getUserIdentifier(),
-                    gameId: $id,
-                    deadPlayerIds: $formData->deadPlayerIds,
-                    partnerId: $formData->partnerId,
-                    takerId: (string) $formData->takerId,
-                    contract: (string) $formData->contract,
-                    bouts: (int) $formData->bouts,
-                    pointsScored: (int) $formData->pointsScored,
-                    petitAuBout: (string) $formData->petitAuBout,
-                    chelem: (string) $formData->chelem,
-                    poignees: $formData->poignees,
-                    miseres: $formData->miseres,
-                ));
-
-                return $this->redirectToRoute('app_game_show', ['id' => $id]);
-            } catch (HandlerFailedException) {
-                $errorKey = 'deal.create.error.unknown';
-            }
+        if (!$form->isValid()) {
+            return $this->render('games/new_deal.html.twig', [
+                'game' => $view,
+                'form' => $form->createView(),
+                'errorKey' => null,
+            ]);
         }
 
-        return $this->render('games/new_deal.html.twig', [
-            'game' => $view,
-            'form' => $form->createView(),
-            'errorKey' => $errorKey,
-        ]);
+        try {
+            $this->commandBus->dispatch(new RecordClassicDealCommand(
+                ownerId: $user->getUserIdentifier(),
+                gameId: $id,
+                deadPlayerIds: $formData->deadPlayerIds,
+                partnerId: $formData->partnerId,
+                takerId: (string) $formData->takerId,
+                contract: (string) $formData->contract,
+                bouts: (int) $formData->bouts,
+                pointsScored: (int) $formData->pointsScored,
+                petitAuBout: (string) $formData->petitAuBout,
+                chelem: (string) $formData->chelem,
+                poignees: $formData->poignees,
+                miseres: $formData->miseres,
+            ));
+        } catch (HandlerFailedException $exception) {
+            return $this->render('games/new_deal.html.twig', [
+                'game' => $view,
+                'form' => $form->createView(),
+                'errorKey' => $this->errorKeyForFailedDeal($exception),
+            ]);
+        }
+
+        return $this->redirectToRoute('app_game_show', ['id' => $id]);
+    }
+
+    private function errorKeyForFailedDeal(HandlerFailedException $exception): string
+    {
+        $original = $exception->getWrappedExceptions()[0] ?? $exception;
+
+        if ($original instanceof GameNotFoundException) {
+            throw new NotFoundHttpException();
+        }
+
+        if (!$original instanceof \DomainException) {
+            throw $exception;
+        }
+
+        return 'deal.create.error.invalid_input';
     }
 }
