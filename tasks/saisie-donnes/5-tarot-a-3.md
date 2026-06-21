@@ -36,8 +36,44 @@ Mode 3 avec la répartition adaptée.
 - Vachette (T6), correction (T7).
 
 ## Plan technique
-Pré-requis : compléter `docs/scoring.md` avec la répartition
-à 3 joueurs — Preneur +2×, deux Défenseurs −× chacun. Somme
-nulle conservée.
+Pré-requis (fait) : `docs/scoring.md` complété avec la
+répartition à 3 joueurs — Preneur +2×, deux Défenseurs −×
+chacun. Somme nulle conservée.
 
-_(reste à remplir par `technical-plan` au moment de la mise en production)_
+### Bounded context
+Tarot.
+
+### Domaine
+- `Game` (existant), `Deal` (existant) — référencés, **non
+  modifiés**. `Deal::pointsByPlayer()` couvre déjà le Mode 3
+  par la formule générique (`defendersCount = count(actifs)
+  − 1` = 2, pas de Partenaire). D11 (pas de Partenaire à 3)
+  est satisfaite par construction : `partnerId` reste `null`.
+- Aucun nouvel agrégat, value object ou exception.
+
+### Application
+- `RecordClassicDealCommand` / `RecordClassicDealCommandHandler`
+  (existants) — inchangés.
+
+### Ports & adaptateurs
+- Aucun changement. Pas de migration (colonnes inchangées).
+
+### Forme de la tranche
+La tranche est essentiellement une **ouverture d'accès** :
+- UI : le bouton « Ajouter une Donne » de `show.html.twig`
+  passe de `game.mode in [4, 5]` à inclure `3`.
+- Le formulaire existant fonctionne tel quel : `partnerId`
+  conditionné à `mode == 5` (donc absent à 3), Morts
+  conditionnés à `tablée > mode`.
+
+### Couverture de test
+- Unit : un test de spécification D11 sur `Game`
+  (Tarot à 3, Preneur seul → +2×/−1×). Régression probable
+  (comportement déjà couvert) — signal légitime de « déjà
+  couvert », pas un cycle à forcer.
+- e2e Panther : parcours de saisie d'une Donne en Tarot à 3.
+
+### Contact avec le noyau partagé
+- Introduit : rien.
+- Consomme : `Game`, `Deal`, `RecordClassicDealCommand`,
+  `RecordClassicDealCommandHandler`, le formulaire de Donne.

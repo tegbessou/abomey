@@ -2,7 +2,7 @@
 
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
-- **Dernière touche** : 2026-06-20 (T4 livrée)
+- **Dernière touche** : 2026-06-21 (T5 livrée)
 - **Échéance** : —
 - **Contexte** : Permettre à un Utilisateur de saisir en
   direct les Donnes successives d'une Partie, avec calcul
@@ -10,16 +10,20 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : attaquer T5 (Tarot à 3). Task
-  produit-prête : `tasks/saisie-donnes/5-tarot-a-3.md`.
-  Pré-requis : compléter `docs/scoring.md` avec la
-  répartition à 3 joueurs (Preneur +2×, deux Défenseurs −×).
-  Enchaîner `technical-plan` puis `tdd-loop`. Branche de
-  travail : `feat/003-saisie-donnes` (commits empilés jusqu'à
-  fin de l'US, push à la fin).
+- **Prochaine action** : attaquer T6 (Donne Vachette). Task
+  produit-prête : `tasks/saisie-donnes/6-donne-vachette.md`.
+  Pré-requis : ajouter le barème Vachette par Mode à
+  `docs/scoring.md` (+120/0/−120 à 3 ; +120/+60/−60/−120 à 4 ;
+  +120/+60/0/−60/−120 à 5). Enchaîner `technical-plan` puis
+  `tdd-loop`. **Point de structure attendu** : la Vachette a
+  un barème incompatible avec la formule classique → c'est le
+  moment de trancher le Divergent Change noté sur
+  `Deal::pointsByPlayer` (polymorphisme de calcul). Branche de
+  travail : `feat/003-saisie-donnes` (commits par task, push à
+  la fin).
 - **Spec** : `product/saisie-donnes.md`
-- **Tasks** : `tasks/saisie-donnes/` (T3, T4 livrées ;
-  T5→T7 produit-prêtes)
+- **Tasks** : `tasks/saisie-donnes/` (T3, T4, T5 livrées ;
+  T6→T7 produit-prêtes)
 - **Notes** :
   - 2026-05-23 — problème validé en phase 1.
   - Posture acceptée : saisie en direct entre deux Donnes
@@ -399,6 +403,20 @@
     Partenaire en partie 6-7 à 5 (cas rare ; géré par le
     contrôleur, non testé en parcours).
     Vérifs : 92 unit + 31 integration + 4 Panther verts,
+    `make quality` 0 violation.
+  - 2026-06-21 — **T5 livrée** (Tarot à 3, D11). **Aucun
+    changement de domaine** : `Deal::pointsByPlayer()` couvre
+    déjà le Mode 3 par la formule générique (Preneur seul,
+    +2×/−1× contre deux Défenseurs). tdd-loop réduit à deux
+    tests de spécification D11 (réussite +68/−34/−34, chute
+    −124/+62/+62), passés au vert immédiatement — signal
+    « déjà couvert » assumé. UI : bouton de saisie ouvert au
+    `mode in [3, 4, 5]` ; le formulaire fonctionne tel quel
+    (Partenaire conditionné `mode == 5`, Morts `tablée >
+    mode`). e2e Panther (`RecordClassicDealAtThreeTest`) qui
+    vérifie aussi l'absence des étapes Partenaire et Mort à 3.
+    `scoring.md` complété T5. Pas de migration.
+    Vérifs : 94 unit + 31 integration + 5 Panther verts,
     `make quality` 0 violation.
 
 ## #002 — Création d'une Partie

@@ -20,7 +20,7 @@
     <section class="deals-section">
         <div class="deals-section__header">
             <h2>{{ 'game.show.deals_title'|trans }}</h2>
-            {% if game.mode in [4, 5] %}
+            {% if game.mode in [3, 4, 5] %}
                 <a href="{{ path('app_game_deal_new', {id: game.id}) }}" role="button" class="deal-add">
                     {{ 'game.show.add_classic_deal'|trans }}
                 </a>

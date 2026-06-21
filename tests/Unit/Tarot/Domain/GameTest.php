@@ -353,6 +353,60 @@ final class GameTest extends TestCase
     }
 
     #[Test]
+    public function aClassicDealAtThreePlayersHasTheTakerAloneAgainstTwoDefenders(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Three)
+            ->withParticipants(['p-1', 'p-2', 'p-3'])
+            ->build();
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $scores = $game->getDeals()[0]->pointsByPlayer();
+        self::assertSame(68, $scores['p-1']);
+        self::assertSame(-34, $scores['p-2']);
+        self::assertSame(-34, $scores['p-3']);
+    }
+
+    #[Test]
+    public function aFailedClassicDealAtThreePlayersCreditsTheTwoDefenders(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Three)
+            ->withParticipants(['p-1', 'p-2', 'p-3'])
+            ->build();
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::GardeSans,
+            bouts: Bouts::Zero,
+            pointsScored: 50,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $scores = $game->getDeals()[0]->pointsByPlayer();
+        self::assertSame(-124, $scores['p-1']);
+        self::assertSame(62, $scores['p-2']);
+        self::assertSame(62, $scores['p-3']);
+    }
+
+    #[Test]
     public function theNumberOfActivePlayersMustMatchTheMode(): void
     {
         $game = GameBuilder::aGame()

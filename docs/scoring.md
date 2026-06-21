@@ -12,7 +12,7 @@ référence la tranche concernée.
 ## Périmètre couvert
 
 À ce jour, le document couvre les besoins des tranches
-**T1**, **T2**, **T3** et **T4** :
+**T1**, **T2**, **T3**, **T4** et **T5** :
 
 - Donne classique
 - Tarot à 4 joueurs, tablée égale au Mode (pas de Mort)
@@ -22,10 +22,10 @@ référence la tranche concernée.
 - Prime Misère(s) (T2d)
 - Neutralisation du Mort (T3)
 - Tarot à 5 avec Partenaire ou Preneur seul (T4)
+- Tarot à 3, Preneur seul contre deux Défenseurs (T5)
 
 Restent à formaliser dans les tranches suivantes :
 
-- Tarot à 3 et répartition (T5)
 - Barème Vachette par Mode (T6)
 
 ## Neutralisation du Mort (T3)
@@ -500,3 +500,42 @@ Charlie, David, Eve.
 Répartition : Alice `+136`, Bob/Charlie/David/Eve `−34`
 chacun.
 Vérification : `136 − 4 × 34 = 0`.
+
+## Répartition à 3 joueurs (T5)
+
+À 3 joueurs actifs, il n'y a jamais de Partenaire (D11) :
+le Preneur joue seul contre deux Défenseurs. Le `score_net`
+est calculé par la même formule qu'aux autres tablées.
+
+| Joueur | Points reçus |
+|---|---|
+| Preneur | `+2 × score_net` |
+| Chaque Défenseur (×2) | `−1 × score_net` |
+
+Somme : `2 − 2 = 0`. C'est le cas général « Preneur seul »
+appliqué à deux Défenseurs ; aucune règle de répartition
+spécifique au Mode 3.
+
+### Exemples chiffrés à 3 joueurs
+
+#### Exemple 14 — Garde, Preneur réussit
+
+Tablée à 3 joueurs actifs : Alice (Preneur), Bob, Charlie.
+
+- Contrat : Garde (`M = 1`), Bouts : 1 (`B = 51`), `R = 60`.
+- `E = 9`, `S = (25 + 9) × 1 = 34`. `score_net = +34`.
+
+Répartition : Alice `+68`, Bob/Charlie `−34` chacun.
+Vérification : `68 − 2 × 34 = 0`.
+
+#### Exemple 15 — Garde Sans, Preneur chute
+
+Tablée à 3 joueurs actifs : Alice (Preneur), Bob, Charlie.
+
+- Contrat : Garde Sans (`M = 2`), Bouts : 0 (`B = 56`),
+  `R = 50`.
+- `E = −6`, `S = (25 + 6) × 2 = 62`. Preneur chute,
+  `score_net = −62`.
+
+Répartition : Alice `−124`, Bob/Charlie `+62` chacun.
+Vérification : `−124 + 2 × 62 = 0`.
