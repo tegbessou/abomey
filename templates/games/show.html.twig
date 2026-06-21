@@ -4,22 +4,51 @@
 
 {% block body %}
     <section class="game-hero">
-        <span class="game-mode-badge">{{ ('game.mode.' ~ game.mode)|trans }}</span>
+        <twig:badge>{{ ('game.mode.' ~ game.mode)|trans }}</twig:badge>
         <h1>{{ game.name }}</h1>
     </section>
 
     <section>
         <h2>{{ 'game.show.participants_title'|trans }}</h2>
         <ul class="participant-list">
-            {% for name in game.participantNames %}
-                <li class="participant-chip">{{ name }}</li>
+            {% for participant in game.participants %}
+                <li class="participant-chip">{{ participant.name }}</li>
             {% endfor %}
         </ul>
     </section>
 
-    <article class="placeholder-card">
-        <p class="muted">{{ 'game.show.donnes_placeholder'|trans }}</p>
-    </article>
+    <section class="deals-section">
+        <div class="deals-section__header">
+            <h2>{{ 'game.show.deals_title'|trans }}</h2>
+            {% if game.mode in [3, 4, 5] %}
+                <a href="{{ path('app_game_deal_new', {id: game.id}) }}" role="button" class="deal-add">
+                    {{ 'game.show.add_classic_deal'|trans }}
+                </a>
+            {% endif %}
+        </div>
 
-    <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+        {% if game.deals|length == 0 %}
+            <p class="muted">{{ 'game.show.deals_empty'|trans }}</p>
+        {% else %}
+            <div class="game-scoreboard">
+                <h3 class="game-scoreboard__title">{{ 'game.show.total'|trans }}</h3>
+                {% set leading_score = game.standings[0].cumulativeScore %}
+                <ul class="game-scoreboard__rows">
+                    {% for participant in game.standings %}
+                        <li><twig:player_score_row :name="participant.name" :value="participant.cumulativeScore" :emphasis="participant.cumulativeScore == leading_score" /></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="deals-list">
+                {% for deal in game.deals %}
+                    <twig:donne_card :position="deal.position" :scores="deal.scores" />
+                {% endfor %}
+            </div>
+
+            <twig:donnes_matrix :game="game" />
+        {% endif %}
+    </section>
+
+    <p><a href="{{ path('app_games_index') }}">← {{ 'common.back_to_games'|trans }}</a></p>
 {% endblock %}

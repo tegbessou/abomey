@@ -12,6 +12,7 @@ use App\Tarot\Domain\Game\Mode;
 use App\Tarot\Domain\Game\ParticipantNotOwnedException;
 use App\Tarot\Domain\Player\PlayerId;
 use App\Tarot\Domain\Player\PlayerRepository;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler(bus: 'command.bus', method: 'handle')]
@@ -21,15 +22,17 @@ final readonly class CreateGameCommandHandler
         private GameRepository $gameRepository,
         private GameIdGenerator $gameIdGenerator,
         private PlayerRepository $playerRepository,
+        private ClockInterface $clock,
     ) {}
 
     public function handle(CreateGameCommand $command): GameId
     {
         $uniqueIds = array_values(array_unique($command->participantIds));
-        $playerIds = array_map(
-            PlayerId::fromString(...),
-            $uniqueIds,
-        );
+
+        $playerIds = [];
+        foreach ($uniqueIds as $uniqueId) {
+            $playerIds[] = PlayerId::fromString($uniqueId);
+        }
 
         $owned = $this->playerRepository->ofIds($playerIds, $command->ownerId);
 
@@ -44,6 +47,7 @@ final readonly class CreateGameCommandHandler
             $command->name,
             Mode::from($command->mode),
             $command->participantIds,
+            $this->clock->now(),
         ));
 
         return $id;

@@ -4,19 +4,31 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit\Tarot\Domain;
 
+use App\Tarot\Domain\Game\ActivePlayerCountMismatchException;
+use App\Tarot\Domain\Game\Bouts;
+use App\Tarot\Domain\Game\Chelem;
+use App\Tarot\Domain\Game\Contract;
+use App\Tarot\Domain\Game\DeadPlayerNotParticipantException;
 use App\Tarot\Domain\Game\DuplicateParticipantsException;
 use App\Tarot\Domain\Game\EmptyGameNameException;
 use App\Tarot\Domain\Game\Game;
 use App\Tarot\Domain\Game\GameId;
 use App\Tarot\Domain\Game\Mode;
+use App\Tarot\Domain\Game\PartnerCannotBeTakerException;
+use App\Tarot\Domain\Game\PartnerMustBeActivePlayerException;
+use App\Tarot\Domain\Game\PartnerRequiresFivePlayerModeException;
+use App\Tarot\Domain\Game\PetitAuBout;
 use App\Tarot\Domain\Game\TooFewParticipantsException;
 use App\Tarot\Domain\Game\TooManyParticipantsException;
+use App\Tests\Builder\Tarot\GameBuilder;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 final class GameTest extends TestCase
 {
+    private const string CREATED_AT_FIXTURE = '2026-05-24 12:00:00';
+
     #[Test]
     public function aGameCanBeCreatedWithAValidNameModeAndParticipants(): void
     {
@@ -28,6 +40,7 @@ final class GameTest extends TestCase
             'Soirée chez Paul',
             Mode::Four,
             ['p-1', 'p-2', 'p-3', 'p-4'],
+            self::aCreatedAt(),
         );
 
         self::assertSame($id, $game->getId());
@@ -49,6 +62,7 @@ final class GameTest extends TestCase
             $invalidName,
             Mode::Four,
             ['p-1', 'p-2', 'p-3', 'p-4'],
+            self::aCreatedAt(),
         );
     }
 
@@ -72,6 +86,7 @@ final class GameTest extends TestCase
             '  Soirée du 15 mai  ',
             Mode::Four,
             ['p-1', 'p-2', 'p-3', 'p-4'],
+            self::aCreatedAt(),
         );
 
         self::assertSame('Soirée du 15 mai', $game->getName());
@@ -88,6 +103,7 @@ final class GameTest extends TestCase
             'Soirée',
             Mode::Four,
             ['p-1', 'p-2', 'p-1', 'p-3'],
+            self::aCreatedAt(),
         );
     }
 
@@ -110,6 +126,7 @@ final class GameTest extends TestCase
             'Soirée',
             $mode,
             $participants,
+            self::aCreatedAt(),
         );
     }
 
@@ -142,6 +159,7 @@ final class GameTest extends TestCase
             'Soirée',
             $mode,
             $participants,
+            self::aCreatedAt(),
         );
     }
 
@@ -172,6 +190,7 @@ final class GameTest extends TestCase
             'Soirée',
             $mode,
             $participants,
+            self::aCreatedAt(),
         );
 
         self::assertCount($participantsCount, $game->getParticipantIds());
@@ -188,5 +207,335 @@ final class GameTest extends TestCase
         yield 'Four at max (6)' => [Mode::Four, 6];
         yield 'Five at min (5)' => [Mode::Five, 5];
         yield 'Five at max (7)' => [Mode::Five, 7];
+    }
+
+    #[Test]
+    public function aGameRemembersItsCreationDate(): void
+    {
+        $createdAt = new \DateTimeImmutable('2026-05-24 18:30:00');
+
+        $game = Game::create(
+            GameId::fromString('01966000-0000-7000-8000-000000000008'),
+            'owner-user-id',
+            'Soirée chez Paul',
+            Mode::Four,
+            ['p-1', 'p-2', 'p-3', 'p-4'],
+            $createdAt,
+        );
+
+        self::assertSame($createdAt, $game->getCreatedAt());
+    }
+
+    #[Test]
+    public function aClassicDealCanBeRecordedOnAGameWithMatchingTableSize(): void
+    {
+        $game = GameBuilder::aGame()->build();
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        self::assertCount(1, $game->getDeals());
+    }
+
+    #[Test]
+    public function aClassicDealCanBeRecordedAtFivePlayersWithPreneurSeul(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Five)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+            ->build();
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $scores = $game->getDeals()[0]->pointsByPlayer();
+        self::assertSame(136, $scores['p-1']);
+        self::assertSame(-34, $scores['p-2']);
+        self::assertSame(-34, $scores['p-3']);
+        self::assertSame(-34, $scores['p-4']);
+        self::assertSame(-34, $scores['p-5']);
+    }
+
+    #[Test]
+    public function aClassicDealCanBeRecordedAtFivePlayersWithAPartner(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Five)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+            ->build();
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: 'p-2',
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $scores = $game->getDeals()[0]->pointsByPlayer();
+        self::assertSame(68, $scores['p-1']);
+        self::assertSame(34, $scores['p-2']);
+        self::assertSame(-34, $scores['p-3']);
+        self::assertSame(-34, $scores['p-4']);
+        self::assertSame(-34, $scores['p-5']);
+    }
+
+    #[Test]
+    public function aPartnerMustBeAnActivePlayerOfTheDeal(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Five)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'])
+            ->build();
+
+        $this->expectException(PartnerMustBeActivePlayerException::class);
+
+        $game->recordClassicDeal(
+            deadPlayerIds: ['p-6'],
+            partnerId: 'p-6',
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+    }
+
+    #[Test]
+    public function aPartnerCanOnlyBeDesignatedInFivePlayerMode(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+
+        $this->expectException(PartnerRequiresFivePlayerModeException::class);
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: 'p-2',
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+    }
+
+    #[Test]
+    public function aPartnerCannotBeTheTaker(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Five)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+            ->build();
+
+        $this->expectException(PartnerCannotBeTakerException::class);
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: 'p-1',
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+    }
+
+    #[Test]
+    public function aClassicDealAtThreePlayersHasTheTakerAloneAgainstTwoDefenders(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Three)
+            ->withParticipants(['p-1', 'p-2', 'p-3'])
+            ->build();
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $scores = $game->getDeals()[0]->pointsByPlayer();
+        self::assertSame(68, $scores['p-1']);
+        self::assertSame(-34, $scores['p-2']);
+        self::assertSame(-34, $scores['p-3']);
+    }
+
+    #[Test]
+    public function aFailedClassicDealAtThreePlayersCreditsTheTwoDefenders(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Three)
+            ->withParticipants(['p-1', 'p-2', 'p-3'])
+            ->build();
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::GardeSans,
+            bouts: Bouts::Zero,
+            pointsScored: 50,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $scores = $game->getDeals()[0]->pointsByPlayer();
+        self::assertSame(-124, $scores['p-1']);
+        self::assertSame(62, $scores['p-2']);
+        self::assertSame(62, $scores['p-3']);
+    }
+
+    #[Test]
+    public function theNumberOfActivePlayersMustMatchTheMode(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+            ->build();
+
+        $this->expectException(ActivePlayerCountMismatchException::class);
+
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+    }
+
+    #[Test]
+    public function aDeadPlayerMustBeAParticipantOfTheGame(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+            ->build();
+
+        $this->expectException(DeadPlayerNotParticipantException::class);
+
+        $game->recordClassicDeal(
+            deadPlayerIds: ['unknown'],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+    }
+
+    #[Test]
+    public function aClassicDealCanBeRecordedWhenTwoDeadPlayersAreDesignated(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5', 'p-6'])
+            ->build();
+
+        $game->recordClassicDeal(
+            deadPlayerIds: ['p-5', 'p-6'],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $deals = $game->getDeals();
+        self::assertCount(1, $deals);
+        $scores = $deals[0]->pointsByPlayer();
+        self::assertArrayNotHasKey('p-5', $scores);
+        self::assertArrayNotHasKey('p-6', $scores);
+        self::assertCount(4, $scores);
+    }
+
+    #[Test]
+    public function aClassicDealCanBeRecordedWhenADeadPlayerIsDesignated(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
+            ->build();
+
+        $game->recordClassicDeal(
+            deadPlayerIds: ['p-5'],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $deals = $game->getDeals();
+        self::assertCount(1, $deals);
+        self::assertArrayNotHasKey('p-5', $deals[0]->pointsByPlayer());
+    }
+
+    private static function aCreatedAt(): \DateTimeImmutable
+    {
+        return new \DateTimeImmutable(self::CREATED_AT_FIXTURE);
     }
 }

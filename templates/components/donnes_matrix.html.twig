@@ -1,0 +1,30 @@
+{% props game %}
+
+<table class="ab-donnes-matrix">
+    <thead>
+        <tr>
+            <th>{{ 'game.show.deal_position'|trans }}</th>
+            {% for participant in game.participants %}
+                <th>{{ participant.name }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for deal in game.deals %}
+            <tr>
+                <td>{{ deal.position }}</td>
+                {% for participant in game.participants %}
+                    <td>{{ deal.pointsByPlayerId[participant.id] ?? 0 }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>{{ 'game.show.total'|trans }}</th>
+            {% for participant in game.participants %}
+                <th>{{ participant.cumulativeScore }}</th>
+            {% endfor %}
+        </tr>
+    </tfoot>
+</table>

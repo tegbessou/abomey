@@ -57,7 +57,7 @@ final class CreateGameTest extends AbomeyPantherTestCase
         $client->waitForVisibility('.participant-chip');
 
         self::assertSelectorTextContains('h1', 'Soirée chez Paul');
-        self::assertSelectorTextContains('.game-mode-badge', 'TAROT À 4');
+        self::assertSelectorTextContains('.ab-badge', 'Tarot à 4');
         self::assertSelectorTextContains('.participant-list', 'Alice');
         self::assertSelectorTextContains('.participant-list', 'Bob');
         self::assertSelectorTextContains('.participant-list', 'Charlie');

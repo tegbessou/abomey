@@ -1,0 +1,227 @@
+/*
+ * Abomey design tokens — the single source of truth for the visual system.
+ *
+ * Layering, top to bottom:
+ *   1. @font-face        self-hosted Bricolage Grotesque (titles) + Inter (body)
+ *   2. :root --ab-*      the portable design tokens — carried from project to project
+ *   3. :root --pico-*    the Pico adapter — Pico consumes our tokens, never the reverse
+ *
+ * Dependency direction: --ab-* is stable and framework-agnostic; --pico-* is a
+ * replaceable detail that points back at it. Swapping CSS frameworks means keeping
+ * --ab-* intact and rewiring the adapter.
+ *
+ * Theme: dark-only. Pico's dark baseline is forced via data-theme="dark" on <html>;
+ * the tokens below override only the brand-specific slots.
+ */
+
+/* ── 1. Fonts ─────────────────────────────────────────────────────────────── */
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/inter-400.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/inter-500.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/inter-600.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Bricolage Grotesque";
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url("../fonts/bricolage-grotesque-500.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Bricolage Grotesque";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/bricolage-grotesque-600.woff2") format("woff2");
+}
+
+/* ── 2. Design tokens (--ab-*) ────────────────────────────────────────────── */
+
+:root {
+    /* Surfaces — elevation reads through surface lightness, not shadow. */
+    --ab-color-surface-0: #181310; /* page background      (L0) */
+    --ab-color-surface-1: #221b16; /* cards, rows          (L1) */
+    --ab-color-surface-2: #2c241d; /* hover, menus, modals (L2) */
+    --ab-color-border: #3a2f26; /* discreet separators */
+
+    /* Text — warm-tinted greys on warm background. */
+    --ab-color-text: #f2ece3; /* body, names */
+    --ab-color-text-muted: #b3a596; /* neutral scores, sublabels */
+    --ab-color-text-subtle: #7d6f60; /* labels, hints */
+
+    /* Action — terracotta. Reserved for the primary action, nothing else. */
+    --ab-color-action: #c0533a;
+    --ab-color-action-hover: #a5442e;
+    --ab-color-action-focus: rgba(192, 83, 58, 0.3);
+    --ab-color-action-soft: rgba(192, 83, 58, 0.16); /* selected / hover tint on dark */
+    --ab-color-on-action: #fdeee9; /* rosy cream — neither pure white nor black */
+
+    /* Positive / emphasis — ochre. Reserved for highlight (winning score, badge). */
+    --ab-color-positive: #e0a02e;
+    --ab-color-positive-soft: rgba(224, 160, 46, 0.14); /* badge background */
+
+    /* Danger — error / destructive. Kept distinct from the terracotta action and
+       bright enough to read as an accent (border, icon) on the dark surfaces.
+       Not for body text on its own soft background — contrast is only ~4:1. */
+    --ab-color-danger: #e5675a;
+    --ab-color-danger-soft: rgba(229, 103, 90, 0.14);
+
+    /* Success — valid form state. Green for the convention, muted to sit with the
+       warm palette; used as an accent (border, focus ring), not body text. */
+    --ab-color-success: #5ea784;
+
+    /* Scrim — the dim behind modals and the mobile drawer. */
+    --ab-color-scrim: rgba(0, 0, 0, 0.5);
+
+    /* Typography — families. */
+    --ab-font-title: "Bricolage Grotesque", system-ui, sans-serif;
+    --ab-font-body: "Inter", system-ui, sans-serif;
+
+    /* Typography — weights (400 / 500 / 600 only). */
+    --ab-weight-regular: 400;
+    --ab-weight-medium: 500;
+    --ab-weight-semibold: 600;
+
+    /* Typography — fixed scale (px to guarantee the 16px floor). */
+    --ab-text-page-title: 34px; /* Bricolage 600 */
+    --ab-text-card-title: 24px; /* Bricolage 600 */
+    --ab-text-section: 20px; /* Bricolage 500 */
+    --ab-text-body: 16px; /* Inter — body + scores, the floor */
+    --ab-text-label: 12px; /* non-tappable labels only */
+
+    /* Spacing — base-4, non-linear. Every margin comes from this list. */
+    --ab-space-3xs: 4px;
+    --ab-space-2xs: 8px;
+    --ab-space-xs: 12px;
+    --ab-space-sm: 16px; /* mobile gutter */
+    --ab-space-md: 24px;
+    --ab-space-lg: 32px;
+    --ab-space-xl: 48px;
+    --ab-space-2xl: 64px;
+    --ab-space-3xl: 96px;
+
+    /* Radius — not specified in the design doc; chosen here, open to revision. */
+    --ab-radius-sm: 8px;
+    --ab-radius-md: 12px;
+    --ab-radius-lg: 16px;
+
+    /* Elevation — shadow only for true floating layers (popover, modal). */
+    --ab-shadow-floating: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+    /* Touch target — min height for buttons and tappable rows (HIG 44pt + Material 48dp). */
+    --ab-tap-target: 48px;
+}
+
+/* ── 3. Pico adapter (--pico-* consumes --ab-*) ───────────────────────────── */
+
+:root {
+    /* Surfaces & text */
+    --pico-background-color: var(--ab-color-surface-0);
+    --pico-color: var(--ab-color-text);
+    --pico-muted-color: var(--ab-color-text-muted);
+    --pico-muted-border-color: var(--ab-color-border);
+
+    --pico-card-background-color: var(--ab-color-surface-1);
+    --pico-card-border-color: var(--ab-color-border);
+    --pico-card-sectioning-background-color: var(--ab-color-surface-2);
+
+    /* Primary = action (terracotta) */
+    --pico-primary: var(--ab-color-action);
+    --pico-primary-background: var(--ab-color-action);
+    --pico-primary-border: var(--ab-color-action);
+    --pico-primary-hover: var(--ab-color-action-hover);
+    --pico-primary-hover-background: var(--ab-color-action-hover);
+    --pico-primary-hover-border: var(--ab-color-action-hover);
+    --pico-primary-focus: var(--ab-color-action-focus);
+    --pico-primary-inverse: var(--ab-color-on-action);
+    --pico-primary-underline: rgba(192, 83, 58, 0.5);
+
+    /* Secondary = neutral. Kept off the ochre on purpose: ochre is emphasis,
+       not a button role. Secondary buttons stay quiet greys. */
+    --pico-secondary: var(--ab-color-text-muted);
+    --pico-secondary-background: var(--ab-color-surface-2);
+    --pico-secondary-border: var(--ab-color-border);
+    --pico-secondary-hover: var(--ab-color-text);
+    --pico-secondary-hover-background: var(--ab-color-surface-2);
+    --pico-secondary-inverse: var(--ab-color-text);
+
+    /* Typography */
+    --pico-font-family-sans-serif: var(--ab-font-body);
+    --pico-font-family: var(--ab-font-body);
+    --pico-font-size: 100%;
+
+    /* Form elements on dark surfaces */
+    --pico-form-element-background-color: var(--ab-color-surface-1);
+    --pico-form-element-border-color: var(--ab-color-border);
+    --pico-form-element-color: var(--ab-color-text);
+    --pico-form-element-active-background-color: var(--ab-color-surface-2);
+    --pico-form-element-active-border-color: var(--ab-color-action);
+    --pico-form-element-focus-color: var(--ab-color-action);
+    --pico-form-element-placeholder-color: var(--ab-color-text-subtle);
+
+    /* Validation states → our danger / success tokens. */
+    --pico-form-element-invalid-border-color: var(--ab-color-danger);
+    --pico-form-element-invalid-active-border-color: var(--ab-color-danger);
+    --pico-form-element-invalid-focus-color: var(--ab-color-danger);
+    --pico-form-element-valid-border-color: var(--ab-color-success);
+    --pico-form-element-valid-active-border-color: var(--ab-color-success);
+    --pico-form-element-valid-focus-color: var(--ab-color-success);
+
+    /* Shape & rhythm */
+    --pico-border-radius: var(--ab-radius-sm);
+    --pico-spacing: var(--ab-space-sm);
+}
+
+/* ── 4. Base element wiring ───────────────────────────────────────────────── */
+
+/* Fix the root at 16px so the type scale stays honest and the input floor holds
+   (Safari iOS zooms fields below 16px). Neutralises Pico's responsive upscaling. */
+html {
+    font-size: 100%;
+}
+
+/* Titles use Bricolage; body inherits Inter from --pico-font-family. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--ab-font-title);
+}
+
+/* Pixel-aligned digits everywhere numbers are read as a column. */
+table,
+[data-tabular] {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Pico ships `ul li { list-style: square }` — a rule on the <li> itself, which
+   beats a `list-style: none` merely inherited from the <ul>. So neutralise it by
+   targeting the <li> at the same specificity, loaded after Pico. Legal prose opts
+   back in via .legal-prose (see app.css). */
+ul li,
+ol li {
+    list-style: none;
+}

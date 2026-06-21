@@ -64,7 +64,7 @@ final class LogtoAuthenticator extends AbstractAuthenticator implements Authenti
             }
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('app_home'));
+        return new RedirectResponse($this->urlGenerator->generate('app_games_index'));
     }
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): Response

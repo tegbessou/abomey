@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ app.request.locale|default('fr') }}">
+<html lang="{{ app.request.locale|default('fr') }}" data-theme="dark">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,14 +20,7 @@
         {% endif %}
     </head>
     <body>
-        <header class="site-header">
-            <div class="container site-header__inner">
-                <a href="{{ path('app_home') }}" class="site-header__brand" aria-label="Abomey">
-                    {% include 'partials/_logo.html.twig' %}
-                    <span class="site-header__title">Abomey</span>
-                </a>
-            </div>
-        </header>
+        {% include 'partials/_site_header.html.twig' %}
         <main class="container">
             {% block body %}{% endblock %}
         </main>

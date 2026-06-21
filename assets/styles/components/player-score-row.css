@@ -1,0 +1,23 @@
+/* PlayerScoreRow — a player name paired with a score (cumulative total or per-deal). */
+.ab-score-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--ab-space-sm);
+    padding: var(--ab-space-3xs) 0;
+}
+
+.ab-score-row__name {
+    color: var(--ab-color-text);
+    font-weight: var(--ab-weight-medium);
+}
+
+.ab-score-row__value {
+    color: var(--ab-color-text-muted);
+    font-weight: var(--ab-weight-semibold);
+}
+
+/* The leader's score — the documented use of ochre. */
+.ab-score-row__value--emphasis {
+    color: var(--ab-color-positive);
+}

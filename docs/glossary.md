@@ -238,8 +238,12 @@ contre les 4 Défenseurs.
 ### Partie [Aggregate Root]
 
 Séance de jeu composée de plusieurs **Donnes** successives avec
-un groupe fixe de **Joueurs**. Une Partie a un début, une fin,
-et un état transitoire pendant lequel on y ajoute des Donnes.
+un groupe fixe de **Joueurs**. Une Partie a un début, puis
+accumule des Donnes au fil du temps. Elle n'a pas d'état
+« clos » dans Abomey : on peut toujours reprendre une Partie
+existante et y ajouter de nouvelles Donnes. La notion de fin
+de Partie est décidée par les joueurs physiques, pas par
+l'application.
 
 La Partie appartient à un et un seul **Utilisateur**. Elle n'est
 visible et modifiable que par celui-ci. Tous les Joueurs
@@ -250,7 +254,7 @@ Attributs :
 - Utilisateur propriétaire (référencé par identifiant)
 - Mode de tarot (3, 4 ou 5)
 - Joueurs participants (référencés par leur identifiant)
-- Date de création, date de clôture
+- Date de création
 - Donnes (collection)
 
 La Partie est un Aggregate Root. Elle encapsule les Donnes, qui
@@ -261,7 +265,6 @@ contenir.
 Invariants :
 - Le nombre de Joueurs doit être supérieur ou égal au Mode de
   tarot choisi
-- Une Partie close ne peut plus accueillir de nouvelle Donne
 - Tous les Joueurs participants appartiennent au même
   Utilisateur propriétaire que la Partie
 

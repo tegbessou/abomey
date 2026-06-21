@@ -1,0 +1,13 @@
+/* Badge — soft ochre pill for a categorical label (e.g. "Tarot à 4"). */
+.ab-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--ab-space-3xs) var(--ab-space-xs);
+    border-radius: var(--ab-radius-sm);
+    background-color: var(--ab-color-positive-soft);
+    color: var(--ab-color-positive);
+    font-size: var(--ab-text-label);
+    font-weight: var(--ab-weight-semibold);
+    line-height: 1;
+    white-space: nowrap;
+}

@@ -18,6 +18,11 @@ final class InMemoryGameRepository implements GameRepository
         $this->games[$game->getId()->toString()] = $game;
     }
 
+    public function update(Game $game): void
+    {
+        $this->games[$game->getId()->toString()] = $game;
+    }
+
     public function ofId(GameId $id, string $owner): ?Game
     {
         $game = $this->games[$id->toString()] ?? null;
@@ -27,5 +32,19 @@ final class InMemoryGameRepository implements GameRepository
         }
 
         return $game;
+    }
+
+    public function ofOwner(string $owner): array
+    {
+        $owned = [];
+        foreach ($this->games as $game) {
+            if ($game->getOwner() === $owner) {
+                $owned[] = $game;
+            }
+        }
+
+        usort($owned, static fn (Game $a, Game $b): int => $b->getCreatedAt() <=> $a->getCreatedAt());
+
+        return $owned;
     }
 }

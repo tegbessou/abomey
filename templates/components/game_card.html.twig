@@ -1,0 +1,25 @@
+{% props game %}
+
+<a href="{{ path('app_game_show', {id: game.id}) }}"{{ attributes.defaults({ class: 'ab-game-card' }) }}>
+    <header class="ab-game-card__header">
+        <h2 class="ab-game-card__title">{{ game.name }}</h2>
+        <twig:badge>{{ ('game.mode.' ~ game.mode)|trans }}</twig:badge>
+    </header>
+
+    {% if game.dealCount == 0 %}
+        <ul class="ab-game-card__roster">
+            {% for participant in game.participants %}
+                <li class="participant-chip">{{ participant.name }}</li>
+            {% endfor %}
+        </ul>
+        <p class="ab-game-card__state">{{ 'games.index.no_donnes'|trans }}</p>
+    {% else %}
+        {% set leading_score = game.standings[0].cumulativeScore %}
+        <ul class="ab-game-card__scores">
+            {% for participant in game.standings %}
+                <li><twig:player_score_row :name="participant.name" :value="participant.cumulativeScore" :emphasis="participant.cumulativeScore == leading_score" /></li>
+            {% endfor %}
+        </ul>
+        <p class="ab-game-card__state">{{ 'games.index.deal_count'|trans({'%count%': game.dealCount}, null, null) }}</p>
+    {% endif %}
+</a>

@@ -1,0 +1,31 @@
+/* DonnesMatrix — full deals × players grid. Desktop-only; the responsive swap
+   with the stacked DonneCards lives in app.css. Digits align via the
+   `table` rule in tokens.css. */
+.ab-donnes-matrix {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ab-donnes-matrix th,
+.ab-donnes-matrix td {
+    padding: var(--ab-space-2xs) var(--ab-space-xs);
+    text-align: right;
+    border-bottom: 1px solid var(--ab-color-border);
+}
+
+.ab-donnes-matrix th:first-child,
+.ab-donnes-matrix td:first-child {
+    text-align: left;
+    color: var(--ab-color-text-muted);
+}
+
+.ab-donnes-matrix thead th {
+    color: var(--ab-color-text);
+    font-weight: var(--ab-weight-semibold);
+}
+
+.ab-donnes-matrix tfoot th {
+    border-top: 2px solid var(--ab-color-border);
+    border-bottom: none;
+    font-weight: var(--ab-weight-semibold);
+}

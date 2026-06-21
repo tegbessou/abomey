@@ -1,0 +1,49 @@
+<header
+    class="site-header"
+    {% if app.user %}
+        data-controller="nav-drawer"
+        data-action="keydown.esc@window->nav-drawer#close"
+    {% endif %}
+>
+    <div class="container site-header__inner">
+        {% if app.user %}
+            <button
+                type="button"
+                class="site-header__burger"
+                aria-label="{{ 'nav.menu'|trans }}"
+                aria-expanded="false"
+                aria-controls="main-nav"
+                data-nav-drawer-target="button"
+                data-action="click->nav-drawer#toggle"
+            >
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        {% endif %}
+        <a href="{{ path('app_home') }}" class="site-header__brand" aria-label="Abomey">
+            {% include 'partials/_logo.html.twig' %}
+            <span class="site-header__title">Abomey</span>
+        </a>
+        {% if app.user %}
+            <nav
+                id="main-nav"
+                class="site-header__nav"
+                data-action="click->nav-drawer#closeOnLinkClick"
+            >
+                <div class="site-header__nav-group">
+                    <a href="{{ path('app_games_index') }}">{{ 'nav.my_games'|trans }}</a>
+                    <a href="{{ path('app_game_new') }}">{{ 'nav.create_game'|trans }}</a>
+                </div>
+                <div class="site-header__nav-group">
+                    <a href="{{ path('app_account') }}">{{ 'nav.account'|trans }}</a>
+                    <a href="{{ path('app_logout') }}">{{ 'nav.logout'|trans }}</a>
+                </div>
+            </nav>
+            <div
+                class="site-header__overlay"
+                data-action="click->nav-drawer#close"
+            ></div>
+        {% endif %}
+    </div>
+</header>
