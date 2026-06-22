@@ -42,9 +42,4 @@ final class PlayerIdType extends Type
 
         return $value->toString();
     }
-
-    public function getName(): string
-    {
-        return 'player_id';
-    }
 }

@@ -52,11 +52,6 @@ final class PoigneeListType extends JsonType
         return parent::convertToDatabaseValue($rows, $platform);
     }
 
-    public function getName(): string
-    {
-        return 'poignee_list';
-    }
-
     private function poigneeFromRow(mixed $row): Poignee
     {
         if (!is_array($row)) {

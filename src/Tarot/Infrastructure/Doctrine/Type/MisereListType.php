@@ -52,11 +52,6 @@ final class MisereListType extends JsonType
         return parent::convertToDatabaseValue($rows, $platform);
     }
 
-    public function getName(): string
-    {
-        return 'misere_list';
-    }
-
     private function misereFromRow(mixed $row): Misere
     {
         if (!is_array($row)) {

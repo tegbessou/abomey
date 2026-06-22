@@ -42,9 +42,4 @@ final class UserIdType extends Type
 
         return $value->toString();
     }
-
-    public function getName(): string
-    {
-        return 'user_id';
-    }
 }
