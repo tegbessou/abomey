@@ -31,4 +31,16 @@ final readonly class Ranking
     {
         return $this->orderedPlayerIds;
     }
+
+    /**
+     * @param list<string> $playerIds
+     */
+    public function coversExactly(array $playerIds): bool
+    {
+        $ranked = $this->orderedPlayerIds;
+        sort($ranked);
+        sort($playerIds);
+
+        return $ranked === $playerIds;
+    }
 }

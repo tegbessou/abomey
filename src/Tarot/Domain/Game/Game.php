@@ -126,10 +126,7 @@ final class Game
     {
         $activePlayerIds = $this->activePlayerIdsAfterNeutralizing($deadPlayerIds);
 
-        $rankedPlayerIds = $ranking->players();
-        sort($rankedPlayerIds);
-        sort($activePlayerIds);
-        if ($rankedPlayerIds !== $activePlayerIds) {
+        if (!$ranking->coversExactly($activePlayerIds)) {
             throw new InvalidRankingException();
         }
 

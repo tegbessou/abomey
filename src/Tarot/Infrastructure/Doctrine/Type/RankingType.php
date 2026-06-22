@@ -44,9 +44,4 @@ final class RankingType extends JsonType
 
         return parent::convertToDatabaseValue($value->players(), $platform);
     }
-
-    public function getName(): string
-    {
-        return 'ranking';
-    }
 }

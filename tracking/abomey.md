@@ -10,12 +10,17 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : attaquer T7 (correction de la
-  dernière Donne), dernière tranche du sujet. Task
-  produit-prête : `tasks/saisie-donnes/7-correction-derniere-donne.md`.
-  Enchaîner `technical-plan` puis `tdd-loop`. Process : commit
-  + `git-request-review` + `git-review` **par task** (pipeline).
-  Branche par task (T6 = `feat/006-donne-vachette`).
+- **Prochaine action** : fermer le bloquant de la **PR #2**
+  (T6) avant tout — ajouter le **test d'intégration de
+  `RankingType`** (round-trip `KernelTestCase`, sur le modèle
+  de `PoigneeListType`/`MisereListType`) ; suggestion à
+  traiter ou assumer : double `sort()` dans
+  `Game::recordVachette` → helper porté par `Ranking`. Puis
+  re-push, re-`git-review`, merge. **Ensuite** : T7
+  (correction de la dernière Donne), dernière tranche du
+  sujet — `tasks/saisie-donnes/7-correction-derniere-donne.md`,
+  `technical-plan` puis `tdd-loop`. Branche par task
+  (T6 = `feat/006-donne-vachette`).
 - **Spec** : `product/saisie-donnes.md`
 - **Tasks** : `tasks/saisie-donnes/` (T3, T4, T5, T6 livrées ;
   T7 produit-prête — dernière tranche)

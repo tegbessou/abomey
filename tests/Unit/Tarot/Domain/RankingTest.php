@@ -29,4 +29,14 @@ final class RankingTest extends TestCase
 
         new Ranking(['p-1', 'p-2', 'p-1']);
     }
+
+    #[Test]
+    public function aRankingCoversExactlyTheSamePlayersRegardlessOfOrder(): void
+    {
+        $ranking = new Ranking(['p-1', 'p-2', 'p-3']);
+
+        self::assertTrue($ranking->coversExactly(['p-3', 'p-1', 'p-2']));
+        self::assertFalse($ranking->coversExactly(['p-1', 'p-2', 'intrus']));
+        self::assertFalse($ranking->coversExactly(['p-1', 'p-2']));
+    }
 }
