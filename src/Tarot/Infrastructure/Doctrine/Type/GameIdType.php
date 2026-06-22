@@ -42,9 +42,4 @@ final class GameIdType extends Type
 
         return $value->toString();
     }
-
-    public function getName(): string
-    {
-        return 'game_id';
-    }
 }

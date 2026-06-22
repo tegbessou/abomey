@@ -42,9 +42,4 @@ final class EmailType extends Type
 
         return $value->toString();
     }
-
-    public function getName(): string
-    {
-        return 'email';
-    }
 }
