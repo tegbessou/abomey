@@ -7,6 +7,7 @@ doctrine:
             game_id: App\Tarot\Infrastructure\Doctrine\Type\GameIdType
             poignee_list: App\Tarot\Infrastructure\Doctrine\Type\PoigneeListType
             misere_list: App\Tarot\Infrastructure\Doctrine\Type\MisereListType
+            ranking: App\Tarot\Infrastructure\Doctrine\Type\RankingType
             user_id: App\Account\Infrastructure\Doctrine\Type\UserIdType
             email: App\Account\Infrastructure\Doctrine\Type\EmailType
 

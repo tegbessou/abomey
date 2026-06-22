@@ -2,7 +2,7 @@
 
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
-- **Dernière touche** : 2026-06-21 (T5 livrée)
+- **Dernière touche** : 2026-06-21 (T6 livrée)
 - **Échéance** : —
 - **Contexte** : Permettre à un Utilisateur de saisir en
   direct les Donnes successives d'une Partie, avec calcul
@@ -10,20 +10,20 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : attaquer T6 (Donne Vachette). Task
-  produit-prête : `tasks/saisie-donnes/6-donne-vachette.md`.
-  Pré-requis : ajouter le barème Vachette par Mode à
-  `docs/scoring.md` (+120/0/−120 à 3 ; +120/+60/−60/−120 à 4 ;
-  +120/+60/0/−60/−120 à 5). Enchaîner `technical-plan` puis
-  `tdd-loop`. **Point de structure attendu** : la Vachette a
-  un barème incompatible avec la formule classique → c'est le
-  moment de trancher le Divergent Change noté sur
-  `Deal::pointsByPlayer` (polymorphisme de calcul). Branche de
-  travail : `feat/003-saisie-donnes` (commits par task, push à
-  la fin).
+- **Prochaine action** : fermer le bloquant de la **PR #2**
+  (T6) avant tout — ajouter le **test d'intégration de
+  `RankingType`** (round-trip `KernelTestCase`, sur le modèle
+  de `PoigneeListType`/`MisereListType`) ; suggestion à
+  traiter ou assumer : double `sort()` dans
+  `Game::recordVachette` → helper porté par `Ranking`. Puis
+  re-push, re-`git-review`, merge. **Ensuite** : T7
+  (correction de la dernière Donne), dernière tranche du
+  sujet — `tasks/saisie-donnes/7-correction-derniere-donne.md`,
+  `technical-plan` puis `tdd-loop`. Branche par task
+  (T6 = `feat/006-donne-vachette`).
 - **Spec** : `product/saisie-donnes.md`
-- **Tasks** : `tasks/saisie-donnes/` (T3, T4, T5 livrées ;
-  T6→T7 produit-prêtes)
+- **Tasks** : `tasks/saisie-donnes/` (T3, T4, T5, T6 livrées ;
+  T7 produit-prête — dernière tranche)
 - **Notes** :
   - 2026-05-23 — problème validé en phase 1.
   - Posture acceptée : saisie en direct entre deux Donnes
@@ -417,6 +417,45 @@
     vérifie aussi l'absence des étapes Partenaire et Mort à 3.
     `scoring.md` complété T5. Pas de migration.
     Vérifs : 94 unit + 31 integration + 5 Panther verts,
+    `make quality` 0 violation.
+  - 2026-06-21 — **PR #1 (sujet #003, T0→T5) mergée** après
+    3 tours de `git-review` à contexte frais. La 1re revue a
+    levé 2 bloquants (invariant D10/D11 délégué à l'UI ; catch
+    générique sans déballage). Corrections : garde
+    `PartnerRequiresFivePlayerModeException` dans l'agrégat ;
+    déballage `getWrappedExceptions()` + `array_first()` ; et
+    — révélé par un test e2e — re-render de formulaire en
+    échec passé en **422** (Turbo Drive avale un 200). Tout
+    reversé dans la boucle d'apprentissage (amendements
+    `symfony-conventions`, `technical-plan`, `tdd-loop`,
+    `git-request-review` + mémoires feedback).
+  - 2026-06-21 — **T6 livrée** (Donne Vachette, D12). Décision
+    de structure prise via `evaluate-design-tension` :
+    **Single Table Inheritance** — `Deal` devient abstrait,
+    `ClassicDeal` (extrait, comportement classique inchangé) et
+    `VachetteDeal` héritent ; discriminant `type`. VO `Ranking`
+    (liste ordonnée, invariant d'unicité dans le VO,
+    complétude validée par `Game::recordVachette`),
+    `InvalidRankingException`. Barème fixe par Mode dans
+    `VachetteDeal` (const typée). Validation tablée/Mort
+    extraite en `activePlayerIdsAfterNeutralizing` (partagée
+    classique/Vachette). Application : `RecordVachetteCommand`
+    + handler. Infra : `RankingType` Doctrine, migrations STI
+    (`Version20260621171458`, discriminant + colonnes
+    classiques nullable) puis colonne `ranking`
+    (`Version20260621172809`). PHPStan : ignore ciblé
+    `doctrine.columnType` sur `ClassicDeal` (compromis STI :
+    colonnes nullable en base, non-null en PHP). UI : menu
+    d'ajout repensé en deux **boutons hiérarchisés**
+    responsive (classique primaire, Vachette secondaire ;
+    empilés mobile, en ligne ≥768px) après écarté un dropdown
+    `<details>` jugé non mobile-first ; formulaire Vachette à
+    selects (un par position), contrôleur Stimulus
+    `ranking_choice` excluant doublons + Morts. e2e Panther
+    (`RecordVachetteTest`). Pas de test e2e d'erreur : l'UI
+    rend la saisie invalide inatteignable, le mapping reste en
+    défense (logique couverte côté classique).
+    Vérifs : 104 unit + 31 integration + 7 Panther verts,
     `make quality` 0 violation.
 
 ## #002 — Création d'une Partie

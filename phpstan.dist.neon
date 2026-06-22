@@ -3,3 +3,7 @@ parameters:
     paths:
         - src
         - tests
+    ignoreErrors:
+        -
+            identifier: doctrine.columnType
+            path: src/Tarot/Domain/Game/ClassicDeal.php

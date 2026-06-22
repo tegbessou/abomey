@@ -6,8 +6,8 @@ namespace App\Tests\Unit\Tarot\Domain;
 
 use App\Tarot\Domain\Game\Bouts;
 use App\Tarot\Domain\Game\Chelem;
+use App\Tarot\Domain\Game\ClassicDeal;
 use App\Tarot\Domain\Game\Contract;
-use App\Tarot\Domain\Game\Deal;
 use App\Tarot\Domain\Game\DuplicateMisereException;
 use App\Tarot\Domain\Game\Game;
 use App\Tarot\Domain\Game\Misere;
@@ -24,7 +24,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-final class DealTest extends TestCase
+final class ClassicDealTest extends TestCase
 {
     #[Test]
     #[DataProvider('classicDealScenariosAtFourPlayers')]
@@ -35,7 +35,7 @@ final class DealTest extends TestCase
         int $takerPoints,
         int $defenderPoints,
     ): void {
-        $deal = Deal::createClassic(
+        $deal = ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -66,7 +66,7 @@ final class DealTest extends TestCase
     {
         $this->expectException(TakerNotActiveException::class);
 
-        Deal::createClassic(
+        ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -88,7 +88,7 @@ final class DealTest extends TestCase
     {
         $this->expectException(PointsScoredOutOfRangeException::class);
 
-        Deal::createClassic(
+        ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -142,7 +142,7 @@ final class DealTest extends TestCase
         int $takerPoints,
         int $defenderPoints,
     ): void {
-        $deal = Deal::createClassic(
+        $deal = ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -195,7 +195,7 @@ final class DealTest extends TestCase
         int $takerPoints,
         int $defenderPoints,
     ): void {
-        $deal = Deal::createClassic(
+        $deal = ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -237,7 +237,7 @@ final class DealTest extends TestCase
     #[Test]
     public function aClassicDealAppliesThePoigneesBonusToTheWinningSide(): void
     {
-        $deal = Deal::createClassic(
+        $deal = ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -261,7 +261,7 @@ final class DealTest extends TestCase
     #[Test]
     public function aClassicDealSumsMultiplePoigneesBonusForTheWinningSide(): void
     {
-        $deal = Deal::createClassic(
+        $deal = ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -291,7 +291,7 @@ final class DealTest extends TestCase
     {
         $this->expectException(PoigneeAnnouncerNotActiveException::class);
 
-        Deal::createClassic(
+        ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -312,7 +312,7 @@ final class DealTest extends TestCase
     {
         // Exemple 11 : Garde, Preneur Alice réussit (60 pts, 1 bout) + Misère Atouts annoncée par Alice
         // Base : +102 / -34. Misère : Alice +30, autres -10. Total : +132 / -44.
-        $deal = Deal::createClassic(
+        $deal = ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -339,7 +339,7 @@ final class DealTest extends TestCase
         // Alice annonce Atouts ET Tête : 2 × (+30 -10 -10 -10) ajoutés.
         // Base classique : Alice +102, autres -34. Misères : Alice +60, autres -20.
         // Total : Alice +162, autres -54.
-        $deal = Deal::createClassic(
+        $deal = ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -368,7 +368,7 @@ final class DealTest extends TestCase
     {
         $this->expectException(DuplicateMisereException::class);
 
-        Deal::createClassic(
+        ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],
@@ -392,7 +392,7 @@ final class DealTest extends TestCase
     {
         $this->expectException(MisereAnnouncerNotActiveException::class);
 
-        Deal::createClassic(
+        ClassicDeal::createClassic(
             game: self::aGameWithAliceBobCharlieDavid(),
             position: 1,
             activePlayerIds: ['alice', 'bob', 'charlie', 'david'],

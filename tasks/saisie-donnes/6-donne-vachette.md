@@ -55,8 +55,76 @@ et un barème fixe par Mode).
   (hors-scope du sujet).
 
 ## Plan technique
-Pré-requis : reporter le barème Vachette de D12 dans
-`docs/scoring.md` — +120/0/−120 à 3 ; +120/+60/−60/−120
-à 4 ; +120/+60/0/−60/−120 à 5.
+Pré-requis (fait) : barème Vachette par Mode reporté dans
+`docs/scoring.md` (section « Donne Vachette (T6) »).
 
-_(reste à remplir par `technical-plan` au moment de la mise en production)_
+### Bounded context
+Tarot.
+
+### Domaine
+La Donne devient une hiérarchie polymorphe (Single Table
+Inheritance) : un type de Donne diverge de l'autre par ses
+champs, sa validation **et** son calcul. Décision prise via
+`evaluate-design-tension` (le conditionnel ne suffit pas : la
+divergence est structurelle et multi-points).
+
+- `Deal` (existant) → devient **abstrait**, entité interne de
+  l'agrégat `Game`. Porte le commun : `game`, `position`, et
+  une méthode abstraite `pointsByPlayer(): array<string, int>`.
+- `ClassicDeal` (nouveau, **extrait** de l'actuel `Deal`) —
+  tous les champs classiques (taker, contract, bouts, points,
+  PAB, chelem, poignées, misères, partnerId, activePlayerIds)
+  et le calcul actuel. Comportement classique **inchangé**
+  (refactor sous le filet des tests existants).
+- `VachetteDeal` (nouveau) — porte un `Ranking` et les
+  `activePlayerIds`. Calcul = barème fixe par Mode (cf.
+  `scoring.md`), sans écart ni multiplicateur ni prime.
+- `Ranking` (nouveau value object) — classement strict : à
+  chaque Joueur actif une position unique de 1 à N (N = Mode).
+  Invariant porté ici, dans le domaine (pas dans l'UI) :
+  positions uniques, contiguës de 1 à N, tous les actifs
+  classés.
+- `InvalidRankingException` (nouveau) — classement non strict
+  (position dupliquée, manquante, ou Joueur actif sans
+  position). Étend `\DomainException`.
+
+### Application
+- `RecordVachetteCommand` + `RecordVachetteCommandHandler`
+  (nouveaux) sur `command.bus`. Distincts de
+  `RecordClassicDeal` : saisie de nature différente.
+- `Game::recordVachette(...)` (nouvelle méthode de l'agrégat)
+  — valide la cohérence tablée/Mort (mêmes invariants D22/D1
+  que le classique : actifs = Mode) puis crée un `VachetteDeal`.
+
+### Ports & adaptateurs
+- `GameRepository` (existant) — inchangé.
+- Adaptateur Doctrine : passage de `deals` en Single Table
+  Inheritance — `#[InheritanceType('SINGLE_TABLE')]`,
+  `#[DiscriminatorColumn(name: 'type')]`,
+  `#[DiscriminatorMap(['classic' => ClassicDeal, 'vachette' =>
+  VachetteDeal])]` sur `Deal`. Migration : colonne
+  discriminante `type` + colonne `ranking` (JSON, nullable) ;
+  les colonnes classiques deviennent nullable (portées par le
+  seul `ClassicDeal`).
+
+### Domain events
+Aucun.
+
+### Forme de la tranche
+UI (bouton « Ajouter une Vachette » sur la page Partie +
+formulaire de saisie du classement — Qo9, mode de saisie
+tranché au moment de l'UI) → `RecordVachetteCommand` →
+`RecordVachetteCommandHandler` → `Game::recordVachette` →
+`VachetteDeal` (calcul par `pointsByPlayer()`). Le cumul des
+Scores (`ShowGameQueryHandler`) consomme `pointsByPlayer()`
+de façon polymorphe — une Vachette apparaît dans le tableau
+cumulatif comme une Donne, sans branchement de type côté
+lecture.
+
+### Contact avec le noyau partagé
+- Introduit : hiérarchie `Deal` (abstrait) / `ClassicDeal` /
+  `VachetteDeal`, value object `Ranking`,
+  `InvalidRankingException`, `RecordVachetteCommand` +
+  handler, `Game::recordVachette`.
+- Consomme : `Game`, `Mode`, `GameRepository`, le calcul
+  classique (inchangé, déplacé dans `ClassicDeal`).

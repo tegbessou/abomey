@@ -12,7 +12,7 @@ référence la tranche concernée.
 ## Périmètre couvert
 
 À ce jour, le document couvre les besoins des tranches
-**T1**, **T2**, **T3**, **T4** et **T5** :
+**T1**, **T2**, **T3**, **T4**, **T5** et **T6** :
 
 - Donne classique
 - Tarot à 4 joueurs, tablée égale au Mode (pas de Mort)
@@ -23,10 +23,9 @@ référence la tranche concernée.
 - Neutralisation du Mort (T3)
 - Tarot à 5 avec Partenaire ou Preneur seul (T4)
 - Tarot à 3, Preneur seul contre deux Défenseurs (T5)
+- Donne Vachette, barème par Mode (T6)
 
-Restent à formaliser dans les tranches suivantes :
-
-- Barème Vachette par Mode (T6)
+Le document couvre désormais tout le scoring du sujet #003.
 
 ## Neutralisation du Mort (T3)
 
@@ -539,3 +538,55 @@ Tablée à 3 joueurs actifs : Alice (Preneur), Bob, Charlie.
 
 Répartition : Alice `−124`, Bob/Charlie `+62` chacun.
 Vérification : `−124 + 2 × 62 = 0`.
+
+## Donne Vachette (T6)
+
+La Vachette est un type de Donne distinct du classique : pas
+de Preneur, pas de Contrat, pas de Partenaire (cf. D12 et
+`glossary.md`). Chaque Joueur actif joue pour lui-même ; en
+fin de Donne, les Joueurs sont **classés** du meilleur au
+moins bon, et un **barème fixe par Mode** attribue les points
+selon la position. Le classement est strict : chaque Joueur
+actif porte une position unique de 1 à N (N = Mode).
+
+Le barème ne dépend ni d'un écart, ni d'un multiplicateur, ni
+de primes — il est entièrement déterminé par la position et
+le Mode.
+
+### Barème par Mode
+
+| Position | 3 joueurs | 4 joueurs | 5 joueurs |
+|---|---|---|---|
+| 1er | `+120` | `+120` | `+120` |
+| 2e | `0` | `+60` | `+60` |
+| 3e | `−120` | `−60` | `0` |
+| 4e | — | `−120` | `−60` |
+| 5e | — | — | `−120` |
+
+La somme est nulle à chaque Mode (barème symétrique autour
+de 0). Les bornes sont toujours `+120` (1er) et `−120`
+(dernier).
+
+### Exemples chiffrés Vachette
+
+#### Exemple 16 — Vachette à 4 joueurs
+
+Classement : Alice 1re, Bob 2e, Charlie 3e, David 4e.
+
+Répartition : Alice `+120`, Bob `+60`, Charlie `−60`,
+David `−120`.
+Vérification : `120 + 60 − 60 − 120 = 0`.
+
+#### Exemple 17 — Vachette à 3 joueurs
+
+Classement : Alice 1re, Bob 2e, Charlie 3e.
+
+Répartition : Alice `+120`, Bob `0`, Charlie `−120`.
+Vérification : `120 + 0 − 120 = 0`.
+
+#### Exemple 18 — Vachette à 5 joueurs
+
+Classement : positions 1 à 5.
+
+Répartition : `+120 / +60 / 0 / −60 / −120` selon la position.
+Vérification : `120 + 60 + 0 − 60 − 120 = 0`.

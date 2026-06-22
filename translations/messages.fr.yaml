@@ -72,6 +72,7 @@ game:
         total: "Total"
         deal_label: "Donne %position%"
         add_classic_deal: "Ajouter une Donne classique"
+        add_vachette: "Ajouter une Vachette"
 
 deal:
     create:
@@ -124,6 +125,15 @@ deal:
         submit: "Enregistrer la Donne"
         error:
             invalid_input: "La saisie de la Donne est invalide. Vérifiez les Joueurs, le Preneur et les points, puis réessayez."
+    vachette:
+        title: "Ajouter une Vachette — %game%"
+        group_ranking: "Le classement"
+        ranking_label: "Classement des Joueurs"
+        position: "Position %n%"
+        position_placeholder: "Choisir un Joueur"
+        submit: "Enregistrer la Vachette"
+        error:
+            invalid_input: "Le classement est invalide. Chaque Joueur actif doit occuper une position unique, et tous doivent être classés."
 
 player:
     create:

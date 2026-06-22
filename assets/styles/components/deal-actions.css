@@ -1,0 +1,15 @@
+.deal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ab-space-2xs);
+}
+
+.deal-actions > [role="button"] {
+    margin: 0;
+}
+
+@media (min-width: 768px) {
+    .deal-actions {
+        flex-direction: row;
+    }
+}
