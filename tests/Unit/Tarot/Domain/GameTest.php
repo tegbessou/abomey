@@ -15,10 +15,12 @@ use App\Tarot\Domain\Game\Game;
 use App\Tarot\Domain\Game\GameId;
 use App\Tarot\Domain\Game\InvalidRankingException;
 use App\Tarot\Domain\Game\Mode;
+use App\Tarot\Domain\Game\NoDealToCorrectException;
 use App\Tarot\Domain\Game\PartnerCannotBeTakerException;
 use App\Tarot\Domain\Game\PartnerMustBeActivePlayerException;
 use App\Tarot\Domain\Game\PartnerRequiresFivePlayerModeException;
 use App\Tarot\Domain\Game\PetitAuBout;
+use App\Tarot\Domain\Game\PointsScoredOutOfRangeException;
 use App\Tarot\Domain\Game\Ranking;
 use App\Tarot\Domain\Game\TooFewParticipantsException;
 use App\Tarot\Domain\Game\TooManyParticipantsException;
@@ -468,6 +470,174 @@ final class GameTest extends TestCase
         $game->recordVachette(
             deadPlayerIds: [],
             ranking: new Ranking(['p-1', 'p-2', 'p-3', 'intrus']),
+        );
+    }
+
+    #[Test]
+    public function theLastClassicDealCanBeCorrected(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $game->correctLastDealAsClassic(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 50,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $deals = $game->getDeals();
+        self::assertCount(1, $deals);
+        $scores = $deals[0]->pointsByPlayer();
+        self::assertSame(-78, $scores['p-1']);
+        self::assertSame(26, $scores['p-2']);
+    }
+
+    #[Test]
+    public function theLastDealCanBeCorrectedFromClassicToVachette(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $game->correctLastDealAsVachette(
+            deadPlayerIds: [],
+            ranking: new Ranking(['p-1', 'p-2', 'p-3', 'p-4']),
+        );
+
+        $deals = $game->getDeals();
+        self::assertCount(1, $deals);
+        $scores = $deals[0]->pointsByPlayer();
+        self::assertSame(120, $scores['p-1']);
+        self::assertSame(-120, $scores['p-4']);
+    }
+
+    #[Test]
+    public function theLastDealCanBeCorrectedFromVachetteToClassic(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $game->recordVachette(
+            deadPlayerIds: [],
+            ranking: new Ranking(['p-1', 'p-2', 'p-3', 'p-4']),
+        );
+
+        $game->correctLastDealAsClassic(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $deals = $game->getDeals();
+        self::assertCount(1, $deals);
+        self::assertSame(102, $deals[0]->pointsByPlayer()['p-1']);
+    }
+
+    #[Test]
+    public function aFailedCorrectionLeavesTheLastDealUnchanged(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        try {
+            $game->correctLastDealAsClassic(
+                deadPlayerIds: [],
+                partnerId: null,
+                takerId: 'p-1',
+                contract: Contract::Garde,
+                bouts: Bouts::One,
+                pointsScored: 200,
+                petitAuBout: PetitAuBout::None,
+                chelem: Chelem::None,
+                poignees: [],
+                miseres: [],
+            );
+            self::fail('Expected PointsScoredOutOfRangeException.');
+        } catch (PointsScoredOutOfRangeException) {
+        }
+
+        $deals = $game->getDeals();
+        self::assertCount(1, $deals);
+        self::assertSame(102, $deals[0]->pointsByPlayer()['p-1']);
+    }
+
+    #[Test]
+    public function correctingTheLastDealRequiresAtLeastOneDeal(): void
+    {
+        $game = GameBuilder::aGame()
+            ->withMode(Mode::Four)
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+
+        $this->expectException(NoDealToCorrectException::class);
+
+        $game->correctLastDealAsClassic(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 50,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
         );
     }
 

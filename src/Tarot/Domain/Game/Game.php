@@ -88,24 +88,9 @@ final class Game
         array $poignees,
         array $miseres,
     ): void {
-        $activePlayerIds = $this->activePlayerIdsAfterNeutralizing($deadPlayerIds);
-
-        if (null !== $partnerId && Mode::Five !== $this->mode) {
-            throw new PartnerRequiresFivePlayerModeException();
-        }
-
-        if (null !== $partnerId && !in_array($partnerId, $activePlayerIds, true)) {
-            throw new PartnerMustBeActivePlayerException();
-        }
-
-        if (null !== $partnerId && $partnerId === $takerId) {
-            throw new PartnerCannotBeTakerException();
-        }
-
-        $deal = ClassicDeal::createClassic(
-            game: $this,
+        $deal = $this->buildClassicDeal(
             position: $this->deals->count() + 1,
-            activePlayerIds: $activePlayerIds,
+            deadPlayerIds: $deadPlayerIds,
             partnerId: $partnerId,
             takerId: $takerId,
             contract: $contract,
@@ -120,9 +105,66 @@ final class Game
     }
 
     /**
+     * @param list<string>  $deadPlayerIds
+     * @param list<Poignee> $poignees
+     * @param list<Misere>  $miseres
+     */
+    private function buildClassicDeal(
+        int $position,
+        array $deadPlayerIds,
+        ?string $partnerId,
+        string $takerId,
+        Contract $contract,
+        Bouts $bouts,
+        int $pointsScored,
+        PetitAuBout $petitAuBout,
+        Chelem $chelem,
+        array $poignees,
+        array $miseres,
+    ): ClassicDeal {
+        $activePlayerIds = $this->activePlayerIdsAfterNeutralizing($deadPlayerIds);
+
+        if (null !== $partnerId && Mode::Five !== $this->mode) {
+            throw new PartnerRequiresFivePlayerModeException();
+        }
+
+        if (null !== $partnerId && !in_array($partnerId, $activePlayerIds, true)) {
+            throw new PartnerMustBeActivePlayerException();
+        }
+
+        if (null !== $partnerId && $partnerId === $takerId) {
+            throw new PartnerCannotBeTakerException();
+        }
+
+        return ClassicDeal::createClassic(
+            game: $this,
+            position: $position,
+            activePlayerIds: $activePlayerIds,
+            partnerId: $partnerId,
+            takerId: $takerId,
+            contract: $contract,
+            bouts: $bouts,
+            pointsScored: $pointsScored,
+            petitAuBout: $petitAuBout,
+            chelem: $chelem,
+            poignees: $poignees,
+            miseres: $miseres,
+        );
+    }
+
+    /**
      * @param list<string> $deadPlayerIds
      */
     public function recordVachette(array $deadPlayerIds, Ranking $ranking): void
+    {
+        $deal = $this->buildVachetteDeal($this->deals->count() + 1, $deadPlayerIds, $ranking);
+        $this->deals->add($deal);
+    }
+
+    /**
+     * @param list<string> $deadPlayerIds
+     */
+    private function buildVachetteDeal(int $position, array $deadPlayerIds, Ranking $ranking): VachetteDeal
     {
         $activePlayerIds = $this->activePlayerIdsAfterNeutralizing($deadPlayerIds);
 
@@ -130,11 +172,66 @@ final class Game
             throw new InvalidRankingException();
         }
 
-        $deal = VachetteDeal::create(
+        return VachetteDeal::create(
             game: $this,
-            position: $this->deals->count() + 1,
+            position: $position,
             ranking: $ranking,
         );
+    }
+
+    /**
+     * @param list<string> $deadPlayerIds
+     */
+    public function correctLastDealAsVachette(array $deadPlayerIds, Ranking $ranking): void
+    {
+        $last = $this->deals->last();
+        if (false === $last) {
+            throw new NoDealToCorrectException();
+        }
+
+        $deal = $this->buildVachetteDeal($last->getPosition(), $deadPlayerIds, $ranking);
+
+        $this->deals->removeElement($last);
+        $this->deals->add($deal);
+    }
+
+    /**
+     * @param list<string>  $deadPlayerIds
+     * @param list<Poignee> $poignees
+     * @param list<Misere>  $miseres
+     */
+    public function correctLastDealAsClassic(
+        array $deadPlayerIds,
+        ?string $partnerId,
+        string $takerId,
+        Contract $contract,
+        Bouts $bouts,
+        int $pointsScored,
+        PetitAuBout $petitAuBout,
+        Chelem $chelem,
+        array $poignees,
+        array $miseres,
+    ): void {
+        $last = $this->deals->last();
+        if (false === $last) {
+            throw new NoDealToCorrectException();
+        }
+
+        $deal = $this->buildClassicDeal(
+            position: $last->getPosition(),
+            deadPlayerIds: $deadPlayerIds,
+            partnerId: $partnerId,
+            takerId: $takerId,
+            contract: $contract,
+            bouts: $bouts,
+            pointsScored: $pointsScored,
+            petitAuBout: $petitAuBout,
+            chelem: $chelem,
+            poignees: $poignees,
+            miseres: $miseres,
+        );
+
+        $this->deals->removeElement($last);
         $this->deals->add($deal);
     }
 

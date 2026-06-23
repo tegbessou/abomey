@@ -2,7 +2,7 @@
 
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
-- **Dernière touche** : 2026-06-21 (T6 livrée)
+- **Dernière touche** : 2026-06-23 (T7 livrée — sujet complet)
 - **Échéance** : —
 - **Contexte** : Permettre à un Utilisateur de saisir en
   direct les Donnes successives d'une Partie, avec calcul
@@ -10,20 +10,18 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : fermer le bloquant de la **PR #2**
-  (T6) avant tout — ajouter le **test d'intégration de
-  `RankingType`** (round-trip `KernelTestCase`, sur le modèle
-  de `PoigneeListType`/`MisereListType`) ; suggestion à
-  traiter ou assumer : double `sort()` dans
-  `Game::recordVachette` → helper porté par `Ranking`. Puis
-  re-push, re-`git-review`, merge. **Ensuite** : T7
-  (correction de la dernière Donne), dernière tranche du
-  sujet — `tasks/saisie-donnes/7-correction-derniere-donne.md`,
-  `technical-plan` puis `tdd-loop`. Branche par task
-  (T6 = `feat/006-donne-vachette`).
+- **Prochaine action** : **sujet #003 complet** — T7
+  (correction de la dernière Donne) livrée sur
+  `feat/007-correction-derniere-donne`, PR ouverte (à
+  reviewer + merger). Toutes les tranches T0→T7 sont posées :
+  une soirée de tarot peut être tenue de bout en bout. Deux
+  points signalés pour la review : double branchement
+  `instanceof` du read model d'édition (assumé, 2 variantes
+  stables) et mapping d'erreur dupliqué sur 4 controllers
+  (candidat mapper utilitaire, `symfony-conventions §12`).
 - **Spec** : `product/saisie-donnes.md`
-- **Tasks** : `tasks/saisie-donnes/` (T3, T4, T5, T6 livrées ;
-  T7 produit-prête — dernière tranche)
+- **Tasks** : `tasks/saisie-donnes/` (T3, T4, T5, T6, T7
+  livrées — sujet complet)
 - **Notes** :
   - 2026-05-23 — problème validé en phase 1.
   - Posture acceptée : saisie en direct entre deux Donnes

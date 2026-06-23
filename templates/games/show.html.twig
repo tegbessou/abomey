@@ -51,6 +51,12 @@
                 {% endfor %}
             </div>
 
+            <p>
+                <a href="{{ path('app_game_last_deal_edit', {id: game.id}) }}" role="button" class="secondary">
+                    {{ 'game.show.edit_last_deal'|trans }}
+                </a>
+            </p>
+
             <twig:donnes_matrix :game="game" />
         {% endif %}
     </section>

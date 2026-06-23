@@ -47,4 +47,14 @@ final class VachetteDeal extends Deal
 
         return $pointsByPlayer;
     }
+
+    /**
+     * @return array{ranking: list<string>}
+     */
+    public function editSnapshot(): array
+    {
+        return [
+            'ranking' => $this->ranking->players(),
+        ];
+    }
 }
