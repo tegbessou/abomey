@@ -70,8 +70,8 @@ final class ShowCorrectLastDealFormController extends AbstractController
     private function renderClassicCorrection(GameView $view, ClassicLastDealView|VachetteLastDealView $lastDeal, string $id): Response
     {
         $formData = new RecordClassicDealFormData();
+        $formData->deadPlayerIds = $lastDeal->deadPlayerIds;
         if ($lastDeal instanceof ClassicLastDealView) {
-            $formData->deadPlayerIds = $lastDeal->deadPlayerIds;
             $formData->partnerId = $lastDeal->partnerId;
             $formData->takerId = $lastDeal->takerId;
             $formData->contract = $lastDeal->contract;
@@ -104,9 +104,9 @@ final class ShowCorrectLastDealFormController extends AbstractController
     private function renderVachetteCorrection(GameView $view, ClassicLastDealView|VachetteLastDealView $lastDeal, string $id): Response
     {
         $formData = new RecordVachetteFormData();
+        $formData->deadPlayerIds = $lastDeal->deadPlayerIds;
         $formData->ranking = array_fill(0, $view->mode, null);
         if ($lastDeal instanceof VachetteLastDealView) {
-            $formData->deadPlayerIds = $lastDeal->deadPlayerIds;
             $formData->ranking = $lastDeal->ranking;
         }
 

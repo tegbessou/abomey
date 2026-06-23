@@ -52,7 +52,7 @@ final readonly class GetLastDealQueryHandler
             $snapshot = $last->editSnapshot();
 
             return new VachetteLastDealView(
-                deadPlayerIds: $this->deadPlayerIdsOf($game, $snapshot['activePlayerIds']),
+                deadPlayerIds: $this->deadPlayerIdsOf($game, $snapshot['ranking']),
                 ranking: $snapshot['ranking'],
             );
         }

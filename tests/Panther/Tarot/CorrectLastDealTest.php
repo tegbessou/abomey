@@ -9,6 +9,7 @@ use App\Account\Domain\User\UserRepository;
 use App\Tarot\Domain\Game\Bouts;
 use App\Tarot\Domain\Game\Chelem;
 use App\Tarot\Domain\Game\Contract;
+use App\Tarot\Domain\Game\Game;
 use App\Tarot\Domain\Game\GameId;
 use App\Tarot\Domain\Game\GameRepository;
 use App\Tarot\Domain\Game\Mode;
@@ -69,15 +70,58 @@ final class CorrectLastDealTest extends AbomeyPantherTestCase
         self::assertSelectorTextContains('.game-scoreboard', '120');
     }
 
+    #[Test]
+    public function theEditButtonIsHiddenWhenTheGameHasNoDeal(): void
+    {
+        $gameId = $this->aGameWithoutDeal('cccccccc-0000-4000-8000-000000000003', 'corr-empty');
+
+        $client = $this->authenticatedClient('corr-empty');
+
+        $client->request('GET', '/games/'.$gameId);
+        $client->waitForVisibility('h1');
+
+        self::assertSelectorNotExists('a[href*="last-deal/edit"]');
+    }
+
     private function aGameWithAClassicDeal(string $gameUuid, string $slug): string
+    {
+        $game = $this->buildGame($gameUuid, $slug);
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+        /** @var GameRepository $gameRepository */
+        $gameRepository = self::getContainer()->get(GameRepository::class);
+        $gameRepository->create($game);
+
+        return $gameUuid;
+    }
+
+    private function aGameWithoutDeal(string $gameUuid, string $slug): string
+    {
+        $game = $this->buildGame($gameUuid, $slug);
+        /** @var GameRepository $gameRepository */
+        $gameRepository = self::getContainer()->get(GameRepository::class);
+        $gameRepository->create($game);
+
+        return $gameUuid;
+    }
+
+    private function buildGame(string $gameUuid, string $slug): Game
     {
         $container = self::getContainer();
         /** @var UserRepository $userRepository */
         $userRepository = $container->get(UserRepository::class);
         /** @var PlayerRepository $playerRepository */
         $playerRepository = $container->get(PlayerRepository::class);
-        /** @var GameRepository $gameRepository */
-        $gameRepository = $container->get(GameRepository::class);
 
         $userId = UserId::fromString('99999999-0000-4000-8000-'.substr(md5($slug), 0, 12));
         $userRepository->create(
@@ -98,29 +142,14 @@ final class CorrectLastDealTest extends AbomeyPantherTestCase
                     ->build(),
             );
         }
-        $gameId = GameId::fromString($gameUuid);
-        $game = GameBuilder::aGame()
-            ->withId($gameId)
+
+        return GameBuilder::aGame()
+            ->withId(GameId::fromString($gameUuid))
             ->ownedBy($userId->toString())
             ->named('Soirée correction')
             ->withMode(Mode::Four)
             ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
             ->build();
-        $game->recordClassicDeal(
-            deadPlayerIds: [],
-            partnerId: null,
-            takerId: 'p-1',
-            contract: Contract::Garde,
-            bouts: Bouts::One,
-            pointsScored: 60,
-            petitAuBout: PetitAuBout::None,
-            chelem: Chelem::None,
-            poignees: [],
-            miseres: [],
-        );
-        $gameRepository->create($game);
-
-        return $gameUuid;
     }
 
     private function authenticatedClient(string $slug): \Symfony\Component\Panther\Client

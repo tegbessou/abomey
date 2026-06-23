@@ -49,12 +49,11 @@ final class VachetteDeal extends Deal
     }
 
     /**
-     * @return array{activePlayerIds: list<string>, ranking: list<string>}
+     * @return array{ranking: list<string>}
      */
     public function editSnapshot(): array
     {
         return [
-            'activePlayerIds' => $this->ranking->players(),
             'ranking' => $this->ranking->players(),
         ];
     }
