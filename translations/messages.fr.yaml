@@ -73,6 +73,7 @@ game:
         deal_label: "Donne %position%"
         add_classic_deal: "Ajouter une Donne classique"
         add_vachette: "Ajouter une Vachette"
+        edit_last_deal: "Modifier la dernière Donne"
 
 deal:
     create:
@@ -134,6 +135,11 @@ deal:
         submit: "Enregistrer la Vachette"
         error:
             invalid_input: "Le classement est invalide. Chaque Joueur actif doit occuper une position unique, et tous doivent être classés."
+    correction:
+        classic_title: "Modifier la dernière Donne — %game%"
+        vachette_title: "Modifier la dernière Donne — %game%"
+        switch_to_vachette: "Plutôt une Vachette ?"
+        switch_to_classic: "Plutôt une Donne classique ?"
 
 player:
     create:

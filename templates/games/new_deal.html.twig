@@ -1,14 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ 'deal.create.title'|trans({'%game%': game.name}) }}{% endblock %}
+{% block title %}{{ (page_title|default('deal.create.title'))|trans({'%game%': game.name}) }}{% endblock %}
 
 {% block body %}
     {% form_theme form 'form/deal_form.html.twig' %}
 
     <section class="game-hero">
         <twig:badge>{{ ('game.mode.' ~ game.mode)|trans }}</twig:badge>
-        <h1>{{ 'deal.create.title'|trans({'%game%': game.name}) }}</h1>
+        <h1>{{ (page_title|default('deal.create.title'))|trans({'%game%': game.name}) }}</h1>
     </section>
+
+    {% if correction_switch is defined %}
+        <p><a href="{{ correction_switch.href }}">{{ correction_switch.label|trans }}</a></p>
+    {% endif %}
 
     {% if errorKey is not null %}
         <p class="flash flash--error">{{ errorKey|trans }}</p>
@@ -24,7 +28,7 @@
         {% set form_attr = form_attr|merge({'data-controller': 'partner-choice'}) %}
     {% endif %}
 
-    {{ form_start(form, {attr: form_attr}) }}
+    {{ form_start(form, {attr: form_attr, action: form_action|default('')}) }}
         <section class="deal-form__group">
             <h2 class="deal-form__group-title">{{ 'deal.create.group_core'|trans }}</h2>
             {% if game.participants|length > game.mode %}

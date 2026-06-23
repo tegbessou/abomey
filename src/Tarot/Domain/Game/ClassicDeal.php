@@ -126,6 +126,35 @@ final class ClassicDeal extends Deal
         return $this->withMiseresApplied($pointsByPlayer);
     }
 
+    /**
+     * @return array{activePlayerIds: list<string>, partnerId: ?string, takerId: string, contract: string, bouts: int, pointsScored: int, petitAuBout: string, chelem: string, poignees: list<array{announcerId: string, size: string}>, miseres: list<array{announcerId: string, type: string}>}
+     */
+    public function editSnapshot(): array
+    {
+        $poignees = [];
+        foreach ($this->poignees as $poignee) {
+            $poignees[] = ['announcerId' => $poignee->announcerId, 'size' => $poignee->size->value];
+        }
+
+        $miseres = [];
+        foreach ($this->miseres as $misere) {
+            $miseres[] = ['announcerId' => $misere->announcerId, 'type' => $misere->type->value];
+        }
+
+        return [
+            'activePlayerIds' => $this->activePlayerIds,
+            'partnerId' => $this->partnerId,
+            'takerId' => $this->takerId,
+            'contract' => $this->contract->value,
+            'bouts' => $this->bouts->value,
+            'pointsScored' => $this->pointsScored,
+            'petitAuBout' => $this->petitAuBout->value,
+            'chelem' => $this->chelem->value,
+            'poignees' => $poignees,
+            'miseres' => $miseres,
+        ];
+    }
+
     private function poigneesBonus(): int
     {
         $total = 0;
