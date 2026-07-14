@@ -1,0 +1,10 @@
+# Copier en terraform.tfvars (gitignoré) et ajuster au besoin.
+# Le token API Hetzner ne se met PAS ici : il se fournit via
+# l'environnement, export HCLOUD_TOKEN=... avant tofu plan/apply.
+
+server_name         = "abomey"
+server_type         = "cx23"
+image               = "debian-13"
+location            = "nbg1"
+ssh_key_name        = "abomey-deploy"
+ssh_public_key_path = "~/.ssh/id_rsa_prod.pub"
