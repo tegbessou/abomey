@@ -10,30 +10,45 @@
   en ligne pour un usage réel entre amis, avec une solution
   simple à opérer et peu coûteuse. Faible trafic attendu ; stack
   Symfony + MariaDB dockerisée ; auth déléguée à Logto (EU).
-- **Solution proposée (à valider)** : un **VPS unique
-  dockerisé**, HTTPS automatique via **Caddy** (ou FrankenPHP).
-  `docker compose` = app + MariaDB (volume persistant) + reverse
-  proxy TLS. Hébergeur EU peu cher (Hetzner ~4-6 €/mois, ou FR
-  type Scaleway / OVH). Déploiement par **GitHub Actions** (le
-  repo est déjà sur GitHub) : build + `doctrine:migrations:migrate`
-  en SSH au push sur `main`. Backups par `mysqldump` cron
-  quotidien. Secrets en variables d'env serveur (Logto
-  id/secret, DB, `APP_SECRET`). Coût cible : ~5 €/mois + nom de
-  domaine. Alternative zéro-ops plus chère écartée au départ :
-  PaaS FR (Clever Cloud, Scalingo, ~15-25 €/mois).
-- **Prochaine action** : trancher les décisions ci-dessous, puis
-  formaliser (spec technique légère / plan) et mettre en œuvre.
-- **Décisions à trancher (DoR)** :
-  1. Hébergeur : Hetzner (DE, moins cher) vs FR (Scaleway / OVH)
-     — préférence de juridiction / RGPD ?
-  2. MariaDB conteneur + dump (moins cher) vs addon managé
-     (backups inclus, plus cher). Reco : conteneur au début.
-  3. Déploiement : GitHub Actions (reco) vs script SSH manuel.
-  4. Nom de domaine à acquérir.
-  5. Logto : application / tenant de prod distinct du dev, avec
+- **Solution retenue** :
+  - **Provisioning** : VPS unique **Hetzner** décrit en
+    **OpenTofu** (provider `hcloud` : serveur + firewall + clé
+    SSH), infra en code reproductible dès le départ. Kamal ne
+    provisionne pas les serveurs, il déploie l'app dessus.
+  - **Runtime** : **FrankenPHP** (déjà utilisé en dev), image
+    de prod distincte et allégée — sans chromium/Panther,
+    `composer install --no-dev`, `asset-map:compile`
+    (AssetMapper), `APP_ENV=prod`, OPcache + APCu. FrankenPHP
+    tourne en HTTP derrière le proxy.
+  - **Déploiement** : **Kamal**. `kamal-proxy` gère le TLS
+    Let's Encrypt + le rolling zéro-downtime ; **MariaDB en
+    accessory conteneur** (volume persistant) ; secrets
+    injectés par Kamal ; rollback en une commande. Image
+    poussée vers **ghcr.io**.
+  - **CI** : **GitHub Actions** au push sur `main` déclenche
+    `kamal deploy` (build sur les runners GitHub, pas sur le
+    VPS).
+  - **Backups** : `mysqldump` cron quotidien.
+  - **Secrets applicatifs** (`APP_SECRET`, DB, Logto
+    id/secret) portés par Kamal / le serveur, jamais dans
+    l'image ni le repo.
+  - Coût cible : ~5 €/mois (VPS Hetzner) + nom de domaine.
+    Alternative zéro-ops plus chère écartée : PaaS FR (Clever
+    Cloud, Scalingo, ~15-25 €/mois).
+- **Décisions tranchées (2026-07-14)** : Hetzner ; MariaDB en
+  conteneur ; GitHub Actions ; **Kamal** (plutôt qu'un script
+  SSH maison — rolling zéro-downtime, proxy TLS, rollback,
+  accessories) ; **OpenTofu** dès le départ pour le
+  provisioning ; pas de staging au départ (prod seule).
+- **Reste à préparer** :
+  1. Nom de domaine à acquérir.
+  2. Logto : application / tenant de prod distincte du dev, avec
      les redirect URIs de production.
-  6. Pas d'environnement de staging au départ (prod seule).
-- **Spec** : à créer si le sujet est retenu.
+- **Prochaine action** : formaliser (spec technique légère /
+  plan) puis mettre en œuvre — OpenTofu (VPS Hetzner), image
+  FrankenPHP de prod, `config/deploy.yml` Kamal, workflow
+  GitHub Actions `kamal deploy`.
+- **Spec** : à créer.
 
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
