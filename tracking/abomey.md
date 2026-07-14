@@ -1,5 +1,40 @@
 # Suivi des sujets produit — Abomey
 
+## #004 — Déploiement / mise en production (sujet technique)
+- **Ouvert le** : 2026-07-14
+- **Dernière touche** : 2026-07-14
+- **Échéance** : —
+- **Contexte** : Abomey est fonctionnellement complet (comptes
+  et isolation #001, création de Partie #002, saisie et calcul
+  des Donnes #003) mais n'est pas déployé. Objectif : le mettre
+  en ligne pour un usage réel entre amis, avec une solution
+  simple à opérer et peu coûteuse. Faible trafic attendu ; stack
+  Symfony + MariaDB dockerisée ; auth déléguée à Logto (EU).
+- **Solution proposée (à valider)** : un **VPS unique
+  dockerisé**, HTTPS automatique via **Caddy** (ou FrankenPHP).
+  `docker compose` = app + MariaDB (volume persistant) + reverse
+  proxy TLS. Hébergeur EU peu cher (Hetzner ~4-6 €/mois, ou FR
+  type Scaleway / OVH). Déploiement par **GitHub Actions** (le
+  repo est déjà sur GitHub) : build + `doctrine:migrations:migrate`
+  en SSH au push sur `main`. Backups par `mysqldump` cron
+  quotidien. Secrets en variables d'env serveur (Logto
+  id/secret, DB, `APP_SECRET`). Coût cible : ~5 €/mois + nom de
+  domaine. Alternative zéro-ops plus chère écartée au départ :
+  PaaS FR (Clever Cloud, Scalingo, ~15-25 €/mois).
+- **Prochaine action** : trancher les décisions ci-dessous, puis
+  formaliser (spec technique légère / plan) et mettre en œuvre.
+- **Décisions à trancher (DoR)** :
+  1. Hébergeur : Hetzner (DE, moins cher) vs FR (Scaleway / OVH)
+     — préférence de juridiction / RGPD ?
+  2. MariaDB conteneur + dump (moins cher) vs addon managé
+     (backups inclus, plus cher). Reco : conteneur au début.
+  3. Déploiement : GitHub Actions (reco) vs script SSH manuel.
+  4. Nom de domaine à acquérir.
+  5. Logto : application / tenant de prod distinct du dev, avec
+     les redirect URIs de production.
+  6. Pas d'environnement de staging au départ (prod seule).
+- **Spec** : à créer si le sujet est retenu.
+
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
 - **Dernière touche** : 2026-06-23 (T7 livrée — sujet complet)
