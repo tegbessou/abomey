@@ -1,5 +1,55 @@
 # Suivi des sujets produit — Abomey
 
+## #004 — Déploiement / mise en production (sujet technique)
+- **Ouvert le** : 2026-07-14
+- **Dernière touche** : 2026-07-14
+- **Échéance** : —
+- **Contexte** : Abomey est fonctionnellement complet (comptes
+  et isolation #001, création de Partie #002, saisie et calcul
+  des Donnes #003) mais n'est pas déployé. Objectif : le mettre
+  en ligne pour un usage réel entre amis, avec une solution
+  simple à opérer et peu coûteuse. Faible trafic attendu ; stack
+  Symfony + MariaDB dockerisée ; auth déléguée à Logto (EU).
+- **Solution retenue** :
+  - **Provisioning** : VPS unique **Hetzner** décrit en
+    **OpenTofu** (provider `hcloud` : serveur + firewall + clé
+    SSH), infra en code reproductible dès le départ. Kamal ne
+    provisionne pas les serveurs, il déploie l'app dessus.
+  - **Runtime** : **FrankenPHP** (déjà utilisé en dev), image
+    de prod distincte et allégée — sans chromium/Panther,
+    `composer install --no-dev`, `asset-map:compile`
+    (AssetMapper), `APP_ENV=prod`, OPcache + APCu. FrankenPHP
+    tourne en HTTP derrière le proxy.
+  - **Déploiement** : **Kamal**. `kamal-proxy` gère le TLS
+    Let's Encrypt + le rolling zéro-downtime ; **MariaDB en
+    accessory conteneur** (volume persistant) ; secrets
+    injectés par Kamal ; rollback en une commande. Image
+    poussée vers **ghcr.io**.
+  - **CI** : **GitHub Actions** au push sur `main` déclenche
+    `kamal deploy` (build sur les runners GitHub, pas sur le
+    VPS).
+  - **Backups** : `mysqldump` cron quotidien.
+  - **Secrets applicatifs** (`APP_SECRET`, DB, Logto
+    id/secret) portés par Kamal / le serveur, jamais dans
+    l'image ni le repo.
+  - Coût cible : ~5 €/mois (VPS Hetzner) + nom de domaine.
+    Alternative zéro-ops plus chère écartée : PaaS FR (Clever
+    Cloud, Scalingo, ~15-25 €/mois).
+- **Décisions tranchées (2026-07-14)** : Hetzner ; MariaDB en
+  conteneur ; GitHub Actions ; **Kamal** (plutôt qu'un script
+  SSH maison — rolling zéro-downtime, proxy TLS, rollback,
+  accessories) ; **OpenTofu** dès le départ pour le
+  provisioning ; pas de staging au départ (prod seule).
+- **Reste à préparer** :
+  1. Nom de domaine à acquérir.
+  2. Logto : application / tenant de prod distincte du dev, avec
+     les redirect URIs de production.
+- **Prochaine action** : formaliser (spec technique légère /
+  plan) puis mettre en œuvre — OpenTofu (VPS Hetzner), image
+  FrankenPHP de prod, `config/deploy.yml` Kamal, workflow
+  GitHub Actions `kamal deploy`.
+- **Spec** : à créer.
+
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
 - **Dernière touche** : 2026-06-23 (T7 livrée — sujet complet)
@@ -10,15 +60,13 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : **sujet #003 complet** — T7
-  (correction de la dernière Donne) livrée sur
-  `feat/007-correction-derniere-donne`, PR ouverte (à
-  reviewer + merger). Toutes les tranches T0→T7 sont posées :
-  une soirée de tarot peut être tenue de bout en bout. Deux
-  points signalés pour la review : double branchement
-  `instanceof` du read model d'édition (assumé, 2 variantes
-  stables) et mapping d'erreur dupliqué sur 4 controllers
-  (candidat mapper utilitaire, `symfony-conventions §12`).
+- **Prochaine action** : **sujet clos.** T7 (correction de la
+  dernière Donne) livrée ; PR #4 mergée le 2026-06-23 (squash),
+  revue approuvée, suggestions S1/S2/S4 traitées, S3 (mapping
+  d'erreur ×4) assumée conforme `symfony-conventions §12`.
+  Toutes les tranches T0→T7 sont posées : une soirée de tarot
+  se tient de bout en bout. Dette assumée éventuelle : mapper
+  d'erreur utilitaire pour dédupliquer les 4 controllers.
 - **Spec** : `product/saisie-donnes.md`
 - **Tasks** : `tasks/saisie-donnes/` (T3, T4, T5, T6, T7
   livrées — sujet complet)
@@ -467,8 +515,9 @@
   dans le même flux si nécessaire). C'est la fonctionnalité qui
   débloque la valeur d'Abomey : sans Partie, l'utilisateur ne
   peut rien faire après son inscription.
-- **Prochaine action** : sujet fonctionnellement livré.
-  Ouvrir le sujet #003 (saisie des Donnes).
+- **Prochaine action** : **sujet clos.** Fonctionnellement
+  livré ; le sujet #003 (saisie des Donnes) qu'il débloquait
+  est lui aussi livré et mergé.
 - **Spec** : `product/creation-partie.md`
 - **Notes** :
   - 2026-05-15 — problème validé en phase 1
@@ -567,16 +616,22 @@
 
 ## #001 — Comptes utilisateurs et isolation des données
 - **Ouvert le** : 2026-05-14
-- **Dernière touche** : 2026-05-14
+- **Dernière touche** : 2026-05-15 (sujet livré)
 - **Échéance** : —
 - **Contexte** : Abomey devient multi-utilisateur. Inscription
   publique ouverte via OAuth Google et Apple, isolation totale
   des données par utilisateur (chaque utilisateur a ses propres
   Joueurs et Parties, pas de partage). Authentification déléguée
   à Logto (service tiers OIDC, free tier).
-- **Prochaine action** : étape B (configuration Logto) puis C
-  (Symfony Security + UI + test e2e Playwright). Étape A
-  (infrastructure persistance) terminée le 2026-05-14.
+- **Prochaine action** : **sujet clos.** Fonctionnellement
+  livré le 2026-05-15 (T1→T5, 53 tests, quality 0) — auth Logto
+  opérationnelle (`LogtoAuthenticator`, `security.yaml`),
+  consentement RGPD, suppression de compte, redirection cible.
+  Restent **5 dettes identifiées** non bloquantes (voir Notes) :
+  la plus visible est la #5 — 403 brute au lieu d'une redirection
+  vers `/welcome` pour un utilisateur authentifié sans consentement
+  (`PrivacyConsentRequiredSubscriber` supprimé). À reprendre si on
+  retouche l'auth.
 - **Spec** : `product/comptes-utilisateurs.md`
 - **Notes** :
   - 2026-05-14 — problème validé en phase 1
