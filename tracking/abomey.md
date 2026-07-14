@@ -10,15 +10,13 @@
   d'Abomey : sans saisie de Donnes, l'investissement #001 et
   #002 reste sans usage et l'utilisateur retourne à l'app
   payante existante.
-- **Prochaine action** : **sujet #003 complet** — T7
-  (correction de la dernière Donne) livrée sur
-  `feat/007-correction-derniere-donne`, PR ouverte (à
-  reviewer + merger). Toutes les tranches T0→T7 sont posées :
-  une soirée de tarot peut être tenue de bout en bout. Deux
-  points signalés pour la review : double branchement
-  `instanceof` du read model d'édition (assumé, 2 variantes
-  stables) et mapping d'erreur dupliqué sur 4 controllers
-  (candidat mapper utilitaire, `symfony-conventions §12`).
+- **Prochaine action** : **sujet clos.** T7 (correction de la
+  dernière Donne) livrée ; PR #4 mergée le 2026-06-23 (squash),
+  revue approuvée, suggestions S1/S2/S4 traitées, S3 (mapping
+  d'erreur ×4) assumée conforme `symfony-conventions §12`.
+  Toutes les tranches T0→T7 sont posées : une soirée de tarot
+  se tient de bout en bout. Dette assumée éventuelle : mapper
+  d'erreur utilitaire pour dédupliquer les 4 controllers.
 - **Spec** : `product/saisie-donnes.md`
 - **Tasks** : `tasks/saisie-donnes/` (T3, T4, T5, T6, T7
   livrées — sujet complet)
@@ -467,8 +465,9 @@
   dans le même flux si nécessaire). C'est la fonctionnalité qui
   débloque la valeur d'Abomey : sans Partie, l'utilisateur ne
   peut rien faire après son inscription.
-- **Prochaine action** : sujet fonctionnellement livré.
-  Ouvrir le sujet #003 (saisie des Donnes).
+- **Prochaine action** : **sujet clos.** Fonctionnellement
+  livré ; le sujet #003 (saisie des Donnes) qu'il débloquait
+  est lui aussi livré et mergé.
 - **Spec** : `product/creation-partie.md`
 - **Notes** :
   - 2026-05-15 — problème validé en phase 1
@@ -567,16 +566,22 @@
 
 ## #001 — Comptes utilisateurs et isolation des données
 - **Ouvert le** : 2026-05-14
-- **Dernière touche** : 2026-05-14
+- **Dernière touche** : 2026-05-15 (sujet livré)
 - **Échéance** : —
 - **Contexte** : Abomey devient multi-utilisateur. Inscription
   publique ouverte via OAuth Google et Apple, isolation totale
   des données par utilisateur (chaque utilisateur a ses propres
   Joueurs et Parties, pas de partage). Authentification déléguée
   à Logto (service tiers OIDC, free tier).
-- **Prochaine action** : étape B (configuration Logto) puis C
-  (Symfony Security + UI + test e2e Playwright). Étape A
-  (infrastructure persistance) terminée le 2026-05-14.
+- **Prochaine action** : **sujet clos.** Fonctionnellement
+  livré le 2026-05-15 (T1→T5, 53 tests, quality 0) — auth Logto
+  opérationnelle (`LogtoAuthenticator`, `security.yaml`),
+  consentement RGPD, suppression de compte, redirection cible.
+  Restent **5 dettes identifiées** non bloquantes (voir Notes) :
+  la plus visible est la #5 — 403 brute au lieu d'une redirection
+  vers `/welcome` pour un utilisateur authentifié sans consentement
+  (`PrivacyConsentRequiredSubscriber` supprimé). À reprendre si on
+  retouche l'auth.
 - **Spec** : `product/comptes-utilisateurs.md`
 - **Notes** :
   - 2026-05-14 — problème validé en phase 1
