@@ -18,6 +18,7 @@ security:
                 target: app_home
 
     access_control:
+        - { path: ^/up$, roles: PUBLIC_ACCESS }
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/auth/callback$, roles: PUBLIC_ACCESS }
