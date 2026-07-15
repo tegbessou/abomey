@@ -1,0 +1,53 @@
+service: abomey
+image: tegbessou/abomey
+
+servers:
+  web:
+    - 78.47.49.48
+
+proxy:
+  ssl: true
+  host: abomey.huguesgobet.com
+  app_port: 8080
+  healthcheck:
+    path: /up
+    interval: 3
+
+registry:
+  server: ghcr.io
+  username: tegbessou
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+builder:
+  arch: amd64
+  dockerfile: Dockerfile.prod
+
+env:
+  clear:
+    APP_ENV: prod
+    APP_SHARE_DIR: var/share
+    DEFAULT_URI: https://abomey.huguesgobet.com
+    MESSENGER_TRANSPORT_DSN: doctrine://default?auto_setup=0
+    MAILER_DSN: null://null
+    TRUSTED_PROXIES: private_ranges
+  secret:
+    - APP_SECRET
+    - DATABASE_URL
+    - LOGTO_ENDPOINT
+    - LOGTO_APP_ID
+    - LOGTO_APP_SECRET
+
+accessories:
+  db:
+    image: mariadb:11.4
+    host: 78.47.49.48
+    env:
+      clear:
+        MARIADB_DATABASE: abomey
+        MARIADB_USER: abomey
+      secret:
+        - MARIADB_ROOT_PASSWORD
+        - MARIADB_PASSWORD
+    directories:
+      - data:/var/lib/mysql
