@@ -148,12 +148,14 @@ final class RecordClassicDealTest extends WebTestCase
     }
 
     #[Test]
-    public function recordingADealIsForbiddenWhenTheTableExceedsTheMode(): void
+    public function recordingADealIsAllowedWhenTheTableHasADeadPlayer(): void
     {
         $client = static::createClient();
         $container = static::getContainer();
         /** @var UserRepository $userRepository */
         $userRepository = $container->get(UserRepository::class);
+        /** @var PlayerRepository $playerRepository */
+        $playerRepository = $container->get(PlayerRepository::class);
         /** @var GameRepository $gameRepository */
         $gameRepository = $container->get(GameRepository::class);
 
@@ -161,18 +163,27 @@ final class RecordClassicDealTest extends WebTestCase
         $userRepository->create(
             UserBuilder::aUser()
                 ->withId($userId)
-                ->withExternalIdentifier('external-record-deal-locked')
-                ->withEmail('record-deal-locked@example.com')
+                ->withExternalIdentifier('external-record-deal-dead-player')
+                ->withEmail('record-deal-dead-player@example.com')
                 ->named('Tester')
                 ->havingAcceptedPrivacyPolicy()
                 ->build(),
         );
+        foreach (['Alice', 'Bob', 'Charlie', 'David', 'Eve'] as $index => $name) {
+            $playerRepository->create(
+                PlayerBuilder::aPlayer()
+                    ->withId('p-'.($index + 1))
+                    ->ownedBy($userId->toString())
+                    ->named($name)
+                    ->build(),
+            );
+        }
         $gameId = GameId::fromString('dddddddd-eeee-4fff-8aaa-dddddddddddd');
         $gameRepository->create(
             GameBuilder::aGame()
                 ->withId($gameId)
                 ->ownedBy($userId->toString())
-                ->named('Tablée variable')
+                ->named('Tablée avec un Mort')
                 ->withMode(Mode::Four)
                 ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4', 'p-5'])
                 ->build(),
@@ -182,6 +193,6 @@ final class RecordClassicDealTest extends WebTestCase
 
         $client->request('GET', '/games/'.$gameId->toString().'/deals/new');
 
-        self::assertResponseStatusCodeSame(404);
+        self::assertResponseIsSuccessful();
     }
 }
