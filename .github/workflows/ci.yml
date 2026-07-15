@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and start containers
+        run: docker compose up -d --build --wait
+
+      - name: Install dependencies
+        run: docker compose exec -T app composer install --no-interaction --no-progress
+
+      - name: Prepare test database
+        run: |
+          docker compose exec -T app php bin/console doctrine:database:create --env=test --if-not-exists
+          docker compose exec -T app php bin/console doctrine:migrations:migrate --env=test --no-interaction
+
+      - name: Coding standards
+        run: docker compose exec -T app vendor/bin/php-cs-fixer check --diff
+
+      - name: Static analysis
+        run: docker compose exec -T app php -d memory_limit=512M vendor/bin/phpstan analyse -c phpstan.dist.neon
+
+      - name: Rector
+        run: docker compose exec -T app vendor/bin/rector process --dry-run
+
+      - name: Architecture (deptrac)
+        run: docker compose exec -T app vendor/bin/deptrac analyse
+
+      - name: Unit tests
+        run: docker compose exec -T app php bin/phpunit --testsuite unit
+
+      - name: Integration tests
+        run: docker compose exec -T app php bin/phpunit --testsuite integration
+
+      - name: End-to-end tests
+        run: docker compose exec -T app php bin/phpunit --testsuite e2e
+
+      - name: Compile assets
+        run: docker compose exec -T app php bin/console asset-map:compile --env=test
+
+      - name: Browser tests (Panther)
+        run: docker compose exec -T app php bin/phpunit --configuration phpunit.panther.xml.dist
