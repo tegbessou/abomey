@@ -41,7 +41,9 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Trust the server host key
-        run: ssh-keyscan -H 78.47.49.48 >> ~/.ssh/known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan 78.47.49.48 >> ~/.ssh/known_hosts
 
       - name: Deploy
         run: kamal deploy
