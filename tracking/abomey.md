@@ -2,7 +2,7 @@
 
 ## #004 — Déploiement / mise en production (sujet technique)
 - **Ouvert le** : 2026-07-14
-- **Dernière touche** : 2026-07-14
+- **Dernière touche** : 2026-07-15 (sujet livré — Abomey en prod)
 - **Échéance** : —
 - **Contexte** : Abomey est fonctionnellement complet (comptes
   et isolation #001, création de Partie #002, saisie et calcul
@@ -40,15 +40,23 @@
   SSH maison — rolling zéro-downtime, proxy TLS, rollback,
   accessories) ; **OpenTofu** dès le départ pour le
   provisioning ; pas de staging au départ (prod seule).
-- **Reste à préparer** :
-  1. Nom de domaine à acquérir.
-  2. Logto : application / tenant de prod distincte du dev, avec
-     les redirect URIs de production.
-- **Prochaine action** : formaliser (spec technique légère /
-  plan) puis mettre en œuvre — OpenTofu (VPS Hetzner), image
-  FrankenPHP de prod, `config/deploy.yml` Kamal, workflow
-  GitHub Actions `kamal deploy`.
-- **Spec** : à créer.
+- **Prochaine action** : **sujet livré — Abomey en production**
+  sur `abomey.huguesgobet.com`. Tranches T1-T5 mergées : T1 infra
+  OpenTofu, T2 image FrankenPHP de prod, T3 mise en ligne Kamal
+  (HTTPS, Logto, migrations), T4 déploiement continu (merge validé
+  → prod auto via GitHub Actions `workflow_run` sur CI verte), T5
+  sauvegardes (`scripts/backup-database.sh` + `docs/backups.md`).
+  Préalables faits : domaine + DNS OVH, app Logto de prod. En
+  connexe : CI complète (`.github/workflows/ci.yml`) + branch
+  protection (`ci` obligatoire), et dette #5 de #001 corrigée et
+  déployée.
+- **Geste opérateur restant** : installer le cron de backup sur le
+  serveur et **tester une restauration** (`docs/backups.md`).
+- **Reporté** : externalisation des backups hors serveur (Hetzner
+  Storage Box / S3) ; warning Node 20 sur les actions GitHub
+  (cosmétique).
+- **Spec** : `product/deploiement.md` — ADR
+  `adr/002-stack-deploiement.md`.
 
 ## #003 — Saisie et calcul des Donnes
 - **Ouvert le** : 2026-05-23
