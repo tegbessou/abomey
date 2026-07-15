@@ -192,6 +192,67 @@ final class ShowGameQueryHandlerTest extends TestCase
     }
 
     #[Test]
+    public function itListsDealsFromMostRecentToOldest(): void
+    {
+        $gameId = GameId::fromString('01966000-0000-7000-8000-0000000000e4');
+        $game = GameBuilder::aGame()
+            ->withId($gameId)
+            ->ownedBy('owner-user-id')
+            ->withParticipants(['p-1', 'p-2', 'p-3', 'p-4'])
+            ->build();
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-1',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+        $game->recordClassicDeal(
+            deadPlayerIds: [],
+            partnerId: null,
+            takerId: 'p-2',
+            contract: Contract::Garde,
+            bouts: Bouts::One,
+            pointsScored: 60,
+            petitAuBout: PetitAuBout::None,
+            chelem: Chelem::None,
+            poignees: [],
+            miseres: [],
+        );
+
+        $gameRepository = new InMemoryGameRepository();
+        $gameRepository->create($game);
+
+        $playerRepository = new InMemoryPlayerRepository();
+        foreach (['Alice', 'Bob', 'Charlie', 'David'] as $index => $name) {
+            $playerRepository->create(
+                PlayerBuilder::aPlayer()
+                    ->withId('p-'.($index + 1))
+                    ->ownedBy('owner-user-id')
+                    ->named($name)
+                    ->build(),
+            );
+        }
+
+        $handler = new ShowGameQueryHandler($gameRepository, $playerRepository);
+
+        $view = $handler->handle(new ShowGameQuery(
+            ownerId: 'owner-user-id',
+            gameId: $gameId->toString(),
+        ));
+
+        self::assertNotNull($view);
+        self::assertCount(2, $view->deals);
+        self::assertSame(2, $view->deals[0]->position);
+        self::assertSame(1, $view->deals[1]->position);
+    }
+
+    #[Test]
     public function itFailsLoudlyWhenAParticipantHasNoResolvableName(): void
     {
         $gameId = GameId::fromString('01966000-0000-7000-8000-0000000000e4');

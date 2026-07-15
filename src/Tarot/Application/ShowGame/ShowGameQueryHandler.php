@@ -108,7 +108,7 @@ final readonly class ShowGameQueryHandler
             );
         }
 
-        return $views;
+        return array_reverse($views);
     }
 
     /**
