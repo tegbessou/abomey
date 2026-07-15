@@ -1,18 +1,12 @@
 import { Controller } from '@hotwired/stimulus';
 
-// Tarot à 5 : le Partenaire doit être un Joueur actif distinct du Preneur.
-// On retire en temps réel des choix Partenaire le Preneur sélectionné et les
-// Morts désignés. Le choix « Preneur seul » (valeur vide) reste toujours offert.
-// Preneur et Partenaire sont des segmented controls : chaque choix est un radio
-// enveloppé dans un label « pill ». Masquer un choix = masquer son pill et
-// désactiver son radio pour qu'il ne soit pas soumis.
 export default class extends Controller {
     connect() {
         this.takerInputs = this.fieldInputs('[takerId]');
         this.partnerInputs = this.fieldInputs('[partnerId]');
         this.deadInputs = this.fieldInputs('[deadPlayerIds][]');
 
-        if (this.takerInputs.length === 0 || this.partnerInputs.length === 0) {
+        if (this.takerInputs.length === 0) {
             return;
         }
 
@@ -24,7 +18,33 @@ export default class extends Controller {
     }
 
     refresh() {
-        const excludedIds = this.excludedIds();
+        this.refreshTaker();
+        this.refreshPartner();
+    }
+
+    refreshTaker() {
+        const deadIds = this.deadIds();
+
+        this.takerInputs.forEach((input) => {
+            const isDead = deadIds.includes(input.value);
+            this.setChoiceHidden(input, isDead);
+
+            if (isDead && input.checked) {
+                input.checked = false;
+            }
+        });
+    }
+
+    refreshPartner() {
+        if (this.partnerInputs.length === 0) {
+            return;
+        }
+
+        const excludedIds = this.deadIds();
+        const taker = this.takerInputs.find((input) => input.checked);
+        if (taker !== undefined) {
+            excludedIds.push(taker.value);
+        }
 
         this.partnerInputs.forEach((input) => {
             if (input.value === '') {
@@ -40,13 +60,8 @@ export default class extends Controller {
         });
     }
 
-    excludedIds() {
+    deadIds() {
         const ids = [];
-
-        const taker = this.takerInputs.find((input) => input.checked);
-        if (taker !== undefined) {
-            ids.push(taker.value);
-        }
 
         this.deadInputs.forEach((input) => {
             if (input.checked) {

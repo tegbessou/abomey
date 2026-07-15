@@ -23,10 +23,7 @@
         {% set participantById = participantById|merge({(participant.id): participant}) %}
     {% endfor %}
 
-    {% set form_attr = {class: 'deal-form'} %}
-    {% if game.mode == 5 %}
-        {% set form_attr = form_attr|merge({'data-controller': 'partner-choice'}) %}
-    {% endif %}
+    {% set form_attr = {class: 'deal-form', 'data-controller': 'deal-players-choice'} %}
 
     {{ form_start(form, {attr: form_attr, action: form_action|default('')}) }}
         <section class="deal-form__group">
