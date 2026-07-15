@@ -1,0 +1,33 @@
+FROM dunglas/frankenphp:1.12.2-php8.5
+
+ENV APP_ENV=prod
+ENV SERVER_NAME=:8080
+
+RUN install-php-extensions \
+    pdo_mysql \
+    intl \
+    zip \
+    apcu \
+    opcache
+
+RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist --no-progress --no-interaction
+
+COPY . .
+
+RUN composer dump-autoload --no-dev --optimize --classmap-authoritative \
+ && composer dump-env prod \
+ && composer run-script --no-dev post-install-cmd \
+ && php bin/console asset-map:compile --no-interaction
+
+RUN chown -R www-data:www-data /app/var /data /config
+
+EXPOSE 8080
+
+USER www-data
