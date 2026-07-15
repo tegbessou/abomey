@@ -1,0 +1,47 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      LOGTO_ENDPOINT: ${{ secrets.LOGTO_ENDPOINT }}
+      LOGTO_APP_ID: ${{ secrets.LOGTO_APP_ID }}
+      LOGTO_APP_SECRET: ${{ secrets.LOGTO_APP_SECRET }}
+      MARIADB_ROOT_PASSWORD: ${{ secrets.MARIADB_ROOT_PASSWORD }}
+      MARIADB_PASSWORD: ${{ secrets.MARIADB_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+
+      - name: Install Kamal
+        run: gem install kamal -v 2.12.0
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Trust the server host key
+        run: ssh-keyscan -H 78.47.49.48 >> ~/.ssh/known_hosts
+
+      - name: Deploy
+        run: kamal deploy
