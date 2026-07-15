@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Account\Infrastructure\Security;
 
-use App\Account\Domain\User\UserRepository;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Vote;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
@@ -17,7 +16,7 @@ final class PrivacyConsentVoter extends Voter
     public const string ATTRIBUTE = 'PRIVACY_CONSENT_GIVEN';
 
     public function __construct(
-        private readonly UserRepository $userRepository,
+        private readonly PrivacyConsentChecker $privacyConsentChecker,
     ) {}
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -33,8 +32,6 @@ final class PrivacyConsentVoter extends Voter
             return false;
         }
 
-        $user = $this->userRepository->ofId($authenticated->getUserId());
-
-        return null !== $user && null !== $user->getPrivacyConsent();
+        return $this->privacyConsentChecker->hasConsented($authenticated);
     }
 }
