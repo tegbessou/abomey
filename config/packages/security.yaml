@@ -13,6 +13,7 @@ security:
             custom_authenticators:
                 - App\Account\Infrastructure\Security\LogtoAuthenticator
             entry_point: App\Account\Infrastructure\Security\LogtoAuthenticator
+            access_denied_handler: App\Account\Infrastructure\Security\PrivacyConsentAccessDeniedHandler
             logout:
                 path: app_logout
                 target: app_home
