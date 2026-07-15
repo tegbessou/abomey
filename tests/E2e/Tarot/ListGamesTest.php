@@ -80,6 +80,7 @@ final class ListGamesTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('.ab-game-card__title', 'Soirée chez Paul');
         self::assertSelectorTextContains('.ab-badge', 'Tarot à 4');
+        self::assertSelectorTextContains('.games-list-hero', 'Créer une Partie');
     }
 
     #[Test]

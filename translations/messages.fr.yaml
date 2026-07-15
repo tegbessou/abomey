@@ -15,18 +15,17 @@ home:
 nav:
     menu: "Menu"
     my_games: "Mes Parties"
-    create_game: "Créer une Partie"
     account: "Mon compte"
     logout: "Se déconnecter"
 
 games:
     index:
         title: "Mes Parties"
+        create: "Créer une Partie"
         no_donnes: "Pas encore de manche jouée"
         deal_count: "{1} 1 Donne jouée|]1,Inf[ %count% Donnes jouées"
         empty:
             message: "Vous n'avez pas encore créé de Partie."
-            cta: "Créer une Partie"
 
 game:
     mode:
