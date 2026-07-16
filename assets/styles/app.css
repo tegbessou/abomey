@@ -139,10 +139,16 @@ main.container {
 }
 
 .button-danger:hover,
-.button-danger:focus {
+.button-danger:focus,
+.button-danger:focus-visible {
     background-color: var(--ab-color-danger);
     border-color: var(--ab-color-danger);
-    color: var(--ab-color-on-action);
+    color: var(--ab-color-surface-0);
+}
+
+.button-danger:focus,
+.button-danger:focus-visible {
+    box-shadow: 0 0 0 0.1875rem var(--ab-color-danger-focus);
 }
 
 /* Account — settings; the deletion sits in a framed danger zone. */
