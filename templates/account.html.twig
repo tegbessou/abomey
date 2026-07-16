@@ -3,20 +3,22 @@
 {% block title %}{{ 'account.title'|trans }}{% endblock %}
 
 {% block body %}
-    <h1>{{ 'account.title'|trans }}</h1>
+    <div class="account">
+        <h1>{{ 'account.title'|trans }}</h1>
 
-    <section>
-        <h2>{{ 'account.delete_section_title'|trans }}</h2>
-        <p>{{ 'account.delete_warning'|trans }}</p>
+        <section class="account__danger-zone">
+            <h2>{{ 'account.delete_section_title'|trans }}</h2>
+            <p class="account__warning">{{ 'account.delete_warning'|trans }}</p>
 
-        {{ form_start(form) }}
-            <div class="checkbox-field">
-                {{ form_widget(form.confirmed) }}
-                {{ form_label(form.confirmed) }}
-            </div>
-            <button type="submit" class="contrast">{{ 'account.delete_button'|trans }}</button>
-        {{ form_end(form) }}
-    </section>
+            {{ form_start(form) }}
+                <div class="checkbox-field">
+                    {{ form_widget(form.confirmed) }}
+                    {{ form_label(form.confirmed) }}
+                </div>
+                <button type="submit" class="button-danger">{{ 'account.delete_button'|trans }}</button>
+            {{ form_end(form) }}
+        </section>
 
-    <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+        <p><a href="{{ path('app_home') }}">← {{ 'common.back_to_home'|trans }}</a></p>
+    </div>
 {% endblock %}
