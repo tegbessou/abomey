@@ -21,13 +21,29 @@
         <div class="deals-section__header">
             <h2>{{ 'game.show.deals_title'|trans }}</h2>
             {% if game.mode in [3, 4, 5] %}
-                <div class="deal-actions">
-                    <a href="{{ path('app_game_deal_new', {id: game.id}) }}" role="button">
-                        {{ 'game.show.add_classic_deal'|trans }}
-                    </a>
-                    <a href="{{ path('app_game_vachette_new', {id: game.id}) }}" role="button" class="secondary">
-                        {{ 'game.show.add_vachette'|trans }}
-                    </a>
+                <div class="deal-actions" data-controller="dialog">
+                    <button type="button" role="button" data-action="dialog#open">
+                        {{ 'game.show.add_deal'|trans }}
+                    </button>
+
+                    <dialog data-dialog-target="dialog" class="modal">
+                        <article class="modal-content">
+                            <header class="modal-header">
+                                <h2>{{ 'game.show.add_deal'|trans }}</h2>
+                            </header>
+                            <div class="deal-choices">
+                                <a href="{{ path('app_game_deal_new', {id: game.id}) }}" role="button">
+                                    {{ 'game.show.deal_classic'|trans }}
+                                </a>
+                                <a href="{{ path('app_game_vachette_new', {id: game.id}) }}" role="button" class="secondary">
+                                    {{ 'game.show.deal_vachette'|trans }}
+                                </a>
+                            </div>
+                            <button type="button" class="secondary" data-action="dialog#close">
+                                {{ 'common.cancel'|trans }}
+                            </button>
+                        </article>
+                    </dialog>
                 </div>
             {% endif %}
         </div>

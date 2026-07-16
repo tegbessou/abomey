@@ -395,6 +395,10 @@ body.has-drawer-open {
 
 /* Games list */
 .games-list-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ab-space-sm);
     padding: var(--ab-space-md) 0;
 }
 

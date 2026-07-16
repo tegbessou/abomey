@@ -13,3 +13,14 @@
         flex-direction: row;
     }
 }
+
+.deal-choices {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ab-space-2xs);
+    margin-block: var(--ab-space-sm);
+}
+
+.deal-choices > [role="button"] {
+    margin: 0;
+}

@@ -70,8 +70,9 @@ game:
         deal_position: "#"
         total: "Total"
         deal_label: "Donne %position%"
-        add_classic_deal: "Ajouter une Donne classique"
-        add_vachette: "Ajouter une Vachette"
+        add_deal: "Ajouter une Donne"
+        deal_classic: "Donne classique"
+        deal_vachette: "Vachette"
         edit_last_deal: "Modifier la dernière Donne"
 
 deal:
