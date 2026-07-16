@@ -5,16 +5,12 @@
 {% block body %}
     <section class="games-list-hero">
         <h1>{{ 'games.index.title'|trans }}</h1>
+        <a href="{{ path('app_game_new') }}" role="button">{{ 'games.index.create'|trans }}</a>
     </section>
 
     {% if games is empty %}
         <article class="empty-state">
             <p>{{ 'games.index.empty.message'|trans }}</p>
-            <p>
-                <a href="{{ path('app_game_new') }}" role="button">
-                    {{ 'games.index.empty.cta'|trans }}
-                </a>
-            </p>
         </article>
     {% else %}
         <ul class="game-cards">
