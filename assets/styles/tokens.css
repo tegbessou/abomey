@@ -86,7 +86,7 @@
        Not for body text on its own soft background — contrast is only ~4:1. */
     --ab-color-danger: #e5675a;
     --ab-color-danger-soft: rgba(229, 103, 90, 0.14);
-    --ab-color-danger-focus: rgba(229, 103, 90, 0.3); /* focus ring for destructive controls */
+    --ab-color-danger-focus: rgba(229, 103, 90, 0.3);
 
     /* Success — valid form state. Green for the convention, muted to sit with the
        warm palette; used as an accent (border, focus ring), not body text. */
