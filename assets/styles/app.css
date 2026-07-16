@@ -115,8 +115,8 @@ main.container {
     margin-bottom: 0;
 }
 
-/* Checkbox field — the box sits inline, left of its (often long) label:
-   consent on /welcome, deletion confirmation on /account. */
+/* Checkbox field — inline box + label, shared by the /welcome consent
+   and the /account deletion confirmation. */
 .checkbox-field {
     display: flex;
     align-items: flex-start;
