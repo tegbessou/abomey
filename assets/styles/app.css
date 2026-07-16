@@ -131,6 +131,56 @@ main.container {
     margin: 0;
 }
 
+/* Destructive action — outline in the danger role at rest, filled on intent. */
+.button-danger {
+    background-color: transparent;
+    border-color: var(--ab-color-danger);
+    color: var(--ab-color-danger);
+}
+
+.button-danger:hover,
+.button-danger:focus,
+.button-danger:focus-visible {
+    background-color: var(--ab-color-danger);
+    border-color: var(--ab-color-danger);
+    color: var(--ab-color-surface-0);
+}
+
+.button-danger:focus,
+.button-danger:focus-visible {
+    box-shadow: 0 0 0 0.1875rem var(--ab-color-danger-focus);
+}
+
+/* Account — settings; the deletion sits in a framed danger zone. */
+.account {
+    max-width: 34rem;
+    margin-inline: auto;
+}
+
+.account__danger-zone {
+    background-color: var(--ab-color-surface-1);
+    border: 1px solid var(--ab-color-danger);
+    border-radius: var(--ab-radius-md);
+    padding: var(--ab-space-lg);
+    margin-block: var(--ab-space-lg);
+}
+
+.account__danger-zone h2 {
+    margin-top: 0;
+    color: var(--ab-color-danger);
+}
+
+.account__warning {
+    color: var(--ab-color-text-muted);
+    margin-bottom: var(--ab-space-md);
+}
+
+.account__danger-zone button[type="submit"] {
+    width: 100%;
+    margin-top: var(--ab-space-sm);
+    margin-bottom: 0;
+}
+
 /* Footer */
 .site-footer {
     border-top: 1px solid var(--ab-color-border);
