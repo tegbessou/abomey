@@ -39,9 +39,8 @@
 }
 
 .site-logo {
-    width: 28px;
-    height: 35px;
-    color: var(--ab-color-action);
+    width: 37px;
+    height: auto;
     flex-shrink: 0;
 }
 
