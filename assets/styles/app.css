@@ -76,6 +76,62 @@ main.container {
     margin-bottom: var(--ab-space-md);
 }
 
+/* Welcome — first screen after login: consent to the privacy policy. */
+.welcome {
+    max-width: 34rem;
+    margin-inline: auto;
+}
+
+.welcome-hero {
+    text-align: center;
+    padding: var(--ab-space-lg) 0 var(--ab-space-md);
+}
+
+.welcome-hero h1 {
+    font-size: var(--ab-text-page-title);
+    margin-bottom: var(--ab-space-2xs);
+}
+
+.welcome-hero p {
+    color: var(--ab-color-text-muted);
+    margin-bottom: 0;
+}
+
+.welcome-consent {
+    background-color: var(--ab-color-surface-1);
+    border: 1px solid var(--ab-color-border);
+    border-radius: var(--ab-radius-md);
+    padding: var(--ab-space-lg);
+}
+
+.welcome-consent__policy {
+    color: var(--ab-color-text-muted);
+    margin-bottom: var(--ab-space-md);
+}
+
+.welcome-consent button[type="submit"] {
+    width: 100%;
+    margin-top: var(--ab-space-sm);
+    margin-bottom: 0;
+}
+
+/* Checkbox field — inline box + label, shared by the /welcome consent
+   and the /account deletion confirmation. */
+.checkbox-field {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--ab-space-xs);
+}
+
+.checkbox-field input[type="checkbox"] {
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.checkbox-field label {
+    margin: 0;
+}
+
 /* Footer */
 .site-footer {
     border-top: 1px solid var(--ab-color-border);

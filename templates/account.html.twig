@@ -10,7 +10,10 @@
         <p>{{ 'account.delete_warning'|trans }}</p>
 
         {{ form_start(form) }}
-            {{ form_row(form.confirmed) }}
+            <div class="checkbox-field">
+                {{ form_widget(form.confirmed) }}
+                {{ form_label(form.confirmed) }}
+            </div>
             <button type="submit" class="contrast">{{ 'account.delete_button'|trans }}</button>
         {{ form_end(form) }}
     </section>

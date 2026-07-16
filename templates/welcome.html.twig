@@ -3,17 +3,25 @@
 {% block title %}{{ 'welcome.title'|trans }}{% endblock %}
 
 {% block body %}
-    <section>
-        <h1>{{ 'welcome.title'|trans }}</h1>
-        <p>{{ 'welcome.intro'|trans }}</p>
-        <p>
-            {{ 'welcome.see_full_policy'|trans }}
-            <a href="{{ path('app_privacy_policy') }}" target="_blank" rel="noopener">{{ 'footer.privacy_policy'|trans }}</a>.
-        </p>
+    <div class="welcome">
+        <section class="welcome-hero">
+            <h1>{{ 'welcome.title'|trans }}</h1>
+            <p>{{ 'welcome.intro'|trans }}</p>
+        </section>
 
-        {{ form_start(form) }}
-            {{ form_row(form.accepted) }}
-            <button type="submit">{{ 'welcome.submit'|trans }}</button>
-        {{ form_end(form) }}
-    </section>
+        <section class="welcome-consent">
+            <p class="welcome-consent__policy">
+                {{ 'welcome.see_full_policy'|trans }}
+                <a href="{{ path('app_privacy_policy') }}" target="_blank" rel="noopener">{{ 'footer.privacy_policy'|trans }}</a>.
+            </p>
+
+            {{ form_start(form) }}
+                <div class="checkbox-field">
+                    {{ form_widget(form.accepted) }}
+                    {{ form_label(form.accepted) }}
+                </div>
+                <button type="submit">{{ 'welcome.submit'|trans }}</button>
+            {{ form_end(form) }}
+        </section>
+    </div>
 {% endblock %}
